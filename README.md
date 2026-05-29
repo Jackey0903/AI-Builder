@@ -29,6 +29,26 @@ npm run dev
 
 Open the printed localhost URL in Chrome. Web Serial requires Chrome/Edge and a secure context; Vite localhost is valid.
 
+## Test Without Hardware
+
+The app can be tested before the ESP32-S3 and buttons arrive.
+
+1. Run the desktop app:
+
+   ```bash
+   cd desktop-app
+   npm install
+   npm run dev
+   ```
+
+2. Open `http://localhost:5173/` in Chrome or Edge.
+3. In **Sound Library**, choose one of the uploaded samples: `圆号鱼`, `里拉鳐`, `圆号鱼合奏`, `猴麦仔`, or `炫光迪迪`.
+4. Click **Load Preset**.
+5. Play notes with the on-screen keys or keyboard `1-7`.
+6. Click **Generate Melody** to test melody generation with the selected sound.
+
+Current recommendation for testing: start with `圆号鱼`, then compare `里拉鳐`. The uploaded long melody/ensemble files can load, but they are less ideal as the main playable key timbre.
+
 ## MVP Flow
 
 1. Connect ESP32-S3 over USB.
