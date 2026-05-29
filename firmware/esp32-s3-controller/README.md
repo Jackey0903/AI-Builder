@@ -6,6 +6,7 @@ This firmware is the MVP hardware bridge:
 - Sends ASCII events to the desktop app over USB serial.
 - Receives LED commands from the desktop app.
 - Drives a WS2812B LED ring with FastLED.
+- Uses DFRobot Gravity digital big button modules, which output `HIGH` when pressed.
 
 ## Build
 
@@ -24,3 +25,4 @@ If you use Arduino IDE instead, copy `src/main.cpp` into an Arduino sketch and i
 
 See `../../docs/HARDWARE_WIRING.md`.
 
+The current MVP purchase list is `../../DFRobot 完整采购清单.md`.

@@ -15,6 +15,7 @@ This repository turns the original activity concept into a buildable MVP:
 │   └── src/content/             # Sound preset and melody preset metadata
 ├── firmware/esp32-s3-controller # ESP32-S3 Arduino/PlatformIO firmware
 ├── docs/                        # MVP scope, wiring, protocol, implementation notes
+├── DFRobot 完整采购清单.md       # Hardware purchase list for the current MVP
 └── 洛克王国精灵声音 DIY 演奏小乐器.md
 ```
 
@@ -36,6 +37,10 @@ Open the printed localhost URL in Chrome. Web Serial requires Chrome/Edge and a 
 4. Play notes from the physical buttons or on-screen keys.
 5. Press **Generate** to turn the recent 2-8 note motif into a short melody.
 6. The app plays audio while the ESP32-S3 lights the LED ring.
+
+## Hardware Purchase
+
+Use `DFRobot 完整采购清单.md` as the current purchase list. The selected buttons are DFRobot Gravity digital big button modules: 7 yellow note buttons, 1 red record button, and 1 green generate button. These modules output `HIGH` when pressed, and the firmware is configured for high-level button triggering.
 
 ## Team Split
 

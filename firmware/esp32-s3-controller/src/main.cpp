@@ -6,6 +6,7 @@ constexpr uint8_t LED_PIN = 11;
 constexpr uint8_t NUM_LEDS = 16;
 constexpr uint8_t DEFAULT_BRIGHTNESS = 32;
 constexpr uint16_t DEBOUNCE_MS = 28;
+constexpr bool BUTTON_PRESSED_STATE = HIGH;
 
 CRGB leds[NUM_LEDS];
 
@@ -18,15 +19,15 @@ struct ButtonDef {
 };
 
 ButtonDef buttons[] = {
-  {4, "NOTE:C", HIGH, HIGH, 0},
-  {5, "NOTE:D", HIGH, HIGH, 0},
-  {6, "NOTE:E", HIGH, HIGH, 0},
-  {7, "NOTE:F", HIGH, HIGH, 0},
-  {8, "NOTE:G", HIGH, HIGH, 0},
-  {9, "NOTE:A", HIGH, HIGH, 0},
-  {10, "NOTE:B", HIGH, HIGH, 0},
-  {12, "REC", HIGH, HIGH, 0},
-  {13, "GENERATE", HIGH, HIGH, 0},
+  {4, "NOTE:C", LOW, LOW, 0},
+  {5, "NOTE:D", LOW, LOW, 0},
+  {6, "NOTE:E", LOW, LOW, 0},
+  {7, "NOTE:F", LOW, LOW, 0},
+  {8, "NOTE:G", LOW, LOW, 0},
+  {9, "NOTE:A", LOW, LOW, 0},
+  {10, "NOTE:B", LOW, LOW, 0},
+  {12, "REC", LOW, LOW, 0},
+  {13, "GENERATE", LOW, LOW, 0},
 };
 
 String inputLine;
@@ -147,7 +148,7 @@ void scanButtons() {
     if ((now - button.lastChangeMs) > DEBOUNCE_MS && reading != button.stableState) {
       button.stableState = reading;
 
-      if (button.stableState == LOW) {
+      if (button.stableState == BUTTON_PRESSED_STATE) {
         Serial.println(button.message);
 
         String message = String(button.message);
@@ -175,7 +176,7 @@ void setup() {
   Serial.begin(BAUD_RATE);
 
   for (ButtonDef& button : buttons) {
-    pinMode(button.pin, INPUT_PULLUP);
+    pinMode(button.pin, INPUT);
     button.stableState = digitalRead(button.pin);
     button.lastReading = button.stableState;
   }
@@ -193,4 +194,3 @@ void loop() {
   scanButtons();
   idleAnimation();
 }
-
