@@ -1,0 +1,116 @@
+# MVP 分工说明
+
+## 当前框架已经分好的部分
+
+我们把 MVP 拆成两条线：
+
+1. **实现线**：电脑端页面、录音、7 音阶播放、旋律生成、ESP32 串口、按键、灯光。
+2. **内容线**：精灵/角色声音库、预设旋律、声音文件参数。
+
+内容线不需要改硬件固件，也不需要改串口协议。
+
+## 同学可以先做的部分
+
+### 1. 声音文件
+
+放到这个目录：
+
+```text
+desktop-app/public/sounds/
+```
+
+推荐格式：
+
+| 项 | 要求 |
+|---|---|
+| 首选格式 | `.wav` |
+| 可接受格式 | `.mp3`、`.webm`、`.ogg` |
+| 采样率 | 44.1kHz 或 48kHz |
+| 声道 | 单声道优先，双声道也可以 |
+| 长度 | 0.3-1.2 秒最好，最多不要超过 3 秒 |
+| 命名 | 小写英文加短横线，例如 `cat-meow-c4.wav` |
+
+先不要放未经授权的官方游戏音频或扒出来的素材。可以用自己录的声音、授权音效、原创拟声。
+
+### 2. 声音库参数
+
+声音文件加进去以后，到这里登记：
+
+```text
+desktop-app/src/content/soundLibrary.ts
+```
+
+示例：
+
+```ts
+{
+  id: 'cat-meow',
+  name: 'Cat Meow',
+  description: 'Team-recorded short cat voice.',
+  file: '/sounds/cat-meow-c4.wav',
+  baseNote: 'C',
+  trimStartMs: 20,
+  trimEndMs: 780,
+  gain: 0.85,
+  enabled: true,
+  credit: 'Team recording',
+  tags: ['animal', 'bright']
+}
+```
+
+参数口径：
+
+| 参数 | 怎么填 |
+|---|---|
+| `id` | 小写唯一 ID |
+| `name` | 页面显示名 |
+| `file` | `/sounds/文件名.wav` |
+| `baseNote` | 原始声音大概对应哪个音，未知就填 `C` |
+| `trimStartMs` | 从第几毫秒开始截 |
+| `trimEndMs` | 到第几毫秒结束 |
+| `gain` | 音量倍率，通常 `0.6-1.1` |
+| `enabled` | 文件确认存在后改成 `true` |
+| `credit` | 来源说明 |
+
+### 3. 预设旋律
+
+编辑这个文件：
+
+```text
+desktop-app/src/content/presetMelodies.ts
+```
+
+旋律只用这 7 个音：
+
+```text
+C D E F G A B
+```
+
+事件格式：
+
+```ts
+{ note: 'C', durationMs: 240, velocity: 0.95 }
+```
+
+参数口径：
+
+| 参数 | 怎么填 |
+|---|---|
+| `note` | `C/D/E/F/G/A/B` |
+| `durationMs` | 这个音持续多少毫秒 |
+| `velocity` | 力度/音量，`0-1` |
+
+建议每条预设旋律 5-15 秒，适合现场展示。
+
+## 我们这边继续做的部分
+
+- 完成电脑端 MVP 页面。
+- 完成 ESP32-S3 按键和灯环固件。
+- 保持 Web Serial 协议稳定。
+- 做录音采样、音高映射、生成旋律、灯光联动。
+- 保证没有声音库时也能用 fallback tone 演示。
+
+## 对接原则
+
+同学只要按 `sounds/` + `soundLibrary.ts` + `presetMelodies.ts` 这三个位置做内容，我们这边程序就能接。需要新参数时先改这个文档，避免双方命名不一致。
+

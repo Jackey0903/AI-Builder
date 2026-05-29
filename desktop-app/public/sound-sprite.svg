@@ -1,0 +1,19 @@
+<svg width="420" height="420" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Original sound sprite mascot</title>
+  <desc id="desc">A toy-like sound creature made from speaker, waveform, and star shapes.</desc>
+  <rect x="70" y="88" width="280" height="246" rx="46" fill="#FFF8EA" stroke="#221A14" stroke-width="12"/>
+  <path d="M116 124C102 80 130 58 164 82" stroke="#221A14" stroke-width="12" stroke-linecap="round"/>
+  <path d="M304 124C318 80 290 58 256 82" stroke="#221A14" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="155" cy="193" r="30" fill="#20C7C7" stroke="#221A14" stroke-width="10"/>
+  <circle cx="265" cy="193" r="30" fill="#FF5B4D" stroke="#221A14" stroke-width="10"/>
+  <circle cx="165" cy="184" r="8" fill="#FFF8EA"/>
+  <circle cx="275" cy="184" r="8" fill="#FFF8EA"/>
+  <path d="M166 260C188 282 233 282 255 260" stroke="#221A14" stroke-width="12" stroke-linecap="round"/>
+  <path d="M120 314L90 364M300 314L330 364" stroke="#221A14" stroke-width="12" stroke-linecap="round"/>
+  <path d="M138 117L122 94L149 99L164 72L176 101L207 97L185 121" fill="#F2DF3A" stroke="#221A14" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M244 116C272 106 294 108 315 123" stroke="#408CFF" stroke-width="10" stroke-linecap="round"/>
+  <path d="M119 240C91 228 76 210 72 184" stroke="#5FD36A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M348 189C340 207 329 221 312 232" stroke="#AD6CFF" stroke-width="10" stroke-linecap="round"/>
+  <rect x="188" y="300" width="44" height="18" rx="9" fill="#221A14"/>
+</svg>
+
