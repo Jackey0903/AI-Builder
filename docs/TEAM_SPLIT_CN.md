@@ -28,9 +28,11 @@ desktop-app/public/sounds/
 | 采样率 | 44.1kHz 或 48kHz |
 | 声道 | 单声道优先，双声道也可以 |
 | 长度 | 0.3-1.2 秒最好，最多不要超过 3 秒 |
-| 命名 | 小写英文加短横线，例如 `cat-meow-c4.wav` |
+| 命名 | 小写英文加短横线，例如 `cat-meow-c4.wav`；程序里登记的路径尽量用英文文件名 |
 
 先不要放未经授权的官方游戏音频或扒出来的素材。可以用自己录的声音、授权音效、原创拟声。
+
+如果要做一个“圆号鱼音色”，优先录多个短的单音节采样，例如低音层、中音层、高音层。这样电脑端弹奏时会先选最接近目标音高的采样，再做小幅变调，比拿一个长样本硬拉全音阶更干净。
 
 ### 2. 声音库参数
 
@@ -58,6 +60,51 @@ desktop-app/src/content/soundLibrary.ts
 }
 ```
 
+如果同一个角色有低/中/高几条单音节采样，可以登记成多采样版本：
+
+```ts
+{
+  id: 'yuanhaoyu-multisample',
+  name: '圆号鱼多采样',
+  description: 'Low/mid/high sample layers for one timbre.',
+  samples: [
+    {
+      id: 'low',
+      name: '低音层',
+      file: '/sounds/yuanhaoyu-voice-low.wav',
+      baseNote: 'C',
+      trimStartMs: 0,
+      trimEndMs: 235,
+      gain: 1.18,
+      role: 'low'
+    },
+    {
+      id: 'mid',
+      name: '中音层',
+      file: '/sounds/yuanhaoyu-voice-mid.wav',
+      baseNote: 'E',
+      trimStartMs: 0,
+      trimEndMs: 277,
+      gain: 1.12,
+      role: 'mid'
+    },
+    {
+      id: 'high',
+      name: '高音层',
+      file: '/sounds/yuanhaoyu-voice-high.wav',
+      baseNote: 'A',
+      trimStartMs: 0,
+      trimEndMs: 405,
+      gain: 1.08,
+      role: 'high'
+    }
+  ],
+  enabled: true,
+  credit: 'Team recording',
+  tags: ['character', 'multi-sample', 'recommended']
+}
+```
+
 参数口径：
 
 | 参数 | 怎么填 |
@@ -69,8 +116,11 @@ desktop-app/src/content/soundLibrary.ts
 | `trimStartMs` | 从第几毫秒开始截 |
 | `trimEndMs` | 到第几毫秒结束 |
 | `gain` | 音量倍率，通常 `0.6-1.1` |
+| `samples` | 多采样数组；有低/中/高采样时优先用它，不用再填顶层 `file` |
 | `enabled` | 文件确认存在后改成 `true` |
 | `credit` | 来源说明 |
+
+现在页面里有 `Key Root`，可以在硬件没到之前直接切 C/D/E/F/G/A/B，对比哪个调听起来最贴合这组发音。
 
 ### 3. 预设旋律
 
@@ -113,4 +163,3 @@ C D E F G A B
 ## 对接原则
 
 同学只要按 `sounds/` + `soundLibrary.ts` + `presetMelodies.ts` 这三个位置做内容，我们这边程序就能接。需要新参数时先改这个文档，避免双方命名不一致。
-

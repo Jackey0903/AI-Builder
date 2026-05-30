@@ -19,13 +19,15 @@ Hardware is optional for testing the uploaded sounds.
 2. Open `http://localhost:5173/`.
 3. Select a sound in **Sound Library**.
 4. Click **Load Preset**.
-5. Use on-screen keys or keyboard `1-7` to play notes.
-6. Use **Generate Melody** to test a short generated melody.
+5. Use **Key Root** to compare which root fits the sample best.
+6. Use on-screen keys or keyboard `1-7` to play notes.
+7. Use **Generate Melody** to test a short generated melody.
 
 Recommended order:
 
 | Sound | Use |
 |---|---|
+| `圆号鱼多采样` | First choice for current main demo; low/mid/high single-syllable layers reduce pitch-shift artifacts |
 | `圆号鱼发音4` | First choice for main playable timbre; clean single syllable |
 | `圆号鱼发音2` | Good comparison; clean single syllable with lower pitch |
 | `圆号鱼发音5低音` | Low-labelled comparison sample |

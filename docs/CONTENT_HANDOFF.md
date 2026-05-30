@@ -20,7 +20,7 @@ Recommended file format:
 | Sample rate | 44.1kHz or 48kHz |
 | Channels | Mono preferred, stereo accepted |
 | Length | 0.3s-1.2s ideal, 3s maximum |
-| Filename | lowercase kebab-case, for example `cat-meow-c4.wav` |
+| Filename | lowercase kebab-case, for example `cat-meow-c4.wav`; keep the registered app path ASCII when possible |
 | Rights | Team-owned, user-recorded, or explicitly authorized only |
 
 ### 2. Sound Preset Metadata
@@ -31,7 +31,7 @@ Register files in:
 desktop-app/src/content/soundLibrary.ts
 ```
 
-Parameter contract:
+Single-sample parameter contract:
 
 | Parameter | Type | Meaning |
 |---|---|---|
@@ -46,6 +46,64 @@ Parameter contract:
 | `enabled` | boolean | Set true only after the file exists |
 | `credit` | string | Source/permission note |
 | `tags` | string[] | Optional search/group labels |
+
+For one character/timbre, a multi-sample preset is preferred when you have low/mid/high short syllables. The app will pick the closest layer for the requested note/root before pitch shifting, which reduces the double-syllable and compressed-sound effect.
+
+```ts
+{
+  id: 'yuanhaoyu-multisample',
+  name: '圆号鱼多采样',
+  description: 'Low/mid/high sample layers for one timbre.',
+  samples: [
+    {
+      id: 'low',
+      name: '低音层',
+      file: '/sounds/yuanhaoyu-voice-low.wav',
+      baseNote: 'C',
+      trimStartMs: 0,
+      trimEndMs: 235,
+      gain: 1.18,
+      role: 'low'
+    },
+    {
+      id: 'mid',
+      name: '中音层',
+      file: '/sounds/yuanhaoyu-voice-mid.wav',
+      baseNote: 'E',
+      trimStartMs: 0,
+      trimEndMs: 277,
+      gain: 1.12,
+      role: 'mid'
+    },
+    {
+      id: 'high',
+      name: '高音层',
+      file: '/sounds/yuanhaoyu-voice-high.wav',
+      baseNote: 'A',
+      trimStartMs: 0,
+      trimEndMs: 405,
+      gain: 1.08,
+      role: 'high'
+    }
+  ],
+  enabled: true,
+  credit: 'Team recording',
+  tags: ['character', 'multi-sample', 'recommended']
+}
+```
+
+Multi-sample layer contract:
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `id` | string | Stable layer id, such as `low`, `mid`, `high` |
+| `name` | string | Display/debug name |
+| `file` | string | Browser path, usually `/sounds/name.wav` |
+| `baseNote` | `C/D/E/F/G/A/B` | The nearest pitch of this sample; use listening/tuner judgement |
+| `trimStartMs` | number | Optional manual start trim |
+| `trimEndMs` | number | Optional manual end trim |
+| `gain` | number | Optional volume multiplier |
+| `role` | `low/mid/high/single/phrase` | Human-readable layer role |
 
 ### 3. Preset Melodies
 
@@ -77,4 +135,3 @@ Recommended phrase length for demo presets: 5-15 seconds.
 ## Integration Rule
 
 Content can be added without changing the hardware firmware or serial protocol. If a new content parameter is needed, add it to this document first so both sides use the same language.
-

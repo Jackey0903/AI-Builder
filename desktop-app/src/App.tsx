@@ -1,4 +1,18 @@
-import { Cable, CircleStop, Cpu, Library, ListMusic, Mic, Music2, Play, RadioTower, Sparkles, Waves, Zap } from 'lucide-react';
+import {
+  Cable,
+  CircleStop,
+  Cpu,
+  Library,
+  ListMusic,
+  Mic,
+  Music2,
+  Play,
+  RadioTower,
+  SlidersHorizontal,
+  Sparkles,
+  Waves,
+  Zap
+} from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AudioEngine, noteColor } from './audio/audioEngine';
 import { generateMelody, melodyDuration } from './audio/melody';
@@ -31,6 +45,7 @@ function App() {
   const [melody, setMelody] = useState<MelodyEvent[]>([]);
   const [selectedSoundPresetId, setSelectedSoundPresetId] = useState(firstSoundPresetId);
   const [selectedPresetMelodyId, setSelectedPresetMelodyId] = useState(firstPresetMelodyId);
+  const [scaleRoot, setScaleRoot] = useState<Note>('C');
   const [serialLog, setSerialLog] = useState<SerialLine[]>([
     { direction: 'system', message: 'desktop app started', at: Date.now() }
   ]);
@@ -51,8 +66,8 @@ function App() {
     async (note: Note, options: { captureMotif?: boolean; durationMs?: number; velocity?: number } = {}) => {
       const { captureMotif = true, durationMs = 520, velocity = 1 } = options;
       setActiveNote(note);
-      setStatus(`${noteByName.get(note)?.solfege ?? note} triggered`);
-      await audioEngine.playNote(note, durationMs, velocity);
+      setStatus(`${noteByName.get(note)?.solfege ?? note} triggered in ${scaleRoot}`);
+      await audioEngine.playNote(note, durationMs, velocity, scaleRoot);
       sendHardware(`LED:NOTE:${note}`);
 
       if (captureMotif) {
@@ -63,7 +78,7 @@ function App() {
         setActiveNote((current) => (current === note ? null : current));
       }, Math.min(durationMs, 540));
     },
-    [audioEngine, sendHardware]
+    [audioEngine, scaleRoot, sendHardware]
   );
 
   const playGeneratedMelody = useCallback(
@@ -118,14 +133,22 @@ function App() {
     }
 
     try {
-      await audioEngine.loadSampleFromUrl(preset.file, {
-        baseNote: preset.baseNote,
-        trimStartMs: preset.trimStartMs,
-        trimEndMs: preset.trimEndMs,
-        gain: preset.gain
-      });
+      setStatus(`Loading preset: ${preset.name}`);
+      if (preset.samples?.length) {
+        await audioEngine.loadSampleSet(preset.samples);
+      } else if (preset.file && preset.baseNote) {
+        await audioEngine.loadSampleFromUrl(preset.file, {
+          baseNote: preset.baseNote,
+          trimStartMs: preset.trimStartMs,
+          trimEndMs: preset.trimEndMs,
+          gain: preset.gain
+        });
+      } else {
+        throw new Error(`Sound preset has no playable sample: ${preset.name}`);
+      }
+
       setSampleReady(true);
-      setStatus(`Loaded preset: ${preset.name}`);
+      setStatus(`Loaded preset: ${preset.name}${preset.samples?.length ? ` (${preset.samples.length} layers)` : ''}`);
       sendHardware('LED:RAINBOW');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Failed to load preset sound.');
@@ -314,7 +337,7 @@ function App() {
                 <option>No enabled presets</option>
               )}
             </select>
-            <button type="button" className="small-action" onClick={() => void loadSelectedSoundPreset()} disabled={!enabledSoundPresets.length}>
+            <button type="button" className="small-action" onClick={loadSelectedSoundPreset} disabled={!enabledSoundPresets.length}>
               Load Preset
             </button>
           </div>
@@ -423,6 +446,20 @@ function App() {
           ))}
         </div>
 
+        <label className="tuning-picker">
+          <span>
+            <SlidersHorizontal size={16} />
+            Key Root
+          </span>
+          <select value={scaleRoot} onChange={(event) => setScaleRoot(event.target.value as Note)}>
+            {NOTES.map((definition) => (
+              <option key={definition.note} value={definition.note}>
+                {definition.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <div className="preset-picker">
           <select value={selectedPresetMelodyId} onChange={(event) => setSelectedPresetMelodyId(event.target.value)}>
             {PRESET_MELODIES.map((preset) => (
@@ -450,7 +487,11 @@ function App() {
         </div>
         <div>
           <Music2 size={18} />
-          <span>{melody.length ? `${melody.length} notes / ${Math.round(melodyDuration(melody) / 1000)}s` : 'No melody generated yet'}</span>
+          <span>
+            {melody.length
+              ? `${melody.length} notes / ${Math.round(melodyDuration(melody) / 1000)}s / ${scaleRoot} root`
+              : `No melody generated yet / ${scaleRoot} root`}
+          </span>
         </div>
         <div>
           <Play size={18} />

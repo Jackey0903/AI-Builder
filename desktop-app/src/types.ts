@@ -18,15 +18,27 @@ export interface MelodyEvent {
   velocity: number;
 }
 
-export interface SoundPreset {
+export interface SoundSampleLayer {
   id: string;
   name: string;
-  description: string;
   file: string;
   baseNote: Note;
   trimStartMs?: number;
   trimEndMs?: number;
   gain?: number;
+  role?: 'low' | 'mid' | 'high' | 'single' | 'phrase';
+}
+
+export interface SoundPreset {
+  id: string;
+  name: string;
+  description: string;
+  file?: string;
+  baseNote?: Note;
+  trimStartMs?: number;
+  trimEndMs?: number;
+  gain?: number;
+  samples?: SoundSampleLayer[];
   enabled: boolean;
   credit: string;
   tags: string[];

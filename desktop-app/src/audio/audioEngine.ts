@@ -1,20 +1,35 @@
 import { NOTES, noteByName } from '../data/notes';
-import type { Note } from '../types';
+import type { Note, SoundSampleLayer } from '../types';
 
 const MASTER_GAIN = 0.82;
 
 export interface SampleOptions {
+  id?: string;
+  name?: string;
   baseNote?: Note;
   trimStartMs?: number;
   trimEndMs?: number;
   gain?: number;
+  role?: SoundSampleLayer['role'];
+}
+
+interface LoadedSampleLayer {
+  id: string;
+  name: string;
+  buffer: AudioBuffer;
+  baseNote: Note;
+  gain: number;
+  role?: SoundSampleLayer['role'];
+}
+
+interface SelectedSampleLayer {
+  sample: LoadedSampleLayer;
+  baseSemitone: number;
 }
 
 export class AudioEngine {
   private context: AudioContext | null = null;
-  private baseSample: AudioBuffer | null = null;
-  private baseNote: Note = 'C';
-  private sampleGain = 1;
+  private sampleLayers: LoadedSampleLayer[] = [];
 
   async ensureContext() {
     if (!this.context) {
@@ -22,24 +37,34 @@ export class AudioEngine {
     }
 
     if (this.context.state === 'suspended') {
-      await this.context.resume();
+      await Promise.race([
+        this.context.resume().catch(() => undefined),
+        new Promise((resolve) => window.setTimeout(resolve, 250))
+      ]);
     }
 
     return this.context;
   }
 
   hasSample() {
-    return Boolean(this.baseSample);
+    return this.sampleLayers.length > 0;
   }
 
   async setSample(blob: Blob, options: SampleOptions = {}) {
     const context = await this.ensureContext();
     const arrayBuffer = await blob.arrayBuffer();
-    const decoded = await context.decodeAudioData(arrayBuffer.slice(0));
+    const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
     const autoTrimmed = this.trimBuffer(decoded, 0.015);
-    this.baseSample = this.cropBuffer(autoTrimmed, options.trimStartMs, options.trimEndMs);
-    this.baseNote = options.baseNote ?? 'C';
-    this.sampleGain = options.gain ?? 1;
+    this.sampleLayers = [
+      {
+        id: options.id ?? 'recorded',
+        name: options.name ?? 'Recorded Sample',
+        buffer: this.cropBuffer(autoTrimmed, options.trimStartMs, options.trimEndMs),
+        baseNote: options.baseNote ?? 'C',
+        gain: options.gain ?? 1,
+        role: options.role ?? 'single'
+      }
+    ];
   }
 
   async loadSampleFromUrl(url: string, options: SampleOptions = {}) {
@@ -51,28 +76,59 @@ export class AudioEngine {
     await this.setSample(await response.blob(), options);
   }
 
-  getSampleDuration() {
-    return this.baseSample?.duration ?? 0;
+  async loadSampleSet(samples: SoundSampleLayer[]) {
+    const context = await this.ensureContext();
+    const loaded: LoadedSampleLayer[] = [];
+
+    for (const sample of samples) {
+      const response = await fetch(sample.file);
+      if (!response.ok) {
+        throw new Error(`Could not load sample: ${sample.file}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
+      const autoTrimmed = this.trimBuffer(decoded, 0.015);
+
+      loaded.push({
+        id: sample.id,
+        name: sample.name,
+        buffer: this.cropBuffer(autoTrimmed, sample.trimStartMs, sample.trimEndMs),
+        baseNote: sample.baseNote,
+        gain: sample.gain ?? 1,
+        role: sample.role
+      });
+    }
+
+    this.sampleLayers = loaded;
   }
 
-  async playNote(note: Note, durationMs = 520, velocity = 1) {
+  getSampleDuration() {
+    return Math.max(0, ...this.sampleLayers.map((sample) => sample.buffer.duration));
+  }
+
+  async playNote(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C') {
     const context = await this.ensureContext();
     const definition = noteByName.get(note);
 
     if (!definition) return;
 
-    if (!this.baseSample) {
-      this.playFallbackTone(context, definition.frequency, durationMs, velocity);
+    const rootDefinition = noteByName.get(scaleRoot) ?? noteByName.get('C')!;
+    const targetSemitone = definition.semitoneOffset + rootDefinition.semitoneOffset;
+
+    if (!this.sampleLayers.length) {
+      this.playFallbackTone(context, 261.63 * Math.pow(2, targetSemitone / 12), durationMs, velocity);
       return;
     }
+
+    const selectedLayer = this.pickClosestSample(targetSemitone);
+    const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
 
     const source = context.createBufferSource();
     const gain = context.createGain();
     const filter = context.createBiquadFilter();
-    const baseDefinition = noteByName.get(this.baseNote) ?? noteByName.get('C')!;
-    const ratio = Math.pow(2, (definition.semitoneOffset - baseDefinition.semitoneOffset) / 12);
 
-    source.buffer = this.baseSample;
+    source.buffer = selectedLayer.sample.buffer;
     source.playbackRate.value = ratio;
 
     filter.type = 'lowpass';
@@ -82,10 +138,11 @@ export class AudioEngine {
     const now = context.currentTime;
     const attack = 0.012;
     const release = 0.12;
-    const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, this.baseSample.duration / ratio));
+    const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
+    const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, naturalDuration));
 
     gain.gain.setValueAtTime(0.0001, now);
-    const targetGain = MASTER_GAIN * velocity * this.sampleGain;
+    const targetGain = MASTER_GAIN * velocity * selectedLayer.sample.gain;
     gain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
     gain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - release));
     gain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
@@ -132,6 +189,30 @@ export class AudioEngine {
     gain.connect(context.destination);
     oscillator.start(now);
     oscillator.stop(now + durationSeconds + 0.02);
+  }
+
+  private pickClosestSample(targetSemitone: number): SelectedSampleLayer {
+    return this.sampleLayers.reduce<SelectedSampleLayer>((best, sample) => {
+      const baseSemitone = this.closestBaseSemitone(sample, targetSemitone);
+      const currentDistance = Math.abs(targetSemitone - baseSemitone);
+      const bestDistance = Math.abs(targetSemitone - best.baseSemitone);
+      return currentDistance < bestDistance ? { sample, baseSemitone } : best;
+    }, {
+      sample: this.sampleLayers[0],
+      baseSemitone: this.closestBaseSemitone(this.sampleLayers[0], targetSemitone)
+    });
+  }
+
+  private closestBaseSemitone(sample: LoadedSampleLayer, targetSemitone: number) {
+    const baseDefinition = noteByName.get(sample.baseNote) ?? noteByName.get('C')!;
+    const octaveOffset = Math.round((targetSemitone - baseDefinition.semitoneOffset) / 12) * 12;
+    return baseDefinition.semitoneOffset + octaveOffset;
+  }
+
+  private decodeArrayBuffer(context: AudioContext, arrayBuffer: ArrayBuffer) {
+    return new Promise<AudioBuffer>((resolve, reject) => {
+      context.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
+    });
   }
 
   private trimBuffer(buffer: AudioBuffer, threshold: number) {

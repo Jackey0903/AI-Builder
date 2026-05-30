@@ -12,10 +12,50 @@ export const SOUND_FILE_REQUIREMENTS = {
 
 export const SOUND_PRESETS: SoundPreset[] = [
   {
+    id: 'yuanhaoyu-multisample',
+    name: '圆号鱼多采样',
+    description: 'Low/mid/high sample layers for one timbre. The player automatically picks the closest layer to reduce pitch-shift artifacts.',
+    samples: [
+      {
+        id: 'low',
+        name: '低音层',
+        file: '/sounds/yuanhaoyu-voice-low.wav',
+        baseNote: 'C',
+        trimStartMs: 0,
+        trimEndMs: 235,
+        gain: 1.18,
+        role: 'low'
+      },
+      {
+        id: 'mid',
+        name: '中音层',
+        file: '/sounds/yuanhaoyu-voice-mid.wav',
+        baseNote: 'E',
+        trimStartMs: 0,
+        trimEndMs: 277,
+        gain: 1.12,
+        role: 'mid'
+      },
+      {
+        id: 'high',
+        name: '高音层',
+        file: '/sounds/yuanhaoyu-voice-high.wav',
+        baseNote: 'A',
+        trimStartMs: 0,
+        trimEndMs: 405,
+        gain: 1.08,
+        role: 'high'
+      }
+    ],
+    enabled: true,
+    credit: 'Team uploaded low/mid/high single-syllable samples; confirm usage rights before public release.',
+    tags: ['character', 'multi-sample', 'recommended']
+  },
+  {
     id: 'yuanhaoyu-voice-4',
     name: '圆号鱼发音4',
     description: 'Best current single-syllable candidate: one clean attack, short duration, strong level.',
-    file: '/sounds/圆号鱼发音/圆号鱼4.wav',
+    file: '/sounds/yuanhaoyu-voice-high.wav',
     baseNote: 'C',
     trimStartMs: 0,
     trimEndMs: 405,
@@ -28,7 +68,7 @@ export const SOUND_PRESETS: SoundPreset[] = [
     id: 'yuanhaoyu-voice-2',
     name: '圆号鱼发音2',
     description: 'Clean single-syllable sample with lower pitch; useful for comparison.',
-    file: '/sounds/圆号鱼发音/圆号鱼2.wav',
+    file: '/sounds/yuanhaoyu-voice-mid.wav',
     baseNote: 'C',
     trimStartMs: 0,
     trimEndMs: 277,
@@ -41,7 +81,7 @@ export const SOUND_PRESETS: SoundPreset[] = [
     id: 'yuanhaoyu-voice-low',
     name: '圆号鱼发音5低音',
     description: 'Short low-voice-labelled sample. Good comparison for a lower character timbre.',
-    file: '/sounds/圆号鱼发音/圆号鱼5（低音）.wav',
+    file: '/sounds/yuanhaoyu-voice-low.wav',
     baseNote: 'C',
     trimStartMs: 0,
     trimEndMs: 235,

@@ -164,6 +164,7 @@ h2 {
 .generate-action,
 .icon-action,
 .small-action,
+.tuning-picker,
 .style-switcher button {
   display: inline-flex;
   align-items: center;
@@ -470,7 +471,7 @@ select:disabled {
 
 .composer-strip {
   display: grid;
-  grid-template-columns: 1.2fr 0.9fr 0.85fr auto;
+  grid-template-columns: 1.15fr 0.9fr minmax(118px, 0.35fr) 0.85fr auto;
   align-items: center;
   gap: 16px;
   margin-top: 18px;
@@ -509,6 +510,35 @@ select:disabled {
 
 .style-switcher button.selected {
   background: var(--yellow);
+}
+
+.tuning-picker {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-height: 58px;
+  padding: 8px;
+  background: #ffffff;
+  cursor: default;
+}
+
+.tuning-picker span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(34, 26, 20, 0.66);
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.tuning-picker select {
+  min-height: 28px;
+  padding: 0 8px;
+  border-width: 0;
+  background: #fbe3a7;
+  font-size: 0.9rem;
 }
 
 .preset-picker {
