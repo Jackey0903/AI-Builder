@@ -26,8 +26,11 @@ Recommended order:
 
 | Sound | Use |
 |---|---|
-| `圆号鱼` | First choice for main playable timbre |
-| `里拉鳐` | Second choice, sharper and distinctive |
+| `圆号鱼发音4` | First choice for main playable timbre; clean single syllable |
+| `圆号鱼发音2` | Good comparison; clean single syllable with lower pitch |
+| `圆号鱼发音5低音` | Low-labelled comparison sample |
+| `圆号鱼` | Older long sample; can sound like multiple syllables |
+| `里拉鳐` | Sharp and distinctive comparison |
 | `圆号鱼合奏` | Comparison only; more like a phrase/ensemble |
 | `猴麦仔` | Comparison only; long source file |
 | `炫光迪迪` | Comparison only; long and loud source file |
