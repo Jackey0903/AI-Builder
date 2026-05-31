@@ -159,9 +159,10 @@ export class AudioEngine {
 
   /**
    * Legato 连奏模式：
-   * - attack 极短（3ms），前后音符 crossfade 无缝衔接
-   * - 长节拍用 granular synthesis 拉伸：音头只播一次，稳定中段切成交叠粒子填满时长
-   *   不会出现"重复音节"感，类似采样拉伸效果
+   * - attack 极短（3ms），前后音符 80ms crossfade 无缝衔接
+   * - 长节拍通过降低 playbackRate 放慢采样实现时长拉伸，同时用 detune 补偿音高：
+   *     effectiveRate = playbackRate × 2^(detune/1200) = ratio（音高不变）
+   *     playTime = buffer.duration / (ratio × stretchFactor) = sustainSeconds（时长正确）
    */
   async playNoteLegato(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C') {
     const context = await this.ensureContext();
@@ -181,59 +182,47 @@ export class AudioEngine {
     const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
 
     const buf = selectedLayer.sample.buffer;
-    const bufDur = buf.duration;          // 采样实际时长（秒）
-    const naturalDuration = bufDur / ratio; // 按目标音高播完整采样需要的时间
+    const naturalDuration = buf.duration / ratio; // 按目标音高正常播放的时长
 
     const now = context.currentTime;
     const attack = 0.003;
     const crossfade = 0.080;
     const sustainSeconds = Math.max(durationMs / 1000, 0.05);
-    const targetGain = MASTER_GAIN * velocity * selectedLayer.sample.gain;
 
-    // 共用的 filter → 主 gain 节点（整体包络在此控制）
+    // stretchFactor < 1 → 放慢播放，拉伸时长
+    // 最多拉伸 4 倍，避免过度降速音质太差
+    const stretchFactor = naturalDuration < sustainSeconds
+      ? Math.max(naturalDuration / sustainSeconds, 0.25)
+      : 1;
+
+    const source = context.createBufferSource();
+    const gain   = context.createGain();
     const filter = context.createBiquadFilter();
+
+    source.buffer = buf;
+    // 降速：音高会降低
+    source.playbackRate.value = ratio * stretchFactor;
+    // detune 补偿：把音高拉回来，单位 cents
+    // 2^(detune/1200) = 1/stretchFactor → detune = -1200 × log2(stretchFactor)
+    source.detune.value = stretchFactor < 1
+      ? -1200 * Math.log2(stretchFactor)
+      : 0;
+
     filter.type = 'lowpass';
     filter.frequency.value = 6800;
     filter.Q.value = 0.2;
 
-    const masterGain = context.createGain();
-    masterGain.gain.setValueAtTime(0.0001, now);
-    masterGain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
-    masterGain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - crossfade));
-    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
+    const targetGain = MASTER_GAIN * velocity * selectedLayer.sample.gain;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
+    gain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - crossfade));
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
 
-    filter.connect(masterGain);
-    masterGain.connect(context.destination);
-
-    const scheduleGrain = (startInCtx: number, offsetInBuf: number, dur: number) => {
-      const src = context.createBufferSource();
-      src.buffer = buf;
-      src.playbackRate.value = ratio;
-      src.connect(filter);
-      src.start(startInCtx, offsetInBuf);
-      src.stop(startInCtx + dur + 0.01);
-    };
-
-    // ── 第一粒：从头播完整采样（保留原始音头） ──
-    scheduleGrain(now, 0, naturalDuration);
-
-    if (naturalDuration < sustainSeconds - crossfade) {
-      // 稳定中段：跳过音头 20% 和尾部 10%，取中间 70% 做粒子拉伸
-      const bodyOffsetInBuf = bufDur * 0.20;
-      const bodyEndInBuf   = bufDur * 0.90;
-      const bodyDurInBuf   = bodyEndInBuf - bodyOffsetInBuf;           // buffer 时间（秒）
-      const bodyDurInCtx   = bodyDurInBuf / ratio;                     // 实际播放时间
-      // 相邻粒子重叠 30%，淡入淡出由 masterGain 统一包络处理，不单独加粒子 envelope
-      const grainOverlap   = bodyDurInCtx * 0.30;
-      const grainStep      = bodyDurInCtx - grainOverlap;
-
-      // 第一粒结束前 grainOverlap 秒启动第二粒，后续以 grainStep 递进
-      let grainCtxTime = naturalDuration - grainOverlap;
-      while (grainCtxTime < sustainSeconds - crossfade) {
-        scheduleGrain(now + grainCtxTime, bodyOffsetInBuf, bodyDurInCtx);
-        grainCtxTime += grainStep;
-      }
-    }
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(context.destination);
+    source.start(now);
+    source.stop(now + sustainSeconds + 0.01);
   }
 
   async playClick() {
