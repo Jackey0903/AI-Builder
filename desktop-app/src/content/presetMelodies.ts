@@ -239,77 +239,94 @@ export const PRESET_MELODIES: PresetMelody[] = [
   {
     id: 'mixue-theme',
     name: '蜜雪冰城',
-    description: '蜜雪冰城主题曲，1=C 大调，120BPM，欢快活泼。AABA 结构：A段八分音符律动，B段四分音符舒展。',
+    // 1=D，♩=100（四分=600ms）
+    // 八分=300ms  附点八分=450ms  十六分=150ms  四分=600ms  附点四分=900ms  二分=1200ms
+    // 音级映射（root:'D'）：1→C  2→D  3→E  4→F  5→G  6→A  7→B
+    description: '蜜雪冰城主题曲，1=D 大调，100BPM，欢快活泼。AABA 结构，附点节奏律动。',
     style: 'bright',
+    root: 'D',
     events: [
-      // ══════════════════════════════════════════════
-      // 行1 A段（第一遍）：3 5 5 6 5 3 1 | 1 2 3 3 2 1 2
-      // 你爱我我爱你蜜 | 雪冰城甜蜜蜜蜜
-      // ══════════════════════════════════════════════
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3 你
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5 爱
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5 我
-      { note: 'A', durationMs: 250, velocity: 0.90 }, // 6 我
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5 爱
-      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3 你
-      { note: 'C', durationMs: 500, velocity: 0.80 }, // 1 蜜-
-      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1 雪
-      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2 冰
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3 城
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3 甜
-      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2 蜜
-      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1 蜜
-      { note: 'D', durationMs: 500, velocity: 0.78 }, // 2 蜜-
+      // ══════════════════════════════════════════════════════
+      // 行1 A段（第一遍）小节1：3̲ 5̲  5̲·6̲̲  5̲3̲  1̲1̲    （4/4=2400ms）
+      //   你  爱  我(melisma)   我  爱  你  蜜
+      // ══════════════════════════════════════════════════════
+      { note: 'E', durationMs: 300, velocity: 0.85 }, // 3̲ 你
+      { note: 'G', durationMs: 300, velocity: 0.85 }, // 5̲ 爱
+      { note: 'G', durationMs: 450, velocity: 0.88 }, // 5̲· 我（附点八分）
+      { note: 'A', durationMs: 150, velocity: 0.82 }, // 6̲̲ 我（十六分，滑音尾）
+      { note: 'G', durationMs: 300, velocity: 0.85 }, // 5̲ 我
+      { note: 'E', durationMs: 300, velocity: 0.82 }, // 3̲ 爱
+      { note: 'C', durationMs: 300, velocity: 0.80 }, // 1̲ 你
+      { note: 'C', durationMs: 300, velocity: 0.78 }, // 1̲ 蜜
 
-      // ══════════════════════════════════════════════
-      // 行2 A段（第二遍）：3 5 5 6 5 3 1 | 1 2 3 3 2 2 1
-      // 结尾变为 2 2 1
-      // ══════════════════════════════════════════════
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'A', durationMs: 250, velocity: 0.90 }, // 6
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3
-      { note: 'C', durationMs: 500, velocity: 0.80 }, // 1-
-      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1
-      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
-      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
-      { note: 'D', durationMs: 250, velocity: 0.80 }, // 2
-      { note: 'C', durationMs: 500, velocity: 0.85 }, // 1-
+      // 行1 A段（第一遍）小节2：2̲  3̲3̲  2̲1̲  2̲-      （2400ms）
+      //   雪  冰  城  甜  蜜  蜜～
+      { note: 'D', durationMs: 300, velocity: 0.80 }, // 2̲ 雪
+      { note: 'E', durationMs: 300, velocity: 0.83 }, // 3̲ 冰
+      { note: 'E', durationMs: 300, velocity: 0.83 }, // 3̲ 城
+      { note: 'D', durationMs: 300, velocity: 0.80 }, // 2̲ 甜
+      { note: 'C', durationMs: 300, velocity: 0.78 }, // 1̲ 蜜
+      { note: 'D', durationMs: 900, velocity: 0.75 }, // 2̲- 蜜～（附点四分）
 
-      // ══════════════════════════════════════════════
-      // 行3 B段：4 4 4 6 | 5 5 3 2
-      // 四分音符舒展，节拍宽松
-      // ══════════════════════════════════════════════
-      { note: 'F', durationMs: 500, velocity: 0.88 }, // 4
-      { note: 'F', durationMs: 250, velocity: 0.85 }, // 4
-      { note: 'F', durationMs: 250, velocity: 0.85 }, // 4
-      { note: 'A', durationMs: 500, velocity: 0.90 }, // 6-
-      { note: 'G', durationMs: 500, velocity: 0.88 }, // 5
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'E', durationMs: 250, velocity: 0.82 }, // 3
-      { note: 'D', durationMs: 500, velocity: 0.80 }, // 2-
+      // ══════════════════════════════════════════════════════
+      // 行2 A段（第二遍）小节3：同小节1      （2400ms）
+      //   你  爱  我(melisma)   我  爱  你  蜜
+      // ══════════════════════════════════════════════════════
+      { note: 'E', durationMs: 300, velocity: 0.85 }, // 3̲ 你
+      { note: 'G', durationMs: 300, velocity: 0.85 }, // 5̲ 爱
+      { note: 'G', durationMs: 450, velocity: 0.88 }, // 5̲· 我
+      { note: 'A', durationMs: 150, velocity: 0.82 }, // 6̲̲ 我
+      { note: 'G', durationMs: 300, velocity: 0.85 }, // 5̲ 我
+      { note: 'E', durationMs: 300, velocity: 0.82 }, // 3̲ 爱
+      { note: 'C', durationMs: 300, velocity: 0.80 }, // 1̲ 你
+      { note: 'C', durationMs: 300, velocity: 0.78 }, // 1̲ 蜜
 
-      // ══════════════════════════════════════════════
-      // 行4 A段（第三遍，结尾加长）：3 5 5 6 5 3 1 | 1 2 3 3 2 2 1
-      // ══════════════════════════════════════════════
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'A', durationMs: 250, velocity: 0.90 }, // 6
-      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
-      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3
-      { note: 'C', durationMs: 500, velocity: 0.80 }, // 1-
-      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1
-      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
-      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
-      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
-      { note: 'D', durationMs: 250, velocity: 0.80 }, // 2
-      { note: 'C', durationMs: 900, velocity: 0.92 }, // 1-- 结束音拉长
+      // 行2 A段（第二遍）小节4：2̲  3̲3̲  2̲2̲  1̲-      （2400ms）
+      //   雪  冰  城  甜  蜜  蜜～  ← 结尾改落主音 1
+      { note: 'D', durationMs: 300, velocity: 0.80 }, // 2̲ 雪
+      { note: 'E', durationMs: 300, velocity: 0.83 }, // 3̲ 冰
+      { note: 'E', durationMs: 300, velocity: 0.83 }, // 3̲ 城
+      { note: 'D', durationMs: 300, velocity: 0.80 }, // 2̲ 甜
+      { note: 'D', durationMs: 300, velocity: 0.78 }, // 2̲ 蜜
+      { note: 'C', durationMs: 900, velocity: 0.85 }, // 1̲- 蜜～（附点四分，落主音）
+
+      // ══════════════════════════════════════════════════════
+      // 行3 B段 小节5：4  4  4̲  6·          （2400ms）
+      //   你  爱  我  呀～～
+      // ══════════════════════════════════════════════════════
+      { note: 'F', durationMs: 600, velocity: 0.88 }, // 4  你（四分）
+      { note: 'F', durationMs: 600, velocity: 0.88 }, // 4  爱（四分）
+      { note: 'F', durationMs: 300, velocity: 0.85 }, // 4̲ 我（八分）
+      { note: 'A', durationMs: 900, velocity: 0.90 }, // 6· 呀～（附点四分）
+
+      // 行3 B段 小节6：5  5̲3̲  2-            （2400ms）
+      //   我  爱  你  你～
+      { note: 'G', durationMs: 600, velocity: 0.90 }, // 5  我（四分）
+      { note: 'G', durationMs: 300, velocity: 0.87 }, // 5̲ 爱（八分）
+      { note: 'E', durationMs: 300, velocity: 0.84 }, // 3̲ 你（八分）
+      { note: 'D', durationMs: 1200, velocity: 0.82 }, // 2- 你～（二分）
+
+      // ══════════════════════════════════════════════════════
+      // 行4 A段（第三遍）小节7：同小节1      （2400ms）
+      //   你  爱  我(melisma)   我  爱  你  蜜
+      // ══════════════════════════════════════════════════════
+      { note: 'E', durationMs: 300, velocity: 0.88 }, // 3̲ 你
+      { note: 'G', durationMs: 300, velocity: 0.88 }, // 5̲ 爱
+      { note: 'G', durationMs: 450, velocity: 0.90 }, // 5̲· 我
+      { note: 'A', durationMs: 150, velocity: 0.85 }, // 6̲̲ 我
+      { note: 'G', durationMs: 300, velocity: 0.88 }, // 5̲ 我
+      { note: 'E', durationMs: 300, velocity: 0.85 }, // 3̲ 爱
+      { note: 'C', durationMs: 300, velocity: 0.83 }, // 1̲ 你
+      { note: 'C', durationMs: 300, velocity: 0.80 }, // 1̲ 蜜
+
+      // 行4 A段（第三遍）小节8：2̲  3̲3̲  2̲2̲  1̲-      （结尾拉长）
+      //   雪  冰  城  甜  蜜  蜜～～～
+      { note: 'D', durationMs: 300, velocity: 0.83 }, // 2̲ 雪
+      { note: 'E', durationMs: 300, velocity: 0.85 }, // 3̲ 冰
+      { note: 'E', durationMs: 300, velocity: 0.85 }, // 3̲ 城
+      { note: 'D', durationMs: 300, velocity: 0.83 }, // 2̲ 甜
+      { note: 'D', durationMs: 300, velocity: 0.80 }, // 2̲ 蜜
+      { note: 'C', durationMs: 1500, velocity: 0.92 }, // 1̲- 蜜～～（结尾拉长收音）
     ]
   }
 ];
