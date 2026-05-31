@@ -53,6 +53,11 @@ export interface PresetMelody {
   style: MelodyStyle;
   root?: Note;
   events: MelodyEvent[];
+  /**
+   * 若提供，"Play Preset" 时会先从该 URL 加载 BGM 进行实时音高提取，
+   * 提取结果覆盖 events 字段（events 作为备用）。
+   */
+  bgmUrl?: string;
 }
 
 export interface SerialLine {

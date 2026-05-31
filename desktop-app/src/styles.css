@@ -547,6 +547,46 @@ select:disabled {
   gap: 8px;
 }
 
+.bgm-analyser {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bgm-upload-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+}
+
+.bgm-upload-label.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.bgm-progress-bar {
+  height: 4px;
+  background: rgba(34, 26, 20, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bgm-progress-fill {
+  height: 100%;
+  background: var(--cyan);
+  border-radius: 2px;
+  transition: width 0.15s ease;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 .bottom-status {
   display: grid;
   grid-template-columns: 1.15fr 0.75fr 1fr;

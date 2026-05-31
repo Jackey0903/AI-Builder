@@ -57,12 +57,11 @@ export class AudioEngine {
     const context = await this.ensureContext();
     const arrayBuffer = await blob.arrayBuffer();
     const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
-    const autoTrimmed = this.trimBuffer(decoded, 0.015);
     this.sampleLayers = [
       {
         id: options.id ?? 'recorded',
         name: options.name ?? 'Recorded Sample',
-        buffer: this.cropBuffer(autoTrimmed, options.trimStartMs, options.trimEndMs),
+        buffer: this.cropBuffer(decoded, options.trimStartMs, options.trimEndMs),
         baseNote: options.baseNote ?? 'C',
         baseSemitoneOffset: options.baseSemitoneOffset,
         gain: options.gain ?? 1,
@@ -92,12 +91,11 @@ export class AudioEngine {
 
       const arrayBuffer = await response.arrayBuffer();
       const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
-      const autoTrimmed = this.trimBuffer(decoded, 0.015);
 
       loaded.push({
         id: sample.id,
         name: sample.name,
-        buffer: this.cropBuffer(autoTrimmed, sample.trimStartMs, sample.trimEndMs),
+        buffer: this.cropBuffer(decoded, sample.trimStartMs, sample.trimEndMs),
         baseNote: sample.baseNote,
         baseSemitoneOffset: sample.baseSemitoneOffset,
         gain: sample.gain ?? 1,
@@ -157,6 +155,85 @@ export class AudioEngine {
     gain.connect(context.destination);
     source.start(now);
     source.stop(now + sustainSeconds + 0.04);
+  }
+
+  /**
+   * Legato 连奏模式：
+   * - attack 极短（3ms），前后音符 crossfade 无缝衔接
+   * - 长节拍用 granular synthesis 拉伸：音头只播一次，稳定中段切成交叠粒子填满时长
+   *   不会出现"重复音节"感，类似采样拉伸效果
+   */
+  async playNoteLegato(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C') {
+    const context = await this.ensureContext();
+    const definition = noteByName.get(note);
+
+    if (!definition) return;
+
+    const rootDefinition = noteByName.get(scaleRoot) ?? noteByName.get('C')!;
+    const targetSemitone = definition.semitoneOffset + rootDefinition.semitoneOffset;
+
+    if (!this.sampleLayers.length) {
+      this.playFallbackTone(context, 261.63 * Math.pow(2, targetSemitone / 12), durationMs, velocity);
+      return;
+    }
+
+    const selectedLayer = this.pickClosestSample(targetSemitone);
+    const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
+
+    const buf = selectedLayer.sample.buffer;
+    const bufDur = buf.duration;          // 采样实际时长（秒）
+    const naturalDuration = bufDur / ratio; // 按目标音高播完整采样需要的时间
+
+    const now = context.currentTime;
+    const attack = 0.003;
+    const crossfade = 0.080;
+    const sustainSeconds = Math.max(durationMs / 1000, 0.05);
+    const targetGain = MASTER_GAIN * velocity * selectedLayer.sample.gain;
+
+    // 共用的 filter → 主 gain 节点（整体包络在此控制）
+    const filter = context.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 6800;
+    filter.Q.value = 0.2;
+
+    const masterGain = context.createGain();
+    masterGain.gain.setValueAtTime(0.0001, now);
+    masterGain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
+    masterGain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - crossfade));
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
+
+    filter.connect(masterGain);
+    masterGain.connect(context.destination);
+
+    const scheduleGrain = (startInCtx: number, offsetInBuf: number, dur: number) => {
+      const src = context.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = ratio;
+      src.connect(filter);
+      src.start(startInCtx, offsetInBuf);
+      src.stop(startInCtx + dur + 0.01);
+    };
+
+    // ── 第一粒：从头播完整采样（保留原始音头） ──
+    scheduleGrain(now, 0, naturalDuration);
+
+    if (naturalDuration < sustainSeconds - crossfade) {
+      // 稳定中段：跳过音头 20% 和尾部 10%，取中间 70% 做粒子拉伸
+      const bodyOffsetInBuf = bufDur * 0.20;
+      const bodyEndInBuf   = bufDur * 0.90;
+      const bodyDurInBuf   = bodyEndInBuf - bodyOffsetInBuf;           // buffer 时间（秒）
+      const bodyDurInCtx   = bodyDurInBuf / ratio;                     // 实际播放时间
+      // 相邻粒子重叠 30%，淡入淡出由 masterGain 统一包络处理，不单独加粒子 envelope
+      const grainOverlap   = bodyDurInCtx * 0.30;
+      const grainStep      = bodyDurInCtx - grainOverlap;
+
+      // 第一粒结束前 grainOverlap 秒启动第二粒，后续以 grainStep 递进
+      let grainCtxTime = naturalDuration - grainOverlap;
+      while (grainCtxTime < sustainSeconds - crossfade) {
+        scheduleGrain(now + grainCtxTime, bodyOffsetInBuf, bodyDurInCtx);
+        grainCtxTime += grainStep;
+      }
+    }
   }
 
   async playClick() {
@@ -263,14 +340,20 @@ export class AudioEngine {
   }
 
   private cropBuffer(buffer: AudioBuffer, trimStartMs?: number, trimEndMs?: number) {
-    if (!trimStartMs && !trimEndMs) {
+    const hasStartTrim = trimStartMs != null && trimStartMs > 0;
+    const hasEndTrim   = trimEndMs   != null && trimEndMs   > 0;
+
+    if (!hasStartTrim && !hasEndTrim) {
       return buffer;
     }
 
     const context = this.context!;
-    const startFrame = Math.max(0, Math.floor(((trimStartMs ?? 0) / 1000) * buffer.sampleRate));
-    const requestedEndFrame =
-      typeof trimEndMs === 'number' ? Math.floor((trimEndMs / 1000) * buffer.sampleRate) : buffer.length;
+    const startFrame = hasStartTrim
+      ? Math.max(0, Math.floor((trimStartMs! / 1000) * buffer.sampleRate))
+      : 0;
+    const requestedEndFrame = hasEndTrim
+      ? Math.floor((trimEndMs! / 1000) * buffer.sampleRate)
+      : buffer.length;
     const endFrame = Math.min(buffer.length, Math.max(startFrame + 1, requestedEndFrame));
     const frameCount = endFrame - startFrame;
     const cropped = context.createBuffer(buffer.numberOfChannels, frameCount, buffer.sampleRate);

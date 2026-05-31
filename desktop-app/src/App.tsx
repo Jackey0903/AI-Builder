@@ -2,8 +2,10 @@ import {
   Cable,
   CircleStop,
   Cpu,
+  FileMusic,
   Library,
   ListMusic,
+  Loader,
   Mic,
   Music2,
   Play,
@@ -16,6 +18,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AudioEngine, noteColor } from './audio/audioEngine';
 import { generateMelody, melodyDuration } from './audio/melody';
+import { analyseBgm, analyseBgmFromUrl } from './audio/bgmAnalyser';
 import { enabledSoundPresets } from './content/soundLibrary';
 import { PRESET_MELODIES } from './content/presetMelodies';
 import { NOTES, noteByKey, noteByName } from './data/notes';
@@ -37,6 +40,8 @@ function App() {
   const audioEngine = useMemo(() => new AudioEngine(), []);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlayingMelody, setIsPlayingMelody] = useState(false);
+  const [isAnalysingBgm, setIsAnalysingBgm] = useState(false);
+  const [bgmAnalysisProgress, setBgmAnalysisProgress] = useState(0);
   const [sampleReady, setSampleReady] = useState(false);
   const [status, setStatus] = useState('Ready. Record a sound or play the fallback tone set.');
   const [activeNote, setActiveNote] = useState<Note | null>(null);
@@ -81,6 +86,9 @@ function App() {
     [audioEngine, scaleRoot, sendHardware]
   );
 
+  // legato 连奏：每个音符提前 LEGATO_OVERLAP_MS 启动，与上一个音的 crossfade 衔接
+  const LEGATO_OVERLAP_MS = 80;
+
   const playGeneratedMelody = useCallback(
     async (events: MelodyEvent[], root: Note = scaleRoot) => {
       if (!events.length || isPlayingMelody) return;
@@ -91,15 +99,16 @@ function App() {
 
       let offset = 0;
 
-      events.forEach((event) => {
+      events.forEach((event, index) => {
+        // 第一个音不提前；后续音符提前 LEGATO_OVERLAP_MS 启动，实现无缝衔接
+        const startAt = index === 0 ? offset : Math.max(0, offset - LEGATO_OVERLAP_MS);
         const timeoutId = window.setTimeout(() => {
-          void triggerNote(event.note, {
-            captureMotif: false,
-            durationMs: event.durationMs,
-            velocity: event.velocity,
-            root
-          });
-        }, offset);
+          setActiveNote(event.note);
+          window.setTimeout(() => {
+            setActiveNote((current) => (current === event.note ? null : current));
+          }, Math.min(event.durationMs, 540));
+          void audioEngine.playNoteLegato(event.note, event.durationMs, event.velocity ?? 1, root);
+        }, startAt);
 
         timeoutsRef.current.push(timeoutId);
         offset += event.durationMs;
@@ -114,7 +123,7 @@ function App() {
 
       timeoutsRef.current.push(doneTimeout);
     },
-    [isPlayingMelody, scaleRoot, sendHardware, triggerNote]
+    [audioEngine, isPlayingMelody, scaleRoot, sendHardware]
   );
 
   const handleGenerate = useCallback(() => {
@@ -157,16 +166,91 @@ function App() {
     }
   }, [audioEngine, selectedSoundPresetId, sendHardware]);
 
-  const playPresetMelody = useCallback(() => {
+  const playPresetMelody = useCallback(async () => {
     const preset = PRESET_MELODIES.find((item) => item.id === selectedPresetMelodyId);
     if (!preset) return;
 
     setStyle(preset.style);
-    if (preset.root) setScaleRoot(preset.root);
+    // 注意：不再用 setScaleRoot(preset.root)，预设调号只作为局部参数传入
+    // 避免播完 F 调预设后全局 Key Root 被偷改，导致手动弹键都跑调
+    const presetRoot = preset.root ?? scaleRoot;
+
+    // 有 bgmUrl：实时解析 BGM 提取旋律
+    if (preset.bgmUrl) {
+      if (isAnalysingBgm || isPlayingMelody) return;
+      setIsAnalysingBgm(true);
+      setBgmAnalysisProgress(0);
+      setStatus(`正在解析 BGM：${preset.name}…`);
+      try {
+        const result = await analyseBgmFromUrl(
+          preset.bgmUrl,
+          (p) => setBgmAnalysisProgress(Math.round(p * 100))
+        );
+        if (!result.events.length) {
+          setStatus('未能从 BGM 提取到有效旋律，将使用备用手写乐谱。');
+          setMelody(preset.events);
+          void playGeneratedMelody(preset.events, presetRoot);
+          return;
+        }
+        setMelody(result.events);
+        setStatus(`BGM 解析完成：${result.events.length} 个音符，调式根音 ${result.detectedRoot}`);
+        void playGeneratedMelody(result.events, result.detectedRoot);
+      } catch (err) {
+        setStatus(err instanceof Error ? `BGM 解析失败：${err.message}` : 'BGM 解析出错，使用备用乐谱。');
+        setMelody(preset.events);
+        void playGeneratedMelody(preset.events, presetRoot);
+      } finally {
+        setIsAnalysingBgm(false);
+        setBgmAnalysisProgress(0);
+      }
+      return;
+    }
+
+    // 无 bgmUrl：直接用手写乐谱
     setMelody(preset.events);
     setStatus(`Loaded preset melody: ${preset.name}`);
-    void playGeneratedMelody(preset.events, preset.root ?? scaleRoot);
-  }, [playGeneratedMelody, scaleRoot, selectedPresetMelodyId]);
+    void playGeneratedMelody(preset.events, presetRoot);
+  }, [isAnalysingBgm, isPlayingMelody, playGeneratedMelody, scaleRoot, selectedPresetMelodyId]);
+
+  /** 处理用户上传 BGM 文件，自动提取主旋律并演奏 */
+  const handleBgmFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // 重置 input，允许再次选择同一文件
+      event.target.value = '';
+
+      if (isAnalysingBgm || isPlayingMelody) return;
+
+      setIsAnalysingBgm(true);
+      setBgmAnalysisProgress(0);
+      setStatus(`正在分析 BGM：${file.name}…`);
+
+      try {
+        const result = await analyseBgm(file, (p) => setBgmAnalysisProgress(Math.round(p * 100)));
+
+        if (!result.events.length) {
+          setStatus('未能从 BGM 中提取到有效旋律，请尝试旋律更清晰的音频。');
+          return;
+        }
+
+        setMelody(result.events);
+        setScaleRoot(result.detectedRoot);
+        setStatus(
+          `BGM 解析完成：提取到 ${result.events.length} 个音符，推测调式根音 ${result.detectedRoot}，正在演奏…`
+        );
+
+        void playGeneratedMelody(result.events, result.detectedRoot);
+      } catch (err) {
+        setStatus(err instanceof Error ? `BGM 分析失败：${err.message}` : 'BGM 分析出错，请检查文件格式。');
+      } finally {
+        setIsAnalysingBgm(false);
+        setBgmAnalysisProgress(0);
+      }
+    },
+    [isAnalysingBgm, isPlayingMelody, playGeneratedMelody]
+  );
 
   const startRecording = useCallback(async () => {
     if (isRecording) return;
@@ -471,10 +555,44 @@ function App() {
               </option>
             ))}
           </select>
-          <button className="small-action" type="button" onClick={playPresetMelody} disabled={isPlayingMelody}>
-            <ListMusic size={17} />
-            Play Preset
+          <button className="small-action" type="button" onClick={() => void playPresetMelody()} disabled={isPlayingMelody || isAnalysingBgm}>
+            {isAnalysingBgm && PRESET_MELODIES.find(p => p.id === selectedPresetMelodyId)?.bgmUrl ? (
+              <><Loader size={17} className="spin" />{`解析中 ${bgmAnalysisProgress}%`}</>
+            ) : (
+              <><ListMusic size={17} />Play Preset</>
+            )}
           </button>
+        </div>
+
+        <div className="bgm-analyser">
+          <label
+            className={`small-action bgm-upload-label ${isAnalysingBgm || isPlayingMelody ? 'disabled' : ''}`}
+            title="上传 BGM 音频文件，自动提取主旋律并用精灵声音演奏"
+          >
+            {isAnalysingBgm ? (
+              <>
+                <Loader size={17} className="spin" />
+                {`分析中 ${bgmAnalysisProgress}%`}
+              </>
+            ) : (
+              <>
+                <FileMusic size={17} />
+                解析 BGM 旋律
+              </>
+            )}
+            <input
+              type="file"
+              accept="audio/*,.wav,.mp3,.m4a,.ogg,.webm"
+              style={{ display: 'none' }}
+              onChange={handleBgmFileUpload}
+              disabled={isAnalysingBgm || isPlayingMelody}
+            />
+          </label>
+          {isAnalysingBgm && (
+            <div className="bgm-progress-bar">
+              <div className="bgm-progress-fill" style={{ width: `${bgmAnalysisProgress}%` }} />
+            </div>
+          )}
         </div>
 
         <button className="generate-action" type="button" onClick={handleGenerate} disabled={isPlayingMelody}>

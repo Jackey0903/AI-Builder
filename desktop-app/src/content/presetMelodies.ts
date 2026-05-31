@@ -2,74 +2,6 @@ import type { PresetMelody } from '../types';
 
 export const PRESET_MELODIES: PresetMelody[] = [
   {
-    id: 'login-scene-bgm',
-    name: '场景-登陆 BGM',
-    description: 'Auto-extracted lead line from the uploaded login scene BGM for the Yuanhaoyu timbre demo.',
-    style: 'bright',
-    root: 'F',
-    events: [
-      { note: 'F', durationMs: 300, velocity: 0.96 },
-      { note: 'A', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 600, velocity: 0.78 },
-      { note: 'E', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.96 },
-      { note: 'E', durationMs: 900, velocity: 0.74 },
-      { note: 'C', durationMs: 900, velocity: 0.74 },
-      { note: 'C', durationMs: 300, velocity: 0.78 },
-      { note: 'E', durationMs: 600, velocity: 0.96 },
-      { note: 'G', durationMs: 300, velocity: 0.78 },
-      { note: 'F', durationMs: 600, velocity: 0.78 },
-      { note: 'G', durationMs: 300, velocity: 0.78 },
-      { note: 'E', durationMs: 900, velocity: 0.92 },
-      { note: 'E', durationMs: 600, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.78 },
-      { note: 'G', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.96 },
-      { note: 'G', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.78 },
-      { note: 'G', durationMs: 900, velocity: 0.74 },
-      { note: 'G', durationMs: 900, velocity: 0.92 },
-      { note: 'G', durationMs: 900, velocity: 0.74 },
-      { note: 'G', durationMs: 300, velocity: 0.78 }
-    ]
-  },
-  {
-    id: 'peter-avenue-bgm',
-    name: '彼得大道 BGM',
-    description: 'Auto-extracted lead line from the uploaded Peter Avenue BGM WAV for the Yuanhaoyu timbre demo.',
-    style: 'soft',
-    root: 'F',
-    events: [
-      { note: 'C', durationMs: 900, velocity: 0.92 },
-      { note: 'D', durationMs: 600, velocity: 0.78 },
-      { note: 'E', durationMs: 300, velocity: 0.78 },
-      { note: 'D', durationMs: 300, velocity: 0.78 },
-      { note: 'E', durationMs: 900, velocity: 0.92 },
-      { note: 'D', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.78 },
-      { note: 'D', durationMs: 600, velocity: 0.78 },
-      { note: 'C', durationMs: 900, velocity: 0.92 },
-      { note: 'E', durationMs: 900, velocity: 0.74 },
-      { note: 'D', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.78 },
-      { note: 'F', durationMs: 900, velocity: 0.92 },
-      { note: 'F', durationMs: 900, velocity: 0.74 },
-      { note: 'G', durationMs: 300, velocity: 0.78 },
-      { note: 'B', durationMs: 300, velocity: 0.78 },
-      { note: 'D', durationMs: 600, velocity: 0.96 },
-      { note: 'B', durationMs: 300, velocity: 0.78 },
-      { note: 'F', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 600, velocity: 0.78 },
-      { note: 'E', durationMs: 300, velocity: 0.96 },
-      { note: 'G', durationMs: 300, velocity: 0.78 },
-      { note: 'D', durationMs: 300, velocity: 0.78 },
-      { note: 'E', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 300, velocity: 0.96 },
-      { note: 'A', durationMs: 300, velocity: 0.78 },
-      { note: 'C', durationMs: 600, velocity: 0.78 }
-    ]
-  },
-  {
     id: 'opening-hop',
     name: 'Opening Hop',
     description: 'Short upbeat demo phrase for the first stage presentation.',
@@ -115,6 +47,192 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'D', durationMs: 150, velocity: 0.86 },
       { note: 'G', durationMs: 300, velocity: 1 },
       { note: 'C', durationMs: 450, velocity: 1 }
+    ]
+  },
+  {
+    id: 'mermaid-bay-vocal',
+    name: '人鱼湾 正谱',
+    description: '洛克王国人鱼湾BGM正谱（笛小笛制），1=F 4/4，90BPM，舒缓抒情。',
+    style: 'soft',
+    root: 'F',
+    events: [
+      // ════════════════════════════════════════════
+      // 行1 · 第1小节（弱起）：0 0 0  [0 1 2]
+      // 三拍休止后接两个十六分音符 1(C) 2(D) 作 pickup
+      // ════════════════════════════════════════════
+      { note: 'C', durationMs: 165, velocity: 0.76 }, // 1（十六分pickup）
+      { note: 'D', durationMs: 165, velocity: 0.78 }, // 2
+
+      // ════════════════════════════════════════════
+      // 行1 · 第2小节：[3̲3̲]  [3̲·3̲2̲3̲]  4  -
+      // 3 3 (两个八分) | 3· 3 2 3 (附点八分+3个十六分) | 4–(二分)
+      // ════════════════════════════════════════════
+      { note: 'E', durationMs: 330, velocity: 0.88 }, // 3（八分）
+      { note: 'E', durationMs: 330, velocity: 0.88 }, // 3
+      { note: 'E', durationMs: 500, velocity: 0.90 }, // 3·（附点八分）
+      { note: 'E', durationMs: 165, velocity: 0.86 }, // 3（十六分）
+      { note: 'D', durationMs: 165, velocity: 0.84 }, // 2
+      { note: 'E', durationMs: 165, velocity: 0.86 }, // 3
+      { note: 'F', durationMs: 1230, velocity: 0.90 }, // 4–（二分，含延音）
+
+      // ════════════════════════════════════════════
+      // 行1 · 第3小节：[5̲5̲]  [2̲4̲]  3  [2̲3̲]
+      // 5 5 | 2 4 (各八分) | 3（四分）| 2 3（各八分）
+      // ════════════════════════════════════════════
+      { note: 'G', durationMs: 330, velocity: 0.88 }, // 5（八分）
+      { note: 'G', durationMs: 330, velocity: 0.88 }, // 5
+      { note: 'D', durationMs: 330, velocity: 0.86 }, // 2（八分）
+      { note: 'F', durationMs: 330, velocity: 0.88 }, // 4
+      { note: 'E', durationMs: 665, velocity: 0.90 }, // 3（四分）
+      { note: 'D', durationMs: 330, velocity: 0.86 }, // 2（八分）
+      { note: 'E', durationMs: 330, velocity: 0.88 }, // 3
+
+      // ════════════════════════════════════════════
+      // 行2 · 第4小节：1  [1̲6̲·1̲]  2·  3
+      // 1（四分）| [1(八) 6·(附点八) 1(十六)] | 2·（附点四分）| 3（四分）
+      // ════════════════════════════════════════════
+      { note: 'C', durationMs: 665, velocity: 0.88 }, // 1（四分）
+      { note: 'C', durationMs: 330, velocity: 0.86 }, // 1（八分）
+      { note: 'A', durationMs: 500, velocity: 0.90 }, // 6·（附点八分）
+      { note: 'C', durationMs: 165, velocity: 0.86 }, // 1（十六分）
+      { note: 'D', durationMs: 1000, velocity: 0.90 }, // 2·（附点四分）
+      { note: 'E', durationMs: 665, velocity: 0.92 }, // 3（四分）
+
+      // ════════════════════════════════════════════
+      // 行2 · 第5小节：[1̲3̲]  [4̲5̲]  2·  [3̲·4̲]
+      // [1 3](各八分) | [4 5](各八分) | 2·（附点四分）| [3·(附点八) 4(十六)]
+      // ════════════════════════════════════════════
+      { note: 'C', durationMs: 330, velocity: 0.88 }, // 1（八分）
+      { note: 'E', durationMs: 330, velocity: 0.90 }, // 3
+      { note: 'F', durationMs: 330, velocity: 0.92 }, // 4（八分）
+      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5
+      { note: 'D', durationMs: 1000, velocity: 0.90 }, // 2·（附点四分）
+      { note: 'E', durationMs: 500, velocity: 0.92 }, // 3·（附点八分）
+      { note: 'F', durationMs: 165, velocity: 0.88 }, // 4（十六分）
+
+      // ════════════════════════════════════════════
+      // 行2 · 第6小节：[5̲5̲]  [5̲6̲·7̲]  5·  [6̲·7̲]
+      // [5 5](八分) | [5 6·(附点八) 7(十六)] | 5·（附点四分）| [6·(附点八) 7(十六)]
+      // ════════════════════════════════════════════
+      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5（八分）
+      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5
+      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5（八分）
+      { note: 'A', durationMs: 500, velocity: 0.94 }, // 6·（附点八分）
+      { note: 'B', durationMs: 165, velocity: 0.90 }, // 7（十六分）
+      { note: 'G', durationMs: 1000, velocity: 0.92 }, // 5·（附点四分）
+      { note: 'A', durationMs: 500, velocity: 0.90 }, // 6·（附点八分）
+      { note: 'B', durationMs: 165, velocity: 0.88 }, // 7（十六分）
+
+      // ════════════════════════════════════════════
+      // 行3 · 第7小节：[i̲5̲]  [5̲4̲]  3  [5̲2̲]
+      // i=高八度1，代码仍写C，引擎自动选高八度
+      // [i 5](八分) | [5 4](八分) | 3（四分）| [5 2](八分)
+      // ════════════════════════════════════════════
+      { note: 'C', durationMs: 330, velocity: 0.94 }, // i（高C，八分）
+      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5
+      { note: 'G', durationMs: 330, velocity: 0.90 }, // 5（八分）
+      { note: 'F', durationMs: 330, velocity: 0.88 }, // 4
+      { note: 'E', durationMs: 665, velocity: 0.92 }, // 3（四分）
+      { note: 'G', durationMs: 330, velocity: 0.90 }, // 5（八分）
+      { note: 'D', durationMs: 330, velocity: 0.88 }, // 2
+
+      // ════════════════════════════════════════════
+      // 行3 · 第8小节：[i̲i̲]  [7̲·i̲]  6  2̇
+      // [i i](八分) | [7·(附点八) i(十六)] | 6（四分）| 2̇（高八度2，四分）
+      // ════════════════════════════════════════════
+      { note: 'C', durationMs: 330, velocity: 0.94 }, // i（八分）
+      { note: 'C', durationMs: 330, velocity: 0.94 }, // i
+      { note: 'B', durationMs: 500, velocity: 0.92 }, // 7·（附点八分）
+      { note: 'C', durationMs: 165, velocity: 0.90 }, // i（十六分）
+      { note: 'A', durationMs: 665, velocity: 0.92 }, // 6（四分）
+      { note: 'D', durationMs: 665, velocity: 0.94 }, // 2̇（高八度D，四分）
+
+      // ════════════════════════════════════════════
+      // 行3 · 第9小节：[i̲7̲]  [6̲7̲]  i  -  ‖
+      // [i 7](八分) | [6 7](八分) | i–（二分，收尾）
+      // ════════════════════════════════════════════
+      { note: 'C', durationMs: 330, velocity: 0.96 }, // i（八分）
+      { note: 'B', durationMs: 330, velocity: 0.94 }, // 7
+      { note: 'A', durationMs: 330, velocity: 0.92 }, // 6（八分）
+      { note: 'B', durationMs: 330, velocity: 0.94 }, // 7
+      { note: 'C', durationMs: 1330, velocity: 1.00 }, // i–（二分，终止）
+    ]
+  },
+  {
+    id: 'peter-avenue-vocal',
+    name: '彼得大道 Vocal',
+    description: '洛克王国彼得大道/商店街BGM主旋律手录简谱，欢快跳跃，C大调。',
+    style: 'bright',
+    root: 'C',
+    events: [
+      // ── 前奏：5 6 | 1· 2· 3· 5· | 6· - - - ──
+      { note: 'G', durationMs: 200, velocity: 0.82 },
+      { note: 'A', durationMs: 200, velocity: 0.85 },
+      { note: 'C', durationMs: 200, velocity: 0.9  },
+      { note: 'D', durationMs: 200, velocity: 0.9  },
+      { note: 'E', durationMs: 200, velocity: 0.92 },
+      { note: 'G', durationMs: 200, velocity: 0.92 },
+      { note: 'A', durationMs: 800, velocity: 0.88 },
+
+      // ── 第一段 Line 1：1· 2· | 3· 5· 3· 1· | 2· 3· 2· 1· | 6 1· 6 5 | 3 – ──
+      { note: 'C', durationMs: 200, velocity: 0.92 },
+      { note: 'D', durationMs: 200, velocity: 0.92 },
+      { note: 'E', durationMs: 200, velocity: 0.96 },
+      { note: 'G', durationMs: 200, velocity: 0.96 },
+      { note: 'E', durationMs: 200, velocity: 0.92 },
+      { note: 'C', durationMs: 200, velocity: 0.9  },
+      { note: 'D', durationMs: 200, velocity: 0.9  },
+      { note: 'E', durationMs: 200, velocity: 0.92 },
+      { note: 'D', durationMs: 200, velocity: 0.88 },
+      { note: 'C', durationMs: 200, velocity: 0.88 },
+      { note: 'A', durationMs: 200, velocity: 0.86 },
+      { note: 'C', durationMs: 200, velocity: 0.9  },
+      { note: 'A', durationMs: 200, velocity: 0.86 },
+      { note: 'G', durationMs: 200, velocity: 0.84 },
+      { note: 'E', durationMs: 600, velocity: 0.9  },
+
+      // ── 第一段 Line 2：1· 2· | 3· 5· 3· 1· | 2· 3· 5· 3· | 2· – ──
+      { note: 'C', durationMs: 200, velocity: 0.92 },
+      { note: 'D', durationMs: 200, velocity: 0.92 },
+      { note: 'E', durationMs: 200, velocity: 0.96 },
+      { note: 'G', durationMs: 200, velocity: 0.96 },
+      { note: 'E', durationMs: 200, velocity: 0.92 },
+      { note: 'C', durationMs: 200, velocity: 0.9  },
+      { note: 'D', durationMs: 200, velocity: 0.9  },
+      { note: 'E', durationMs: 200, velocity: 0.92 },
+      { note: 'G', durationMs: 200, velocity: 0.94 },
+      { note: 'E', durationMs: 200, velocity: 0.88 },
+      { note: 'D', durationMs: 800, velocity: 0.86 },
+
+      // ── 第二段 Line 1：1· 2· | 3· 5· 3· 1· | 2· 3· 2· 1· | 6 1· 6 5 | 2 – ──
+      { note: 'C', durationMs: 200, velocity: 0.94 },
+      { note: 'D', durationMs: 200, velocity: 0.94 },
+      { note: 'E', durationMs: 200, velocity: 0.98 },
+      { note: 'G', durationMs: 200, velocity: 0.98 },
+      { note: 'E', durationMs: 200, velocity: 0.94 },
+      { note: 'C', durationMs: 200, velocity: 0.92 },
+      { note: 'D', durationMs: 200, velocity: 0.92 },
+      { note: 'E', durationMs: 200, velocity: 0.94 },
+      { note: 'D', durationMs: 200, velocity: 0.9  },
+      { note: 'C', durationMs: 200, velocity: 0.9  },
+      { note: 'A', durationMs: 200, velocity: 0.88 },
+      { note: 'C', durationMs: 200, velocity: 0.92 },
+      { note: 'A', durationMs: 200, velocity: 0.88 },
+      { note: 'G', durationMs: 200, velocity: 0.86 },
+      { note: 'D', durationMs: 600, velocity: 0.9  },
+
+      // ── 第二段 Line 2：5 6 | 1· 6 1· 2· | 3· 2· 3· 5· | 1· - - - | 1· – ──
+      { note: 'G', durationMs: 200, velocity: 0.88 },
+      { note: 'A', durationMs: 200, velocity: 0.9  },
+      { note: 'C', durationMs: 200, velocity: 0.94 },
+      { note: 'A', durationMs: 200, velocity: 0.9  },
+      { note: 'C', durationMs: 200, velocity: 0.94 },
+      { note: 'D', durationMs: 200, velocity: 0.94 },
+      { note: 'E', durationMs: 200, velocity: 0.96 },
+      { note: 'D', durationMs: 200, velocity: 0.92 },
+      { note: 'E', durationMs: 200, velocity: 0.94 },
+      { note: 'G', durationMs: 200, velocity: 0.98 },
+      { note: 'C', durationMs: 800, velocity: 1.0  }
     ]
   }
 ];

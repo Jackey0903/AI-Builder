@@ -12,54 +12,8 @@ export const SOUND_FILE_REQUIREMENTS = {
 
 export const SOUND_PRESETS: SoundPreset[] = [
   {
-    id: 'yuanhaoyu-multisample',
-    name: '圆号鱼双采样',
-    description: 'Current main demo timbre using only the two retained single-syllable samples: 发音5低音 and 发音2.',
-    samples: [
-      {
-        id: 'low',
-        name: '发音5低音',
-        file: '/sounds/yuanhaoyu-voice-low.wav',
-        baseNote: 'A',
-        baseSemitoneOffset: -3,
-        trimStartMs: 0,
-        trimEndMs: 235,
-        gain: 1.18,
-        role: 'low'
-      },
-      {
-        id: 'mid',
-        name: '发音2',
-        file: '/sounds/yuanhaoyu-voice-mid.wav',
-        baseNote: 'F',
-        baseSemitoneOffset: 5,
-        trimStartMs: 0,
-        trimEndMs: 277,
-        gain: 1.12,
-        role: 'mid'
-      }
-    ],
-    enabled: true,
-    credit: 'Team uploaded single-syllable samples; keep 发音2 and 发音5低音 for the current demo.',
-    tags: ['character', 'dual-sample', 'recommended']
-  },
-  {
-    id: 'yuanhaoyu-voice-4',
-    name: '圆号鱼发音4',
-    description: 'Clean but currently disabled because the composite timbre is less stable than 发音2 and 发音5低音.',
-    file: '/sounds/yuanhaoyu-voice-high.wav',
-    baseNote: 'D',
-    baseSemitoneOffset: 14,
-    trimStartMs: 0,
-    trimEndMs: 405,
-    gain: 1.08,
-    enabled: false,
-    credit: 'Team uploaded single-syllable sample; confirm usage rights before public release.',
-    tags: ['character', 'single-syllable', 'disabled']
-  },
-  {
     id: 'yuanhaoyu-voice-2',
-    name: '圆号鱼发音2',
+    name: '圆号鱼',
     description: 'Clean single-syllable sample with lower pitch; useful for comparison.',
     file: '/sounds/yuanhaoyu-voice-mid.wav',
     baseNote: 'F',
@@ -69,21 +23,7 @@ export const SOUND_PRESETS: SoundPreset[] = [
     gain: 1.12,
     enabled: true,
     credit: 'Team uploaded single-syllable sample; confirm usage rights before public release.',
-    tags: ['character', 'single-syllable', 'comparison']
-  },
-  {
-    id: 'yuanhaoyu-voice-low',
-    name: '圆号鱼发音5低音',
-    description: 'Short low-voice-labelled sample. Good comparison for a lower character timbre.',
-    file: '/sounds/yuanhaoyu-voice-low.wav',
-    baseNote: 'A',
-    baseSemitoneOffset: -3,
-    trimStartMs: 0,
-    trimEndMs: 235,
-    gain: 1.18,
-    enabled: true,
-    credit: 'Team uploaded single-syllable sample; confirm usage rights before public release.',
-    tags: ['character', 'single-syllable', 'low']
+    tags: ['character', 'single-syllable']
   },
   {
     id: 'yuanhaoyu',
@@ -117,6 +57,7 @@ export const SOUND_PRESETS: SoundPreset[] = [
     description: 'Long phrase sample. Use a short leading fragment only; full file is too long for key playback.',
     file: '/sounds/炫光迪迪.wav',
     baseNote: 'C',
+    baseSemitoneOffset: 0,
     trimStartMs: 0,
     trimEndMs: 850,
     gain: 0.82,
@@ -127,28 +68,58 @@ export const SOUND_PRESETS: SoundPreset[] = [
   {
     id: 'houmaizai',
     name: '猴麦仔',
-    description: 'Long phrase sample with lower dominant tone. Better as a fun comparison preset than the main demo timbre.',
-    file: '/sounds/猴麦仔.wav',
-    baseNote: 'C',
+    description: '猴麦仔单音采样（149ms），基频约 E4（324Hz），baseSemitoneOffset=4 固定基准，音头干净无气音。',
+    file: '/sounds/猴麦仔/猴麦仔采样.wav',
+    baseNote: 'E',
+    baseSemitoneOffset: 4,
     trimStartMs: 0,
-    trimEndMs: 900,
+    trimEndMs: 0,
     gain: 0.9,
     enabled: true,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
-    tags: ['character', 'long', 'comparison']
+    tags: ['character', 'single']
   },
   {
     id: 'lilayao',
     name: '里拉鳐',
-    description: 'Shorter active fragments with a sharper tone. Good candidate for a distinctive toy-like timbre.',
-    file: '/sounds/里拉鳐.wav',
-    baseNote: 'C',
+    description: '里拉鳐单音节采样，音色清脆。实测录音音高 A3（-3 半音），用 baseSemitoneOffset 固定基准，避免跨 root 八度跳变。',
+    file: '/sounds/里拉鳐音节/里拉鳐音节1.wav',
+    baseNote: 'A',
+    baseSemitoneOffset: -3,
     trimStartMs: 0,
-    trimEndMs: 950,
+    trimEndMs: 0,
     gain: 1,
     enabled: true,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
     tags: ['character', 'single', 'sharp']
+  },
+  {
+    id: 'xiaoya',
+    name: '小夜',
+    description: '小夜音色，柔和温润。实测录音音高 E4（+4 半音），用 baseSemitoneOffset 固定基准，避免跨 root 八度跳变。',
+    file: '/sounds/小夜/小夜.wav',
+    baseNote: 'E',
+    baseSemitoneOffset: 4,
+    trimStartMs: 0,
+    trimEndMs: 0,
+    gain: 1,
+    enabled: true,
+    credit: 'Team uploaded sample; confirm usage rights before public release.',
+    tags: ['character', 'soft', 'lyrical']
+  },
+  {
+    id: 'emoding',
+    name: '恶魔叮',
+    description: '恶魔叮战斗采样（1451ms），主体爆发在 240~400ms（峰值最高），前 100ms 为低幅过渡，trimStartMs=100 跳过。基频约 D#6（1231Hz），baseSemitoneOffset=27 固定基准。',
+    file: '/sounds/恶魔叮/恶魔叮战斗.wav',
+    baseNote: 'D#',
+    baseSemitoneOffset: 27,
+    trimStartMs: 100,
+    trimEndMs: 0,
+    gain: 0.8,
+    enabled: true,
+    credit: 'Team uploaded sample; confirm usage rights before public release.',
+    tags: ['character', 'single', 'sharp', 'ding', 'battle']
   }
 ];
 
