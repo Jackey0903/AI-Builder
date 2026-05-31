@@ -189,10 +189,11 @@ export class AudioEngine {
     const crossfade = 0.080;
     const sustainSeconds = Math.max(durationMs / 1000, 0.05);
 
-    // stretchFactor < 1 → 放慢播放，拉伸时长
-    // 最多拉伸 4 倍，避免过度降速音质太差
+    // 降速拉伸：最多放慢 8 倍（stretchFactor ≥ 0.125）
+    // 猴麦仔 149ms × 8 = ~1200ms，足以覆盖常见音符时长
+    // playbackRate × stretchFactor → 降速；detune 补偿 → 音高不变
     const stretchFactor = naturalDuration < sustainSeconds
-      ? Math.max(naturalDuration / sustainSeconds, 0.25)
+      ? Math.max(naturalDuration / sustainSeconds, 0.125)
       : 1;
 
     const source = context.createBufferSource();
@@ -200,10 +201,9 @@ export class AudioEngine {
     const filter = context.createBiquadFilter();
 
     source.buffer = buf;
-    // 降速：音高会降低
     source.playbackRate.value = ratio * stretchFactor;
-    // detune 补偿：把音高拉回来，单位 cents
-    // 2^(detune/1200) = 1/stretchFactor → detune = -1200 × log2(stretchFactor)
+
+    // detune 补偿：2^(detune/1200) = 1/stretchFactor → detune = -1200×log2(stretchFactor)
     source.detune.value = stretchFactor < 1
       ? -1200 * Math.log2(stretchFactor)
       : 0;
