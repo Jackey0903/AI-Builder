@@ -235,4 +235,81 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'C', durationMs: 800, velocity: 1.0  }
     ]
   }
+,
+  {
+    id: 'mixue-theme',
+    name: '蜜雪冰城',
+    description: '蜜雪冰城主题曲，1=C 大调，120BPM，欢快活泼。AABA 结构：A段八分音符律动，B段四分音符舒展。',
+    style: 'bright',
+    events: [
+      // ══════════════════════════════════════════════
+      // 行1 A段（第一遍）：3 5 5 6 5 3 1 | 1 2 3 3 2 1 2
+      // 你爱我我爱你蜜 | 雪冰城甜蜜蜜蜜
+      // ══════════════════════════════════════════════
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3 你
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5 爱
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5 我
+      { note: 'A', durationMs: 250, velocity: 0.90 }, // 6 我
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5 爱
+      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3 你
+      { note: 'C', durationMs: 500, velocity: 0.80 }, // 1 蜜-
+      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1 雪
+      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2 冰
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3 城
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3 甜
+      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2 蜜
+      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1 蜜
+      { note: 'D', durationMs: 500, velocity: 0.78 }, // 2 蜜-
+
+      // ══════════════════════════════════════════════
+      // 行2 A段（第二遍）：3 5 5 6 5 3 1 | 1 2 3 3 2 2 1
+      // 结尾变为 2 2 1
+      // ══════════════════════════════════════════════
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'A', durationMs: 250, velocity: 0.90 }, // 6
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3
+      { note: 'C', durationMs: 500, velocity: 0.80 }, // 1-
+      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1
+      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
+      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
+      { note: 'D', durationMs: 250, velocity: 0.80 }, // 2
+      { note: 'C', durationMs: 500, velocity: 0.85 }, // 1-
+
+      // ══════════════════════════════════════════════
+      // 行3 B段：4 4 4 6 | 5 5 3 2
+      // 四分音符舒展，节拍宽松
+      // ══════════════════════════════════════════════
+      { note: 'F', durationMs: 500, velocity: 0.88 }, // 4
+      { note: 'F', durationMs: 250, velocity: 0.85 }, // 4
+      { note: 'F', durationMs: 250, velocity: 0.85 }, // 4
+      { note: 'A', durationMs: 500, velocity: 0.90 }, // 6-
+      { note: 'G', durationMs: 500, velocity: 0.88 }, // 5
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'E', durationMs: 250, velocity: 0.82 }, // 3
+      { note: 'D', durationMs: 500, velocity: 0.80 }, // 2-
+
+      // ══════════════════════════════════════════════
+      // 行4 A段（第三遍，结尾加长）：3 5 5 6 5 3 1 | 1 2 3 3 2 2 1
+      // ══════════════════════════════════════════════
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'A', durationMs: 250, velocity: 0.90 }, // 6
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5
+      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3
+      { note: 'C', durationMs: 500, velocity: 0.80 }, // 1-
+      { note: 'C', durationMs: 250, velocity: 0.80 }, // 1
+      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
+      { note: 'E', durationMs: 250, velocity: 0.85 }, // 3
+      { note: 'D', durationMs: 250, velocity: 0.82 }, // 2
+      { note: 'D', durationMs: 250, velocity: 0.80 }, // 2
+      { note: 'C', durationMs: 900, velocity: 0.92 }, // 1-- 结束音拉长
+    ]
+  }
 ];
