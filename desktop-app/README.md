@@ -30,11 +30,16 @@ Recommended order:
 | `圆号鱼双采样` | First choice for current main demo; only keeps `发音2` and `发音5低音` |
 | `圆号鱼发音2` | Clean single-syllable comparison sample |
 | `圆号鱼发音5低音` | Low single-syllable comparison sample |
-| `圆号鱼` | Older long sample; can sound like multiple syllables |
 | `里拉鳐` | Sharp and distinctive comparison |
-| `圆号鱼合奏` | Comparison only; more like a phrase/ensemble |
 | `猴麦仔` | Comparison only; long source file |
 | `炫光迪迪` | Comparison only; long and loud source file |
+
+Recommended preset melodies:
+
+| Melody | Use |
+|---|---|
+| `场景-登陆 BGM` | Extracted 7-note demo phrase from the uploaded login scene BGM |
+| `彼得大道 BGM` | Extracted 7-note demo phrase from the uploaded Peter Avenue BGM |
 
 ## Browser Requirements
 

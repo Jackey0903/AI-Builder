@@ -48,7 +48,7 @@ The app can be tested before the ESP32-S3 and buttons arrive.
 6. Play notes with the on-screen keys or keyboard `1-7`.
 7. Click **Generate Melody** to test melody generation with the selected sound.
 
-Current recommendation for testing: start with `圆号鱼双采样`, then compare the single-layer presets `圆号鱼发音2` and `圆号鱼发音5低音`. `圆号鱼发音4`, the older long sample, and the ensemble sample are currently disabled because the synthesized scale sounds less stable.
+Current recommendation for testing: start with `圆号鱼双采样`, then try the two BGM-derived preset melodies: `场景-登陆 BGM` and `彼得大道 BGM`. These presets store extracted note events only; the uploaded BGM files are references and should still be checked for rights before public release.
 
 ## MVP Flow
 

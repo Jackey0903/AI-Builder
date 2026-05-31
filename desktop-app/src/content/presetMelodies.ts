@@ -2,6 +2,74 @@ import type { PresetMelody } from '../types';
 
 export const PRESET_MELODIES: PresetMelody[] = [
   {
+    id: 'login-scene-bgm',
+    name: '场景-登陆 BGM',
+    description: 'Auto-extracted lead line from the uploaded login scene BGM for the Yuanhaoyu timbre demo.',
+    style: 'bright',
+    root: 'F',
+    events: [
+      { note: 'F', durationMs: 300, velocity: 0.96 },
+      { note: 'A', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 600, velocity: 0.78 },
+      { note: 'E', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.96 },
+      { note: 'E', durationMs: 900, velocity: 0.74 },
+      { note: 'C', durationMs: 900, velocity: 0.74 },
+      { note: 'C', durationMs: 300, velocity: 0.78 },
+      { note: 'E', durationMs: 600, velocity: 0.96 },
+      { note: 'G', durationMs: 300, velocity: 0.78 },
+      { note: 'F', durationMs: 600, velocity: 0.78 },
+      { note: 'G', durationMs: 300, velocity: 0.78 },
+      { note: 'E', durationMs: 900, velocity: 0.92 },
+      { note: 'E', durationMs: 600, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.78 },
+      { note: 'G', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.96 },
+      { note: 'G', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.78 },
+      { note: 'G', durationMs: 900, velocity: 0.74 },
+      { note: 'G', durationMs: 900, velocity: 0.92 },
+      { note: 'G', durationMs: 900, velocity: 0.74 },
+      { note: 'G', durationMs: 300, velocity: 0.78 }
+    ]
+  },
+  {
+    id: 'peter-avenue-bgm',
+    name: '彼得大道 BGM',
+    description: 'Auto-extracted lead line from the uploaded Peter Avenue BGM WAV for the Yuanhaoyu timbre demo.',
+    style: 'soft',
+    root: 'F',
+    events: [
+      { note: 'C', durationMs: 900, velocity: 0.92 },
+      { note: 'D', durationMs: 600, velocity: 0.78 },
+      { note: 'E', durationMs: 300, velocity: 0.78 },
+      { note: 'D', durationMs: 300, velocity: 0.78 },
+      { note: 'E', durationMs: 900, velocity: 0.92 },
+      { note: 'D', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.78 },
+      { note: 'D', durationMs: 600, velocity: 0.78 },
+      { note: 'C', durationMs: 900, velocity: 0.92 },
+      { note: 'E', durationMs: 900, velocity: 0.74 },
+      { note: 'D', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.78 },
+      { note: 'F', durationMs: 900, velocity: 0.92 },
+      { note: 'F', durationMs: 900, velocity: 0.74 },
+      { note: 'G', durationMs: 300, velocity: 0.78 },
+      { note: 'B', durationMs: 300, velocity: 0.78 },
+      { note: 'D', durationMs: 600, velocity: 0.96 },
+      { note: 'B', durationMs: 300, velocity: 0.78 },
+      { note: 'F', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 600, velocity: 0.78 },
+      { note: 'E', durationMs: 300, velocity: 0.96 },
+      { note: 'G', durationMs: 300, velocity: 0.78 },
+      { note: 'D', durationMs: 300, velocity: 0.78 },
+      { note: 'E', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 300, velocity: 0.96 },
+      { note: 'A', durationMs: 300, velocity: 0.78 },
+      { note: 'C', durationMs: 600, velocity: 0.78 }
+    ]
+  },
+  {
     id: 'opening-hop',
     name: 'Opening Hop',
     description: 'Short upbeat demo phrase for the first stage presentation.',
@@ -50,4 +118,3 @@ export const PRESET_MELODIES: PresetMelody[] = [
     ]
   }
 ];
-

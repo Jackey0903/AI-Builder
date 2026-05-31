@@ -115,6 +115,8 @@ Melody event contract:
 | `durationMs` | number | Duration in milliseconds |
 | `velocity` | number | Volume/strength from `0` to `1` |
 
+Preset melodies may also define a top-level `root` field (`C/D/E/F/G/A/B`). Use it when a melody is extracted as scale degrees from a source BGM and should automatically switch the app's Key Root before playback.
+
 Recommended phrase length for demo presets: 5-15 seconds.
 
 ## Implementation Team Owns

@@ -51,6 +51,7 @@ export interface PresetMelody {
   name: string;
   description: string;
   style: MelodyStyle;
+  root?: Note;
   events: MelodyEvent[];
 }
 

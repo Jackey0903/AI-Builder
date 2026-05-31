@@ -63,11 +63,11 @@ function App() {
   }, []);
 
   const triggerNote = useCallback(
-    async (note: Note, options: { captureMotif?: boolean; durationMs?: number; velocity?: number } = {}) => {
-      const { captureMotif = true, durationMs = 520, velocity = 1 } = options;
+    async (note: Note, options: { captureMotif?: boolean; durationMs?: number; velocity?: number; root?: Note } = {}) => {
+      const { captureMotif = true, durationMs = 520, velocity = 1, root = scaleRoot } = options;
       setActiveNote(note);
-      setStatus(`${noteByName.get(note)?.solfege ?? note} triggered in ${scaleRoot}`);
-      await audioEngine.playNote(note, durationMs, velocity, scaleRoot);
+      setStatus(`${noteByName.get(note)?.solfege ?? note} triggered in ${root}`);
+      await audioEngine.playNote(note, durationMs, velocity, root);
       sendHardware(`LED:NOTE:${note}`);
 
       if (captureMotif) {
@@ -82,11 +82,11 @@ function App() {
   );
 
   const playGeneratedMelody = useCallback(
-    async (events: MelodyEvent[]) => {
+    async (events: MelodyEvent[], root: Note = scaleRoot) => {
       if (!events.length || isPlayingMelody) return;
 
       setIsPlayingMelody(true);
-      setStatus(`Playing ${Math.round(melodyDuration(events) / 1000)}s melody`);
+      setStatus(`Playing ${Math.round(melodyDuration(events) / 1000)}s melody in ${root}`);
       sendHardware('LED:PLAY');
 
       let offset = 0;
@@ -96,7 +96,8 @@ function App() {
           void triggerNote(event.note, {
             captureMotif: false,
             durationMs: event.durationMs,
-            velocity: event.velocity
+            velocity: event.velocity,
+            root
           });
         }, offset);
 
@@ -113,7 +114,7 @@ function App() {
 
       timeoutsRef.current.push(doneTimeout);
     },
-    [isPlayingMelody, sendHardware, triggerNote]
+    [isPlayingMelody, scaleRoot, sendHardware, triggerNote]
   );
 
   const handleGenerate = useCallback(() => {
@@ -161,10 +162,11 @@ function App() {
     if (!preset) return;
 
     setStyle(preset.style);
+    if (preset.root) setScaleRoot(preset.root);
     setMelody(preset.events);
     setStatus(`Loaded preset melody: ${preset.name}`);
-    void playGeneratedMelody(preset.events);
-  }, [playGeneratedMelody, selectedPresetMelodyId]);
+    void playGeneratedMelody(preset.events, preset.root ?? scaleRoot);
+  }, [playGeneratedMelody, scaleRoot, selectedPresetMelodyId]);
 
   const startRecording = useCallback(async () => {
     if (isRecording) return;
