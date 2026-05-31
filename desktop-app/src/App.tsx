@@ -90,12 +90,30 @@ function App() {
   const LEGATO_OVERLAP_MS = 80;
 
   const playGeneratedMelody = useCallback(
-    async (events: MelodyEvent[], root: Note = scaleRoot) => {
+    async (
+      events: MelodyEvent[],
+      root: Note = scaleRoot,
+      backing?: { file: string; gain?: number; startMs?: number; loop?: boolean }
+    ) => {
       if (!events.length || isPlayingMelody) return;
 
       setIsPlayingMelody(true);
       setStatus(`Playing ${Math.round(melodyDuration(events) / 1000)}s melody in ${root}`);
       sendHardware('LED:PLAY');
+
+      if (backing?.file) {
+        try {
+          await audioEngine.playBackingTrack(backing.file, {
+            gain: backing.gain,
+            startMs: backing.startMs,
+            loop: backing.loop
+          });
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : 'Backing track failed to load.');
+        }
+      } else {
+        audioEngine.stopBackingTrack(120);
+      }
 
       let offset = 0;
 
@@ -118,6 +136,7 @@ function App() {
         setIsPlayingMelody(false);
         setActiveNote(null);
         setStatus('Melody finished. Press keys to build a new motif.');
+        audioEngine.stopBackingTrack(420);
         sendHardware('LED:OFF');
       }, offset + 80);
 
@@ -174,6 +193,14 @@ function App() {
     // 注意：不再用 setScaleRoot(preset.root)，预设调号只作为局部参数传入
     // 避免播完 F 调预设后全局 Key Root 被偷改，导致手动弹键都跑调
     const presetRoot = preset.root ?? scaleRoot;
+    const presetBacking = preset.backingFile
+      ? {
+          file: preset.backingFile,
+          gain: preset.backingGain,
+          startMs: preset.backingStartMs,
+          loop: preset.backingLoop
+        }
+      : undefined;
 
     // 有 bgmUrl：实时解析 BGM 提取旋律
     if (preset.bgmUrl) {
@@ -189,16 +216,16 @@ function App() {
         if (!result.events.length) {
           setStatus('未能从 BGM 提取到有效旋律，将使用备用手写乐谱。');
           setMelody(preset.events);
-          void playGeneratedMelody(preset.events, presetRoot);
+          void playGeneratedMelody(preset.events, presetRoot, presetBacking);
           return;
         }
         setMelody(result.events);
         setStatus(`BGM 解析完成：${result.events.length} 个音符，调式根音 ${result.detectedRoot}`);
-        void playGeneratedMelody(result.events, result.detectedRoot);
+        void playGeneratedMelody(result.events, result.detectedRoot, presetBacking);
       } catch (err) {
         setStatus(err instanceof Error ? `BGM 解析失败：${err.message}` : 'BGM 解析出错，使用备用乐谱。');
         setMelody(preset.events);
-        void playGeneratedMelody(preset.events, presetRoot);
+        void playGeneratedMelody(preset.events, presetRoot, presetBacking);
       } finally {
         setIsAnalysingBgm(false);
         setBgmAnalysisProgress(0);
@@ -209,7 +236,7 @@ function App() {
     // 无 bgmUrl：直接用手写乐谱
     setMelody(preset.events);
     setStatus(`Loaded preset melody: ${preset.name}`);
-    void playGeneratedMelody(preset.events, presetRoot);
+    void playGeneratedMelody(preset.events, presetRoot, presetBacking);
   }, [isAnalysingBgm, isPlayingMelody, playGeneratedMelody, scaleRoot, selectedPresetMelodyId]);
 
   /** 处理用户上传 BGM 文件，自动提取主旋律并演奏 */
@@ -359,8 +386,9 @@ function App() {
     () => () => {
       timeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
       timeoutsRef.current = [];
+      audioEngine.stopBackingTrack(0);
     },
-    []
+    [audioEngine]
   );
 
   const waveformBars = useMemo(

@@ -143,7 +143,17 @@ C D E F G A B
 | `durationMs` | 这个音持续多少毫秒 |
 | `velocity` | 力度/音量，`0-1` |
 
-如果旋律是从 BGM 里抽出来的，可以在预设旋律顶层加 `root: 'F'` 这类字段。页面播放预设时会自动切到对应 Key Root。
+如果旋律是从 BGM 里抽出来的，可以在预设旋律顶层加 `root: 'F'` 这类字段。页面播放预设时会用这个局部 Key Root，但不会改掉手动弹奏的全局 Key Root。
+
+也可以给预设加背景垫音：
+
+```ts
+backingFile: '/sounds/人鱼湾伴奏.wav',
+backingGain: 0.14,
+backingLoop: true
+```
+
+背景垫音会在预设旋律开始时同步播放，旋律结束后淡出停止。
 
 建议每条预设旋律 5-15 秒，适合现场展示。
 

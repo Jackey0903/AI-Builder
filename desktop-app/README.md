@@ -27,19 +27,22 @@ Recommended order:
 
 | Sound | Use |
 |---|---|
-| `圆号鱼双采样` | First choice for current main demo; only keeps `发音2` and `发音5低音` |
-| `圆号鱼发音2` | Clean single-syllable comparison sample |
-| `圆号鱼发音5低音` | Low single-syllable comparison sample |
+| `圆号鱼` | First choice for current main demo |
 | `里拉鳐` | Sharp and distinctive comparison |
-| `猴麦仔` | Comparison only; long source file |
-| `炫光迪迪` | Comparison only; long and loud source file |
+| `猴麦仔` | Short dry sample, useful for rhythm tests |
+| `炫光迪迪` | Louder long-source comparison |
+| `小夜` | Softer lyrical comparison timbre |
+| `恶魔叮` | Bright attack-heavy comparison timbre |
+| `蹦床松鼠` | Bouncy short-note comparison timbre |
 
 Recommended preset melodies:
 
 | Melody | Use |
 |---|---|
-| `场景-登陆 BGM` | Extracted 7-note demo phrase from the uploaded login scene BGM |
-| `彼得大道 BGM` | Extracted 7-note demo phrase from the uploaded Peter Avenue BGM |
+| `人鱼湾 正谱` | Main lyrical demo; plays with `人鱼湾伴奏.wav` as a quiet backing pad |
+| `彼得大道 Vocal` | Bright rhythmic demo phrase |
+| `蜜雪冰城` | Fast familiar melody stress test |
+| `找朋友` | Simple children's-song style test |
 
 ## Browser Requirements
 

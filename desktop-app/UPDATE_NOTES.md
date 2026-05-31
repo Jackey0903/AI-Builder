@@ -83,3 +83,11 @@
 - 新增 `audio/bgmAnalyser.ts`：音高序列 → 量化音符乐谱
 - UI 新增「解析 BGM 旋律」按钮，支持上传音频文件自动提取主旋律并演奏
 - 支持进度条显示解析进度
+
+---
+
+## 七、人鱼湾伴奏垫音
+
+- `人鱼湾 正谱` 现在会同步播放 `public/sounds/人鱼湾伴奏.wav` 作为低音量背景垫音。
+- 新增预设字段：`backingFile`、`backingGain`、`backingStartMs`、`backingLoop`。
+- 旋律结束后背景垫音会淡出停止，不影响手动弹奏。

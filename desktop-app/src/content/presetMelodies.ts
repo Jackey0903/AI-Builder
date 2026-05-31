@@ -55,6 +55,10 @@ export const PRESET_MELODIES: PresetMelody[] = [
     description: '洛克王国人鱼湾BGM正谱（笛小笛制），1=F 4/4，90BPM，舒缓抒情。',
     style: 'soft',
     root: 'F',
+    backingFile: '/sounds/人鱼湾伴奏.wav',
+    backingGain: 0.14,
+    backingStartMs: 0,
+    backingLoop: true,
     events: [
       // ════════════════════════════════════════════
       // 行1 · 第1小节（弱起）：0 0 0  [0 1 2]

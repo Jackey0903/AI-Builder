@@ -115,7 +115,16 @@ Melody event contract:
 | `durationMs` | number | Duration in milliseconds |
 | `velocity` | number | Volume/strength from `0` to `1` |
 
-Preset melodies may also define a top-level `root` field (`C/D/E/F/G/A/B`). Use it when a melody is extracted as scale degrees from a source BGM and should automatically switch the app's Key Root before playback.
+Preset melodies may also define top-level playback helpers:
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `root` | `C/D/E/F/G/A/B` | Local Key Root for this melody without changing the global keyboard root |
+| `bgmUrl` | string | Optional source BGM to analyse in-browser before playback |
+| `backingFile` | string | Optional quiet backing pad played under the sprite melody |
+| `backingGain` | number | Optional backing volume, usually `0.08-0.2` |
+| `backingStartMs` | number | Optional backing start offset |
+| `backingLoop` | boolean | Whether the backing should loop until melody playback ends |
 
 Recommended phrase length for demo presets: 5-15 seconds.
 

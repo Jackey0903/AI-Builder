@@ -58,6 +58,10 @@ export interface PresetMelody {
    * 提取结果覆盖 events 字段（events 作为备用）。
    */
   bgmUrl?: string;
+  backingFile?: string;
+  backingGain?: number;
+  backingStartMs?: number;
+  backingLoop?: boolean;
 }
 
 export interface SerialLine {

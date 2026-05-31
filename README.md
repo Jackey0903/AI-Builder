@@ -42,13 +42,13 @@ The app can be tested before the ESP32-S3 and buttons arrive.
    ```
 
 2. Open `http://localhost:5173/` in Chrome or Edge.
-3. In **Sound Library**, choose one of the uploaded samples. Start with `圆号鱼双采样`, which keeps the two cleaner single-syllable layers.
+3. In **Sound Library**, choose one of the uploaded samples. Start with `圆号鱼`, then compare `恶魔叮` and `蹦床松鼠`.
 4. Click **Load Preset**.
 5. Use **Key Root** to compare C/D/E/F/G/A/B roots without hardware.
 6. Play notes with the on-screen keys or keyboard `1-7`.
 7. Click **Generate Melody** to test melody generation with the selected sound.
 
-Current recommendation for testing: start with `圆号鱼双采样`, then try the two BGM-derived preset melodies: `场景-登陆 BGM` and `彼得大道 BGM`. These presets store extracted note events only; the uploaded BGM files are references and should still be checked for rights before public release.
+Current recommendation for testing: start with `圆号鱼`, then play `人鱼湾 正谱`. That preset now uses `人鱼湾伴奏.wav` as a quiet backing pad while the selected sprite timbre plays the melody. The uploaded BGM/reference files should still be checked for rights before public release.
 
 ## MVP Flow
 

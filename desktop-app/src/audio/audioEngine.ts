@@ -33,6 +33,8 @@ interface SelectedSampleLayer {
 export class AudioEngine {
   private context: AudioContext | null = null;
   private sampleLayers: LoadedSampleLayer[] = [];
+  private backingSource: AudioBufferSourceNode | null = null;
+  private backingGain: GainNode | null = null;
 
   async ensureContext() {
     if (!this.context) {
@@ -108,6 +110,59 @@ export class AudioEngine {
 
   getSampleDuration() {
     return Math.max(0, ...this.sampleLayers.map((sample) => sample.buffer.duration));
+  }
+
+  async playBackingTrack(
+    url: string,
+    options: { gain?: number; startMs?: number; loop?: boolean } = {}
+  ) {
+    const context = await this.ensureContext();
+    this.stopBackingTrack(0);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Could not load backing track: ${url}`);
+    }
+
+    const decoded = await this.decodeArrayBuffer(context, await response.arrayBuffer());
+    const source = context.createBufferSource();
+    const gainNode = context.createGain();
+    const now = context.currentTime;
+    const startSeconds = ((options.startMs ?? 0) / 1000) % Math.max(decoded.duration, 0.001);
+
+    source.buffer = decoded;
+    source.loop = options.loop ?? true;
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(Math.max(0.0001, options.gain ?? 0.16), now + 0.18);
+
+    source.connect(gainNode);
+    gainNode.connect(context.destination);
+    source.start(now, startSeconds);
+
+    this.backingSource = source;
+    this.backingGain = gainNode;
+  }
+
+  stopBackingTrack(fadeMs = 360) {
+    if (!this.context || !this.backingSource || !this.backingGain) return;
+
+    const source = this.backingSource;
+    const gain = this.backingGain;
+    const now = this.context.currentTime;
+    const fadeSeconds = Math.max(0, fadeMs / 1000);
+
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(Math.max(0.0001, gain.gain.value), now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + fadeSeconds);
+
+    try {
+      source.stop(now + fadeSeconds + 0.02);
+    } catch {
+      // Source may already be stopped by the browser if the buffer ended.
+    }
+
+    this.backingSource = null;
+    this.backingGain = null;
   }
 
   async playNote(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C') {
