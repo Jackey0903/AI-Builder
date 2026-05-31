@@ -328,5 +328,60 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'D', durationMs: 300, velocity: 0.80 }, // 2̲ 蜜
       { note: 'C', durationMs: 1500, velocity: 0.92 }, // 1̲- 蜜～～（结尾拉长收音）
     ]
+  },
+  {
+    id: 'find-a-friend',
+    name: '找朋友',
+    // 1=C，2/4拍，♩=120（四分=500ms，八分=250ms）
+    // 有底部横线=八分(250ms)，无底部横线=四分(500ms)
+    // i（高音1）= 高八度 C，引擎会自动按音高方向选八度
+    // 音级：1=C  2=D  3=E  4=F  5=G  6=A  7=B  i→C(高)
+    description: '找朋友，1=C 大调，2/4拍 120BPM，经典儿歌，共8小节循环。',
+    style: 'bright',
+    events: [
+      // ── 行1 小节1：5̲ 6̲ 5̲ 6̲  (找啊找啊)  4×250=1000ms ──
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 找
+      { note: 'A', durationMs: 250, velocity: 0.82 }, // 6̲ 啊
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 找
+      { note: 'A', durationMs: 250, velocity: 0.82 }, // 6̲ 啊
+
+      // ── 行1 小节2：5̲ 6̲ 5  (找朋友)  250+250+500=1000ms ──
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 找
+      { note: 'A', durationMs: 250, velocity: 0.82 }, // 6̲ 朋
+      { note: 'G', durationMs: 500, velocity: 0.88 }, // 5  友（四分）
+
+      // ── 行1 小节3：5̲ i̲ 7̲ 6̲  (找到一个)  4×250=1000ms ──
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 找
+      { note: 'C', durationMs: 250, velocity: 0.90 }, // i̲ 到（高音1，高八度C）
+      { note: 'B', durationMs: 250, velocity: 0.87 }, // 7̲ 一
+      { note: 'A', durationMs: 250, velocity: 0.84 }, // 6̲ 个
+
+      // ── 行1 小节4：5̲ 5̲ 3  (好朋友)  250+250+500=1000ms ──
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 好
+      { note: 'G', durationMs: 250, velocity: 0.83 }, // 5̲ 朋
+      { note: 'E', durationMs: 500, velocity: 0.88 }, // 3  友（四分）
+
+      // ── 行2 小节5：5̲ 5̲ 3̲ 3̲  (敬个礼呀)  4×250=1000ms ──
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 敬
+      { note: 'G', durationMs: 250, velocity: 0.83 }, // 5̲ 个
+      { note: 'E', durationMs: 250, velocity: 0.82 }, // 3̲ 礼
+      { note: 'E', durationMs: 250, velocity: 0.80 }, // 3̲ 呀
+
+      // ── 行2 小节6：5̲ 5̲ 3  (握握手)  250+250+500=1000ms ──
+      { note: 'G', durationMs: 250, velocity: 0.85 }, // 5̲ 握
+      { note: 'G', durationMs: 250, velocity: 0.83 }, // 5̲ 握
+      { note: 'E', durationMs: 500, velocity: 0.88 }, // 3  手（四分）
+
+      // ── 行2 小节7：2̲ 4̲ 3̲ 2̲  (你是我的)  4×250=1000ms ──
+      { note: 'D', durationMs: 250, velocity: 0.83 }, // 2̲ 你
+      { note: 'F', durationMs: 250, velocity: 0.85 }, // 4̲ 是
+      { note: 'E', durationMs: 250, velocity: 0.83 }, // 3̲ 我
+      { note: 'D', durationMs: 250, velocity: 0.80 }, // 2̲ 的
+
+      // ── 行2 小节8：1̲ 2̲ 1  (好朋友)  250+250+500=1000ms ──
+      { note: 'C', durationMs: 250, velocity: 0.83 }, // 1̲ 好
+      { note: 'D', durationMs: 250, velocity: 0.80 }, // 2̲ 朋
+      { note: 'C', durationMs: 750, velocity: 0.92 }, // 1  友（结尾稍拉长）
+    ]
   }
 ];
