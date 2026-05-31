@@ -13,14 +13,15 @@ export const SOUND_FILE_REQUIREMENTS = {
 export const SOUND_PRESETS: SoundPreset[] = [
   {
     id: 'yuanhaoyu-multisample',
-    name: '圆号鱼多采样',
-    description: 'Low/mid/high sample layers for one timbre. The player automatically picks the closest layer to reduce pitch-shift artifacts.',
+    name: '圆号鱼双采样',
+    description: 'Current main demo timbre using only the two retained single-syllable samples: 发音5低音 and 发音2.',
     samples: [
       {
         id: 'low',
-        name: '低音层',
+        name: '发音5低音',
         file: '/sounds/yuanhaoyu-voice-low.wav',
-        baseNote: 'C',
+        baseNote: 'A',
+        baseSemitoneOffset: -3,
         trimStartMs: 0,
         trimEndMs: 235,
         gain: 1.18,
@@ -28,48 +29,41 @@ export const SOUND_PRESETS: SoundPreset[] = [
       },
       {
         id: 'mid',
-        name: '中音层',
+        name: '发音2',
         file: '/sounds/yuanhaoyu-voice-mid.wav',
-        baseNote: 'E',
+        baseNote: 'F',
+        baseSemitoneOffset: 5,
         trimStartMs: 0,
         trimEndMs: 277,
         gain: 1.12,
         role: 'mid'
-      },
-      {
-        id: 'high',
-        name: '高音层',
-        file: '/sounds/yuanhaoyu-voice-high.wav',
-        baseNote: 'A',
-        trimStartMs: 0,
-        trimEndMs: 405,
-        gain: 1.08,
-        role: 'high'
       }
     ],
     enabled: true,
-    credit: 'Team uploaded low/mid/high single-syllable samples; confirm usage rights before public release.',
-    tags: ['character', 'multi-sample', 'recommended']
+    credit: 'Team uploaded single-syllable samples; keep 发音2 and 发音5低音 for the current demo.',
+    tags: ['character', 'dual-sample', 'recommended']
   },
   {
     id: 'yuanhaoyu-voice-4',
     name: '圆号鱼发音4',
-    description: 'Best current single-syllable candidate: one clean attack, short duration, strong level.',
+    description: 'Clean but currently disabled because the composite timbre is less stable than 发音2 and 发音5低音.',
     file: '/sounds/yuanhaoyu-voice-high.wav',
-    baseNote: 'C',
+    baseNote: 'D',
+    baseSemitoneOffset: 14,
     trimStartMs: 0,
     trimEndMs: 405,
     gain: 1.08,
-    enabled: true,
+    enabled: false,
     credit: 'Team uploaded single-syllable sample; confirm usage rights before public release.',
-    tags: ['character', 'single-syllable', 'recommended']
+    tags: ['character', 'single-syllable', 'disabled']
   },
   {
     id: 'yuanhaoyu-voice-2',
     name: '圆号鱼发音2',
     description: 'Clean single-syllable sample with lower pitch; useful for comparison.',
     file: '/sounds/yuanhaoyu-voice-mid.wav',
-    baseNote: 'C',
+    baseNote: 'F',
+    baseSemitoneOffset: 5,
     trimStartMs: 0,
     trimEndMs: 277,
     gain: 1.12,
@@ -82,7 +76,8 @@ export const SOUND_PRESETS: SoundPreset[] = [
     name: '圆号鱼发音5低音',
     description: 'Short low-voice-labelled sample. Good comparison for a lower character timbre.',
     file: '/sounds/yuanhaoyu-voice-low.wav',
-    baseNote: 'C',
+    baseNote: 'A',
+    baseSemitoneOffset: -3,
     trimStartMs: 0,
     trimEndMs: 235,
     gain: 1.18,
@@ -99,9 +94,9 @@ export const SOUND_PRESETS: SoundPreset[] = [
     trimStartMs: 0,
     trimEndMs: 950,
     gain: 0.95,
-    enabled: true,
+    enabled: false,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
-    tags: ['character', 'single', 'bright']
+    tags: ['character', 'single', 'disabled']
   },
   {
     id: 'yuanhaoyu-ensemble',
@@ -112,9 +107,9 @@ export const SOUND_PRESETS: SoundPreset[] = [
     trimStartMs: 0,
     trimEndMs: 900,
     gain: 1,
-    enabled: true,
+    enabled: false,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
-    tags: ['ensemble', 'melody', 'comparison']
+    tags: ['ensemble', 'melody', 'disabled']
   },
   {
     id: 'xuanguang-didi',

@@ -40,6 +40,7 @@ Single-sample parameter contract:
 | `description` | string | Short usage note |
 | `file` | string | Browser path, usually `/sounds/name.wav` |
 | `baseNote` | `C/D/E/F/G/A/B` | The note of the original sample; use `C` if unknown |
+| `baseSemitoneOffset` | number | Optional measured pitch relative to C4, such as `-3` for A3 or `5` for F4 |
 | `trimStartMs` | number | Optional manual start trim |
 | `trimEndMs` | number | Optional manual end trim |
 | `gain` | number | Optional volume multiplier, usually `0.6-1.1` |
@@ -47,19 +48,20 @@ Single-sample parameter contract:
 | `credit` | string | Source/permission note |
 | `tags` | string[] | Optional search/group labels |
 
-For one character/timbre, a multi-sample preset is preferred when you have low/mid/high short syllables. The app will pick the closest layer for the requested note/root before pitch shifting, which reduces the double-syllable and compressed-sound effect.
+For one character/timbre, a multi-sample preset is preferred when you have several clean short syllables. The app will pick a stable layer for the requested note/root before pitch shifting, which reduces the double-syllable and compressed-sound effect.
 
 ```ts
 {
   id: 'yuanhaoyu-multisample',
-  name: '圆号鱼多采样',
-  description: 'Low/mid/high sample layers for one timbre.',
+  name: '圆号鱼双采样',
+  description: 'Current main demo timbre using 发音5低音 and 发音2.',
   samples: [
     {
       id: 'low',
-      name: '低音层',
+      name: '发音5低音',
       file: '/sounds/yuanhaoyu-voice-low.wav',
-      baseNote: 'C',
+      baseNote: 'A',
+      baseSemitoneOffset: -3,
       trimStartMs: 0,
       trimEndMs: 235,
       gain: 1.18,
@@ -67,28 +69,19 @@ For one character/timbre, a multi-sample preset is preferred when you have low/m
     },
     {
       id: 'mid',
-      name: '中音层',
+      name: '发音2',
       file: '/sounds/yuanhaoyu-voice-mid.wav',
-      baseNote: 'E',
+      baseNote: 'F',
+      baseSemitoneOffset: 5,
       trimStartMs: 0,
       trimEndMs: 277,
       gain: 1.12,
       role: 'mid'
-    },
-    {
-      id: 'high',
-      name: '高音层',
-      file: '/sounds/yuanhaoyu-voice-high.wav',
-      baseNote: 'A',
-      trimStartMs: 0,
-      trimEndMs: 405,
-      gain: 1.08,
-      role: 'high'
     }
   ],
   enabled: true,
   credit: 'Team recording',
-  tags: ['character', 'multi-sample', 'recommended']
+  tags: ['character', 'dual-sample', 'recommended']
 }
 ```
 
@@ -100,6 +93,7 @@ Multi-sample layer contract:
 | `name` | string | Display/debug name |
 | `file` | string | Browser path, usually `/sounds/name.wav` |
 | `baseNote` | `C/D/E/F/G/A/B` | The nearest pitch of this sample; use listening/tuner judgement |
+| `baseSemitoneOffset` | number | Optional measured pitch relative to C4, such as `-3` for A3 or `5` for F4 |
 | `trimStartMs` | number | Optional manual start trim |
 | `trimEndMs` | number | Optional manual end trim |
 | `gain` | number | Optional volume multiplier |

@@ -23,6 +23,7 @@ export interface SoundSampleLayer {
   name: string;
   file: string;
   baseNote: Note;
+  baseSemitoneOffset?: number;
   trimStartMs?: number;
   trimEndMs?: number;
   gain?: number;
@@ -35,6 +36,7 @@ export interface SoundPreset {
   description: string;
   file?: string;
   baseNote?: Note;
+  baseSemitoneOffset?: number;
   trimStartMs?: number;
   trimEndMs?: number;
   gain?: number;

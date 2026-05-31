@@ -42,13 +42,13 @@ The app can be tested before the ESP32-S3 and buttons arrive.
    ```
 
 2. Open `http://localhost:5173/` in Chrome or Edge.
-3. In **Sound Library**, choose one of the uploaded samples. Start with `圆号鱼多采样`, which combines low/mid/high single-syllable layers.
+3. In **Sound Library**, choose one of the uploaded samples. Start with `圆号鱼双采样`, which keeps the two cleaner single-syllable layers.
 4. Click **Load Preset**.
 5. Use **Key Root** to compare C/D/E/F/G/A/B roots without hardware.
 6. Play notes with the on-screen keys or keyboard `1-7`.
 7. Click **Generate Melody** to test melody generation with the selected sound.
 
-Current recommendation for testing: start with `圆号鱼多采样`, then compare the single-layer presets `圆号鱼发音4`, `圆号鱼发音2`, and `圆号鱼发音5低音`. The older long melody/ensemble files can load, but they are more likely to sound like multiple syllables and are less ideal as the main playable key timbre.
+Current recommendation for testing: start with `圆号鱼双采样`, then compare the single-layer presets `圆号鱼发音2` and `圆号鱼发音5低音`. `圆号鱼发音4`, the older long sample, and the ensemble sample are currently disabled because the synthesized scale sounds less stable.
 
 ## MVP Flow
 
@@ -76,7 +76,7 @@ Content side:
 
 - Add audio files to `desktop-app/public/sounds/`.
 - Register playable sound presets in `desktop-app/src/content/soundLibrary.ts`.
-- For one character/timbre, prefer several short low/mid/high single-syllable samples so the app can choose the closest layer before pitch shifting.
+- For one character/timbre, prefer two or more short single-syllable samples with measured pitch offsets so the app can choose a stable layer before pitch shifting.
 - Edit preset phrases in `desktop-app/src/content/presetMelodies.ts`.
 - Follow `docs/CONTENT_HANDOFF.md` for file formats and parameter names.
 - Chinese handoff note: `docs/TEAM_SPLIT_CN.md`.

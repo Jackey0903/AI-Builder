@@ -27,10 +27,9 @@ Recommended order:
 
 | Sound | Use |
 |---|---|
-| `圆号鱼多采样` | First choice for current main demo; low/mid/high single-syllable layers reduce pitch-shift artifacts |
-| `圆号鱼发音4` | First choice for main playable timbre; clean single syllable |
-| `圆号鱼发音2` | Good comparison; clean single syllable with lower pitch |
-| `圆号鱼发音5低音` | Low-labelled comparison sample |
+| `圆号鱼双采样` | First choice for current main demo; only keeps `发音2` and `发音5低音` |
+| `圆号鱼发音2` | Clean single-syllable comparison sample |
+| `圆号鱼发音5低音` | Low single-syllable comparison sample |
 | `圆号鱼` | Older long sample; can sound like multiple syllables |
 | `里拉鳐` | Sharp and distinctive comparison |
 | `圆号鱼合奏` | Comparison only; more like a phrase/ensemble |

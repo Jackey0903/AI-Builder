@@ -60,19 +60,20 @@ desktop-app/src/content/soundLibrary.ts
 }
 ```
 
-如果同一个角色有低/中/高几条单音节采样，可以登记成多采样版本：
+如果同一个角色有几条干净的单音节采样，可以登记成多采样版本。当前圆号鱼先只保留同学反馈更稳定的 `发音5低音` 和 `发音2`：
 
 ```ts
 {
   id: 'yuanhaoyu-multisample',
-  name: '圆号鱼多采样',
-  description: 'Low/mid/high sample layers for one timbre.',
+  name: '圆号鱼双采样',
+  description: 'Current main demo timbre using 发音5低音 and 发音2.',
   samples: [
     {
       id: 'low',
-      name: '低音层',
+      name: '发音5低音',
       file: '/sounds/yuanhaoyu-voice-low.wav',
-      baseNote: 'C',
+      baseNote: 'A',
+      baseSemitoneOffset: -3,
       trimStartMs: 0,
       trimEndMs: 235,
       gain: 1.18,
@@ -80,28 +81,19 @@ desktop-app/src/content/soundLibrary.ts
     },
     {
       id: 'mid',
-      name: '中音层',
+      name: '发音2',
       file: '/sounds/yuanhaoyu-voice-mid.wav',
-      baseNote: 'E',
+      baseNote: 'F',
+      baseSemitoneOffset: 5,
       trimStartMs: 0,
       trimEndMs: 277,
       gain: 1.12,
       role: 'mid'
-    },
-    {
-      id: 'high',
-      name: '高音层',
-      file: '/sounds/yuanhaoyu-voice-high.wav',
-      baseNote: 'A',
-      trimStartMs: 0,
-      trimEndMs: 405,
-      gain: 1.08,
-      role: 'high'
     }
   ],
   enabled: true,
   credit: 'Team recording',
-  tags: ['character', 'multi-sample', 'recommended']
+  tags: ['character', 'dual-sample', 'recommended']
 }
 ```
 
@@ -113,6 +105,7 @@ desktop-app/src/content/soundLibrary.ts
 | `name` | 页面显示名 |
 | `file` | `/sounds/文件名.wav` |
 | `baseNote` | 原始声音大概对应哪个音，未知就填 `C` |
+| `baseSemitoneOffset` | 可选；相对 C4 的半音位置，例如 A3 填 `-3`，F4 填 `5` |
 | `trimStartMs` | 从第几毫秒开始截 |
 | `trimEndMs` | 到第几毫秒结束 |
 | `gain` | 音量倍率，通常 `0.6-1.1` |

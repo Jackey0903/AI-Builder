@@ -2,11 +2,13 @@ import { NOTES, noteByName } from '../data/notes';
 import type { Note, SoundSampleLayer } from '../types';
 
 const MASTER_GAIN = 0.82;
+const DOWNSHIFT_PENALTY_SEMITONES = 3;
 
 export interface SampleOptions {
   id?: string;
   name?: string;
   baseNote?: Note;
+  baseSemitoneOffset?: number;
   trimStartMs?: number;
   trimEndMs?: number;
   gain?: number;
@@ -18,6 +20,7 @@ interface LoadedSampleLayer {
   name: string;
   buffer: AudioBuffer;
   baseNote: Note;
+  baseSemitoneOffset?: number;
   gain: number;
   role?: SoundSampleLayer['role'];
 }
@@ -61,6 +64,7 @@ export class AudioEngine {
         name: options.name ?? 'Recorded Sample',
         buffer: this.cropBuffer(autoTrimmed, options.trimStartMs, options.trimEndMs),
         baseNote: options.baseNote ?? 'C',
+        baseSemitoneOffset: options.baseSemitoneOffset,
         gain: options.gain ?? 1,
         role: options.role ?? 'single'
       }
@@ -95,6 +99,7 @@ export class AudioEngine {
         name: sample.name,
         buffer: this.cropBuffer(autoTrimmed, sample.trimStartMs, sample.trimEndMs),
         baseNote: sample.baseNote,
+        baseSemitoneOffset: sample.baseSemitoneOffset,
         gain: sample.gain ?? 1,
         role: sample.role
       });
@@ -193,20 +198,35 @@ export class AudioEngine {
 
   private pickClosestSample(targetSemitone: number): SelectedSampleLayer {
     return this.sampleLayers.reduce<SelectedSampleLayer>((best, sample) => {
-      const baseSemitone = this.closestBaseSemitone(sample, targetSemitone);
-      const currentDistance = Math.abs(targetSemitone - baseSemitone);
-      const bestDistance = Math.abs(targetSemitone - best.baseSemitone);
-      return currentDistance < bestDistance ? { sample, baseSemitone } : best;
+      const baseSemitone = this.bestPlayableBaseSemitone(sample, targetSemitone);
+      const currentScore = this.pitchShiftScore(targetSemitone, baseSemitone);
+      const bestScore = this.pitchShiftScore(targetSemitone, best.baseSemitone);
+      return currentScore < bestScore ? { sample, baseSemitone } : best;
     }, {
       sample: this.sampleLayers[0],
-      baseSemitone: this.closestBaseSemitone(this.sampleLayers[0], targetSemitone)
+      baseSemitone: this.bestPlayableBaseSemitone(this.sampleLayers[0], targetSemitone)
     });
   }
 
-  private closestBaseSemitone(sample: LoadedSampleLayer, targetSemitone: number) {
+  private bestPlayableBaseSemitone(sample: LoadedSampleLayer, targetSemitone: number) {
+    if (typeof sample.baseSemitoneOffset === 'number') {
+      return sample.baseSemitoneOffset;
+    }
+
     const baseDefinition = noteByName.get(sample.baseNote) ?? noteByName.get('C')!;
-    const octaveOffset = Math.round((targetSemitone - baseDefinition.semitoneOffset) / 12) * 12;
-    return baseDefinition.semitoneOffset + octaveOffset;
+    const octave = Math.floor((targetSemitone - baseDefinition.semitoneOffset) / 12);
+    const candidates = [octave - 1, octave, octave + 1, octave + 2].map(
+      (octaveIndex) => baseDefinition.semitoneOffset + octaveIndex * 12
+    );
+
+    return candidates.reduce((best, baseSemitone) =>
+      this.pitchShiftScore(targetSemitone, baseSemitone) < this.pitchShiftScore(targetSemitone, best) ? baseSemitone : best
+    );
+  }
+
+  private pitchShiftScore(targetSemitone: number, baseSemitone: number) {
+    const distance = Math.abs(targetSemitone - baseSemitone);
+    return baseSemitone > targetSemitone ? distance + DOWNSHIFT_PENALTY_SEMITONES : distance;
   }
 
   private decodeArrayBuffer(context: AudioContext, arrayBuffer: ArrayBuffer) {

@@ -139,6 +139,7 @@ function App() {
       } else if (preset.file && preset.baseNote) {
         await audioEngine.loadSampleFromUrl(preset.file, {
           baseNote: preset.baseNote,
+          baseSemitoneOffset: preset.baseSemitoneOffset,
           trimStartMs: preset.trimStartMs,
           trimEndMs: preset.trimEndMs,
           gain: preset.gain
