@@ -120,6 +120,38 @@ export const SOUND_PRESETS: SoundPreset[] = [
     enabled: true,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
     tags: ['character', 'single', 'sharp', 'ding', 'battle']
+  },
+  {
+    id: 'beng-squirrel-adult',
+    name: '蹦床松鼠',
+    // 成年版：384ms，D5（约590Hz），baseSemitoneOffset=+14
+    // 包络：0ms即有声(RMS≈0.13)，60~120ms主体爆发，360ms后静音
+    description: '蹦床松鼠成年采样（384ms），基频 D5，厚实饱满，全段有声无需裁切。',
+    file: '/sounds/蹦床松鼠/蹦床松鼠（成年）.wav',
+    baseNote: 'D',
+    baseSemitoneOffset: 14,
+    trimStartMs: 0,
+    trimEndMs: 0,
+    gain: 1.0,
+    enabled: true,
+    credit: 'Team uploaded sample; confirm usage rights before public release.',
+    tags: ['character', 'bouncy', 'squirrel', 'adult']
+  },
+  {
+    id: 'beng-squirrel-young',
+    name: '蹦床松鼠幼',
+    // 幼年版：213ms，F#5（约740Hz），baseSemitoneOffset=+18
+    // 包络：0ms几乎静音(RMS≈0.001)，70ms峰值，200ms快速衰减
+    description: '蹦床松鼠幼年采样（213ms），基频 F#5，短促活泼，高音清脆。',
+    file: '/sounds/蹦床松鼠/蹦床松鼠（幼年）.wav',
+    baseNote: 'F',
+    baseSemitoneOffset: 18,
+    trimStartMs: 0,
+    trimEndMs: 0,
+    gain: 1.0,
+    enabled: true,
+    credit: 'Team uploaded sample; confirm usage rights before public release.',
+    tags: ['character', 'bouncy', 'squirrel', 'young', 'high']
   }
 ];
 
