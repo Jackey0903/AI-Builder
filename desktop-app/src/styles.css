@@ -150,9 +150,10 @@ h1, h2, p { margin: 0; }
   flex-direction: column;
   /* 头像靠左对齐，名字自然跟在右侧 */
   align-items: flex-start;
-  gap: 6px;
-  /* 顶部让出宝石区（图高约 28%），左侧对齐魔杖 */
-  padding-top: 170px;
+  /* 设计稿精灵间距约 22px */
+  gap: 22px;
+  /* 顶部让出宝石区，与舞台插画顶部大致对齐 */
+  padding-top: 110px;
   padding-bottom: 6%;
   padding-left: 0;
   padding-right: 0;
@@ -160,6 +161,9 @@ h1, h2, p { margin: 0; }
   background: none;
   width: 100%;
   overflow: visible;
+  /* 以第一个头像为旋转中心，倾斜 4° 对齐魔杖深色条带 */
+  transform: translateX(-10px) rotate(-4deg);
+  transform-origin: 50px 148px;  /* 大约第一个头像中心：margin-left(12px)+半径(38px)=50px, padding-top(110px)+半径(38px)=148px */
 }
 
 .sprite-slot {
@@ -184,8 +188,9 @@ h1, h2, p { margin: 0; }
 /* Figma 头像组件：圆形 + 图片 + 两态描边 */
 .sprite-slot .sprite-avatar {
   position: relative;
-  width: 56px;
-  height: 56px;
+  /* 设计稿头像约 76px */
+  width: 76px;
+  height: 76px;
   flex-shrink: 0;
   border-radius: 50%;
   border: 3px solid #C1B6A2;   /* Figma default 态描边 */
@@ -196,8 +201,8 @@ h1, h2, p { margin: 0; }
   align-items: center;
   justify-content: center;
   transition: border-color 150ms ease, box-shadow 150ms ease;
-  /* 头像在魔杖区域内居中：魔杖宽约110px，头像56px，左边距=(110-56)/2=27px */
-  margin-left: 27px;
+  /* 头像在魔杖区域内居中：魔杖深色区宽约100px，头像76px，左边距=(100-76)/2=12px */
+  margin-left: 12px;
 }
 
 /* 头像里的 img 铺满圆形 */
@@ -236,15 +241,16 @@ h1, h2, p { margin: 0; }
 
 .sprite-slot .sprite-name {
   font-family: "SentyWatermelon", serif;
-  font-size: 16px;
-  /* 魔杖外侧，文字在亮色背景（羊皮纸）上用墨色 */
+  /* 设计稿名字约 24px */
+  font-size: 24px;
   color: var(--ink);
   line-height: 1.1;
 }
 
 .sprite-slot .sprite-sub {
   font-family: "SentyWatermelon", serif;
-  font-size: 11px;
+  /* 设计稿副文字约 14px */
+  font-size: 14px;
   color: var(--ink-faint);
   line-height: 1.1;
 }

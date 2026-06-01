@@ -216,26 +216,6 @@ function App() {
     [audioEngine, isPlayingMelody, scaleRoot, sendHardware]
   );
 
-  const toggleSoundPreset = useCallback((id: string) => {
-    const isSelected = selectedSoundPresetIds.includes(id);
-    if (isSelected) {
-      audioEngine.removePresetLayers(id);
-      const remaining = selectedSoundPresetIds.filter((x) => x !== id);
-      audioEngine.ensembleMode = remaining.length > 1;
-      setSelectedSoundPresetIds(remaining);
-    } else {
-      setSelectedSoundPresetIds((prev) => [...prev, id]);
-    }
-  }, [audioEngine, selectedSoundPresetIds]);
-
-  const previewPresetSound = useCallback((presetId: string) => {
-    const preset = enabledSoundPresets.find((p) => p.id === presetId);
-    if (!preset) return;
-    const url = preset.file ?? preset.samples?.[0]?.file;
-    if (!url) return;
-    void audioEngine.previewSound(url, 1500);
-  }, [audioEngine]);
-
   const makePitchProgress = useCallback(
     (presetName: string): PitchBuildProgress =>
       (done, total) => {
@@ -245,8 +225,12 @@ function App() {
     []
   );
 
-  const loadSelectedSoundPreset = useCallback(async () => {
-    const presets = enabledSoundPresets.filter((p) => selectedSoundPresetIds.includes(p.id));
+  /**
+   * 加载指定的精灵 preset id 列表到 audioEngine。
+   * 不依赖 React state（避免闭包捕获旧值），直接接收最新 ids。
+   */
+  const loadPresetIds = useCallback(async (ids: string[]) => {
+    const presets = enabledSoundPresets.filter((p) => ids.includes(p.id));
     if (!presets.length) { setStatus('请先选择音色'); return; }
     const isEnsemble = presets.length > 1;
     audioEngine.clearSampleLayers();
@@ -276,12 +260,33 @@ function App() {
       setPitchBuild(null);
       setStatus(error instanceof Error ? error.message : '音色加载失败');
     }
-  }, [audioEngine, makePitchProgress, selectedSoundPresetIds, sendHardware]);
+  }, [audioEngine, makePitchProgress, sendHardware]);
+
+  const toggleSoundPreset = useCallback((id: string) => {
+    const isSelected = selectedSoundPresetIds.includes(id);
+    let nextIds: string[];
+    if (isSelected) {
+      nextIds = selectedSoundPresetIds.filter((x) => x !== id);
+    } else {
+      nextIds = [...selectedSoundPresetIds, id];
+    }
+    setSelectedSoundPresetIds(nextIds);
+    // 立即用最新的 ids 加载音频，不依赖 setState 异步更新后的闭包
+    void loadPresetIds(nextIds);
+  }, [selectedSoundPresetIds, loadPresetIds]);
+
+  const previewPresetSound = useCallback((presetId: string) => {
+    const preset = enabledSoundPresets.find((p) => p.id === presetId);
+    if (!preset) return;
+    const url = preset.file ?? preset.samples?.[0]?.file;
+    if (!url) return;
+    void audioEngine.previewSound(url, 1500);
+  }, [audioEngine]);
 
   // 自动加载第一个预设音色
   useEffect(() => {
-    if (selectedSoundPresetIds.length > 0) {
-      void loadSelectedSoundPreset();
+    if (firstSoundPresetId) {
+      void loadPresetIds([firstSoundPresetId]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -553,6 +558,11 @@ function App() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
+      // 神秘嘉宾弹窗打开时，或焦点在输入框 / 文本域时，不触发演奏快捷键
+      if (showGuestModal) return;
+      const tag = (event.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
       const definition = noteByKey.get(event.key);
       if (definition) { event.preventDefault(); void triggerNote(definition.note); }
       if (event.key.toLowerCase() === 'r') { event.preventDefault(); void startRecording(); }
@@ -560,7 +570,7 @@ function App() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleGenerate, startRecording, triggerNote]);
+  }, [handleGenerate, showGuestModal, startRecording, triggerNote]);
 
   useEffect(
     () => () => {
@@ -586,8 +596,9 @@ function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showScalePicker, showPresetPicker]);
 
-  // 当前激活的精灵 = selectedSoundPresetIds 第一个
-  const activePresetId = selectedSoundPresetIds[0] ?? '';
+  // 当前激活的精灵 = selectedSoundPresetIds 中最新点击的（末尾）
+  // 逻辑：选中 A→B 时末尾是 B，展示 B；取消 B 后末尾是 A，展示 A；全取消展示兜底图
+  const activePresetId = selectedSoundPresetIds.at(-1) ?? '';
 
   // 音色 id → 中央舞台大插图映射（/ui/*插图.png）
   const SPRITE_ILLUSTRATION: Record<string, string> = {
@@ -639,7 +650,6 @@ function App() {
                 onClick={() => {
                   toggleSoundPreset(preset.id);
                   previewPresetSound(preset.id);
-                  window.setTimeout(() => void loadSelectedSoundPreset(), 100);
                 }}
               >
                 <div className="sprite-avatar">

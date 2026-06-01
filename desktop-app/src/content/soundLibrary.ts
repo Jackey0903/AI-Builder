@@ -139,7 +139,7 @@ export const SOUND_PRESETS: SoundPreset[] = [
     trimStartMs: 0,
     trimEndMs: 0,
     gain: 1.0,
-    enabled: true,
+    enabled: false,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
     tags: ['character', 'bouncy', 'squirrel', 'adult']
   },
