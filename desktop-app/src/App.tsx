@@ -133,6 +133,8 @@ function App() {
   const [guestSampleReady, setGuestSampleReady] = useState(false);
   const [guestStatus, setGuestStatus] = useState('');
   const [customGuests, setCustomGuests] = useState<CustomGuest[]>([]);
+  const [guestRecordSecs, setGuestRecordSecs] = useState(0);
+  const guestTimerRef = useRef<number | null>(null);
   const guestRecorderRef = useRef<MediaRecorder | null>(null);
   const guestChunksRef = useRef<Blob[]>([]);
   const guestAutoStopRef = useRef<number | null>(null);
@@ -275,13 +277,32 @@ function App() {
     void loadPresetIds(nextIds);
   }, [selectedSoundPresetIds, loadPresetIds]);
 
-  const previewPresetSound = useCallback((presetId: string) => {
-    const preset = enabledSoundPresets.find((p) => p.id === presetId);
-    if (!preset) return;
-    const url = preset.file ?? preset.samples?.[0]?.file;
+  // ── 精灵原声预览（头像音，不进入演奏引擎）──
+  // 原声文件映射：精灵 id → public/sounds/原声合集/*.wav
+  const SPRITE_VOICE: Record<string, string> = {
+    'yuanhaoyu-voice-2': '/sounds/原声合集/圆号鱼原声.wav',
+    'yuanhaoyu':         '/sounds/原声合集/圆号鱼原声.wav',
+    'xiaoya':            '/sounds/原声合集/小夜原声.wav',
+    'lilayao':           '/sounds/原声合集/里拉鳐原声.wav',
+    'emoding':           '/sounds/原声合集/恶魔叮原声.wav',
+    'houmaizai':         '/sounds/原声合集/猴麦仔原声.wav',
+  };
+  // 当前正在播放的头像音实例，点新精灵时先停掉
+  const avatarAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const playAvatarVoice = useCallback((presetId: string) => {
+    const url = SPRITE_VOICE[presetId];
     if (!url) return;
-    void audioEngine.previewSound(url, 1500);
-  }, [audioEngine]);
+    // 停止上一个
+    if (avatarAudioRef.current) {
+      avatarAudioRef.current.pause();
+      avatarAudioRef.current.currentTime = 0;
+    }
+    const audio = new Audio(url);
+    audio.volume = 0.85;
+    avatarAudioRef.current = audio;
+    void audio.play().catch(() => undefined);
+  }, []);
 
   // 自动加载第一个预设音色
   useEffect(() => {
@@ -444,6 +465,10 @@ function App() {
       window.clearTimeout(guestAutoStopRef.current);
       guestAutoStopRef.current = null;
     }
+    if (guestTimerRef.current !== null) {
+      window.clearInterval(guestTimerRef.current);
+      guestTimerRef.current = null;
+    }
     const recorder = guestRecorderRef.current;
     if (recorder && recorder.state !== 'inactive') recorder.stop();
   }, []);
@@ -455,6 +480,7 @@ function App() {
     setGuestSampleReady(false);
     setGuestSampleBlob(null);
     setGuestStatus('正在录制…');
+    setGuestRecordSecs(0);
     guestChunksRef.current = [];
     try {
       await audioEngine.ensureContext();
@@ -489,6 +515,10 @@ function App() {
         }
       };
       recorder.start();
+      // 每秒递增计时
+      guestTimerRef.current = window.setInterval(() => {
+        setGuestRecordSecs((s) => s + 1);
+      }, 1000);
       guestAutoStopRef.current = window.setTimeout(() => {
         guestAutoStopRef.current = null;
         if (recorder.state !== 'inactive') recorder.stop();
@@ -528,6 +558,7 @@ function App() {
     setGuestStatus('');
     setGuestRecording(false);
     setGuestConverting(false);
+    setGuestRecordSecs(0);
   }, []);
 
   const closeGuestModal = useCallback(() => {
@@ -649,7 +680,7 @@ function App() {
                 className={`sprite-slot ${selectedSoundPresetIds.includes(preset.id) ? 'is-active' : ''}`}
                 onClick={() => {
                   toggleSoundPreset(preset.id);
-                  previewPresetSound(preset.id);
+                  playAvatarVoice(preset.id);
                 }}
               >
                 <div className="sprite-avatar">
@@ -912,40 +943,24 @@ function App() {
         </button>
       </section>
 
-      {/* ── 神秘嘉宾弹窗 ── */}
+      {/* ── 神秘嘉宾弹窗（信封主题） ── */}
       {showGuestModal && (
         <div className="guest-modal-overlay" onClick={closeGuestModal}>
+          {/* 信封背景壳 */}
           <div className="guest-modal" onClick={(e) => e.stopPropagation()}>
-            {/* 装饰三角 */}
-            <div className="guest-modal__deco-left" />
-            <div className="guest-modal__deco-center" />
-            <div className="guest-modal__deco-right" />
 
+            {/* 关闭按钮（右上角，独立于内容区） */}
+            <button className="guest-modal__close" type="button" onClick={closeGuestModal}>
+              <X size={16} />
+            </button>
+
+            {/* 内容区：叠在信封卡片上半部分 */}
             <div className="guest-modal__inner">
-              {/* 关闭 */}
-              <button className="guest-modal__close" type="button" onClick={closeGuestModal}>
-                <X size={18} />
-              </button>
 
               {/* 标题 */}
               <h2 className="guest-modal__title">神秘嘉宾</h2>
 
-              {/* 预览区域 */}
-              <div className="guest-modal__preview">
-                {guestRecording ? (
-                  <div className="guest-modal__waveform">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                      <span key={i} />
-                    ))}
-                  </div>
-                ) : guestSampleReady ? (
-                  <span className="guest-modal__preview-text">✓ 录制完成</span>
-                ) : (
-                  <span className="guest-modal__preview-text">录制预览</span>
-                )}
-              </div>
-
-              {/* 昵称输入 */}
+              {/* 昵称输入行 */}
               <div className="guest-modal__input-row">
                 <span className="guest-modal__nick-label">昵称</span>
                 <input
@@ -958,44 +973,63 @@ function App() {
                 />
               </div>
 
-              {/* 状态提示 */}
-              {guestStatus && (
+              {/* 计时 + 波形 预览区 */}
+              <div className="guest-modal__preview">
+                {guestRecording ? (
+                  <>
+                    <div className="guest-modal__timer">
+                      {`00:${String(Math.floor(guestRecordSecs / 60)).padStart(2, '0')}:${String(guestRecordSecs % 60).padStart(2, '0')}`}
+                    </div>
+                    <div className="guest-modal__waveform">
+                      {Array.from({ length: 12 }).map((_, i) => <span key={i} />)}
+                    </div>
+                  </>
+                ) : guestConverting ? (
+                  <span className="guest-modal__preview-text">分析中…</span>
+                ) : guestSampleReady ? (
+                  <span className="guest-modal__preview-text" style={{ color: '#1BA1AB' }}>✓ 录制完成</span>
+                ) : (
+                  <span className="guest-modal__preview-text">点击下方按钮开始录制</span>
+                )}
+              </div>
+
+              {/* 状态提示（录制完成的音高信息等） */}
+              {guestStatus && !guestRecording && (
                 <p className={`guest-modal__status ${guestSampleReady ? 'is-ready' : ''}`}>
                   {guestStatus}
                 </p>
               )}
+            </div>
 
-              {/* 录制按钮 */}
-              <div className="guest-modal__rec-area">
-                <button
-                  className={`rec-btn ${guestRecording ? 'is-recording' : ''}`}
-                  type="button"
-                  onClick={guestRecording ? stopGuestRecording : () => void startGuestRecording()}
-                  disabled={guestConverting}
-                  style={{ width: 'auto', minWidth: 200 }}
-                >
-                  <div className="rec-btn__inner">
-                    <RecMicIcon isRecording={guestRecording} isConverting={guestConverting} />
-                    <span className="rec-btn__label">
-                      {guestConverting ? '分析中…' : guestRecording ? '停止录制' : '点击录制'}
-                    </span>
-                  </div>
-                </button>
-              </div>
-
-              {/* 保存按钮 */}
-              <div className="guest-modal__actions">
+            {/* 录制 & 保存按钮区：浮在封口三角上 */}
+            <div className="guest-modal__rec-area">
+              {guestSampleReady ? (
+                /* 录制完成后：保存 */
                 <button
                   className="guest-modal__save-btn"
                   type="button"
                   onClick={saveGuest}
-                  disabled={!guestSampleReady}
                 >
                   <GoldStar size={14} />
                   保存嘉宾
                 </button>
-              </div>
+              ) : (
+                /* 录制中 / 待录制 */
+                <button
+                  className={`guest-modal__rec-btn${guestRecording ? ' is-recording' : ''}`}
+                  type="button"
+                  onClick={guestRecording ? stopGuestRecording : () => void startGuestRecording()}
+                  disabled={guestConverting}
+                >
+                  {guestConverting
+                    ? '分析中…'
+                    : guestRecording
+                      ? '⏸ 暂停录制'
+                      : '♪ 开始录制'}
+                </button>
+              )}
             </div>
+
           </div>
         </div>
       )}
