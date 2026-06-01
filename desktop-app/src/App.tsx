@@ -52,6 +52,7 @@ function App() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timeoutsRef = useRef<number[]>([]);
+  const recAutoStopRef = useRef<number | null>(null); // 录音自动停止的 timeout id
   const hardwareSendRef = useRef<(message: string) => void>(() => undefined);
 
   const appendLog = useCallback((line: SerialLine) => {
@@ -274,6 +275,18 @@ function App() {
     [isAnalysingBgm, isPlayingMelody, playGeneratedMelody]
   );
 
+  /** 手动停止录音（用户点按钮或超时自动调用） */
+  const stopRecording = useCallback(() => {
+    if (recAutoStopRef.current !== null) {
+      window.clearTimeout(recAutoStopRef.current);
+      recAutoStopRef.current = null;
+    }
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      recorder.stop();
+    }
+  }, []);
+
   const startRecording = useCallback(async () => {
     if (isRecording) return;
 
@@ -283,7 +296,7 @@ function App() {
     }
 
     setIsRecording(true);
-    setStatus('正在录制 4 秒麦克风音频…');
+    setStatus('正在录制，说完请点「停止录制」…（最长 30 秒）');
     sendHardware('LED:REC');
     chunksRef.current = [];
 
@@ -298,6 +311,11 @@ function App() {
       };
 
       recorder.onstop = async () => {
+        // 清理自动停止 timer（若还未触发）
+        if (recAutoStopRef.current !== null) {
+          window.clearTimeout(recAutoStopRef.current);
+          recAutoStopRef.current = null;
+        }
         stream.getTracks().forEach((track) => track.stop());
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
 
@@ -328,9 +346,11 @@ function App() {
       };
 
       recorder.start();
-      window.setTimeout(() => {
+      // 最长 30 秒自动停止兜底，用户说完可随时手动停
+      recAutoStopRef.current = window.setTimeout(() => {
+        recAutoStopRef.current = null;
         if (recorder.state !== 'inactive') recorder.stop();
-      }, RECORD_MS);
+      }, 30_000);
     } catch (error) {
       setIsRecording(false);
       setStatus(error instanceof Error ? error.message : '麦克风权限获取失败。');
@@ -433,10 +453,17 @@ function App() {
             </div>
           </div>
 
-          <button className="primary-action" type="button" onClick={() => void startRecording()} disabled={isRecording}>
-            {isRecording ? <CircleStop size={20} /> : <Mic size={20} />}
-            {isRecording ? '录制中…' : sampleReady ? '重新录制' : '录制声音'}
-          </button>
+          {isRecording ? (
+            <button className="primary-action is-recording" type="button" onClick={stopRecording}>
+              <CircleStop size={20} />
+              停止录制
+            </button>
+          ) : (
+            <button className="primary-action" type="button" onClick={() => void startRecording()}>
+              <Mic size={20} />
+              {sampleReady ? '重新录制' : '录制声音'}
+            </button>
+          )}
 
           <div className="content-loader">
             <div className="panel-heading compact">

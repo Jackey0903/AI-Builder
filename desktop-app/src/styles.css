@@ -208,6 +208,20 @@ h2 {
   letter-spacing: 0.04em;
 }
 
+/* 录制进行中：砖红底色 + 脉冲感 */
+.primary-action.is-recording {
+  background: color-mix(in srgb, var(--red) 12%, var(--raised));
+  color: var(--red);
+  animation: rec-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes rec-pulse {
+  0%, 100% { box-shadow: var(--neu-btn); }
+  50%       { box-shadow:
+    6px 6px 16px rgba(160, 60, 60, 0.35),
+    -4px -4px 10px rgba(255, 249, 234, 0.80); }
+}
+
 .secondary-action {
   width: 100%;
   background: var(--raised);
