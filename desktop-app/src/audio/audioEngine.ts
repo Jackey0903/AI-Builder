@@ -109,6 +109,7 @@ export class AudioEngine {
     // ── 自动音高检测 ──
     let detectResult: AutoDetectResult | null = null;
     let baseSemitoneOffset = options.baseSemitoneOffset;
+    let detectedBaseNote: Note | undefined;
 
     if (autoDetect && baseSemitoneOffset == null) {
       const sampleRate = trimmed.sampleRate;
@@ -136,10 +137,7 @@ export class AudioEngine {
       }
 
       if (bestPitch && bestConfidence > 0.35) {
-        // 映射到 0~11 半音偏移（与音色库 baseSemitoneOffset 体系一致）
-        // midiNote % 12：C=0, C#=1, D=2 … B=11
         const semitone = ((bestPitch.midiNote % 12) + 12) % 12;
-        baseSemitoneOffset = semitone;
         detectResult = {
           frequency: bestPitch.frequency,
           noteName: bestPitch.noteName,
@@ -148,6 +146,18 @@ export class AudioEngine {
           confidence: bestConfidence,
           trimmedDuration: trimmed.duration
         };
+        // ── 关键：不设 baseSemitoneOffset，改用 baseNote ──
+        // baseSemitoneOffset 固定值会绕过八度感知逻辑（bestPlayableBaseSemitone），
+        // 导致偏移量最大达 ±11 半音（例如录 A 弹 C：shift=-9）。
+        // 改用 baseNote + 无偏移 → 引擎自动选最近八度，最大偏移约 ±6 半音。
+        // 升降号（C#→C, D#→E 等）映射到最近自然音，残余 ≤0.5 半音由 phase vocoder 补偿。
+        const chromaticToNote: Record<string, Note> = {
+          'C': 'C', 'C#': 'D', 'D': 'D', 'D#': 'E',
+          'E': 'E', 'F': 'F', 'F#': 'G', 'G': 'G',
+          'G#': 'A', 'A': 'A', 'A#': 'B', 'B': 'B'
+        };
+        detectedBaseNote = chromaticToNote[bestPitch.noteName] ?? 'C';
+        // baseSemitoneOffset 保持 undefined，触发八度自动选优
       }
     }
 
@@ -156,8 +166,8 @@ export class AudioEngine {
       id: layerId,
       name: options.name ?? '录音样本',
       buffer: trimmed,
-      baseNote: options.baseNote ?? 'C',
-      baseSemitoneOffset,
+      baseNote: detectedBaseNote ?? options.baseNote ?? 'C',
+      baseSemitoneOffset, // 自动检测时为 undefined（八度感知模式）；手动指定时保留
       gain: options.gain ?? 1,
       role: options.role ?? 'single',
       presetGroupId: options.id  // id 即为 preset 分组键
