@@ -270,14 +270,15 @@ export class AudioEngine {
       ? this.pickEnsembleLayers(targetSemitone)
       : [this.pickClosestSample(targetSemitone)];
 
-    const attack  = 0.012;
-    const release = 0.12;
+    const attack        = 0.012;
+    const release       = 0.12;
+    const ensembleScale = 1 / Math.sqrt(Math.max(1, layers.length));
 
     for (const selectedLayer of layers) {
       const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
       const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
       const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, naturalDuration));
-      this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, release);
+      this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, release, 1, ensembleScale);
     }
   }
 
@@ -306,9 +307,10 @@ export class AudioEngine {
       ? this.pickEnsembleLayers(targetSemitone)
       : [this.pickClosestSample(targetSemitone)];
 
-    const attack    = 0.003;
-    const crossfade = 0.080;
-    const sustainSeconds = Math.max(durationMs / 1000, 0.05);
+    const attack        = 0.003;
+    const crossfade     = 0.080;
+    const sustainSeconds  = Math.max(durationMs / 1000, 0.05);
+    const ensembleScale = 1 / Math.sqrt(Math.max(1, layers.length));
 
     for (const selectedLayer of layers) {
       const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
@@ -316,7 +318,7 @@ export class AudioEngine {
       const stretchFactor = naturalDuration < sustainSeconds
         ? Math.max(naturalDuration / sustainSeconds, 0.125)
         : 1;
-      this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, crossfade, stretchFactor);
+      this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, crossfade, stretchFactor, ensembleScale);
     }
   }
 
@@ -407,7 +409,9 @@ export class AudioEngine {
     velocity: number,
     attack: number,
     release: number,
-    stretchFactor = 1
+    stretchFactor = 1,
+    /** 合奏等功率归一化系数：1/√(层数)，单层时传 1 */
+    ensembleScale = 1
   ) {
     const source = context.createBufferSource();
     const gain   = context.createGain();
@@ -424,7 +428,8 @@ export class AudioEngine {
     filter.Q.value = 0.2;
 
     const now = context.currentTime;
-    const targetGain = MASTER_GAIN * velocity * layer.sample.gain;
+    // 等功率混合：N 层时每层乘以 1/√N，防止多层叠加超载
+    const targetGain = MASTER_GAIN * velocity * layer.sample.gain * ensembleScale;
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
     gain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - release));

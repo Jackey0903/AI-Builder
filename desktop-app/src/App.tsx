@@ -493,8 +493,8 @@ function App() {
                 <p>
                   {enabledSoundPresets.length
                     ? selectedSoundPresetIds.length > 1
-                      ? `已选 ${selectedSoundPresetIds.length} 个合奏音色`
-                      : '可多选组成合奏。'
+                      ? `已选 ${selectedSoundPresetIds.length} 个精灵合奏（${selectedSoundPresetIds.length} 层同时发声）`
+                      : '点击多个精灵即可合奏。'
                     : '等待队友提供音频文件。'}
                 </p>
               </div>
