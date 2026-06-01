@@ -362,14 +362,14 @@ export class AudioEngine {
     this.backingGain = null;
   }
 
-  async playNote(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C') {
+  async playNote(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C', octave = 0) {
     const context = await this.ensureContext();
     const definition = noteByName.get(note);
 
     if (!definition) return;
 
     const rootDefinition = noteByName.get(scaleRoot) ?? noteByName.get('C')!;
-    const targetSemitone = definition.semitoneOffset + rootDefinition.semitoneOffset;
+    const targetSemitone = definition.semitoneOffset + rootDefinition.semitoneOffset + octave * 12;
 
     if (!this.sampleLayers.length) {
       this.playFallbackTone(context, 261.63 * Math.pow(2, targetSemitone / 12), durationMs, velocity);
@@ -410,14 +410,14 @@ export class AudioEngine {
    *     effectiveRate = playbackRate × 2^(detune/1200) = ratio（音高不变）
    *     playTime = buffer.duration / (ratio × stretchFactor) = sustainSeconds（时长正确）
    */
-  async playNoteLegato(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C') {
+  async playNoteLegato(note: Note, durationMs = 520, velocity = 1, scaleRoot: Note = 'C', octave = 0) {
     const context = await this.ensureContext();
     const definition = noteByName.get(note);
 
     if (!definition) return;
 
     const rootDefinition = noteByName.get(scaleRoot) ?? noteByName.get('C')!;
-    const targetSemitone = definition.semitoneOffset + rootDefinition.semitoneOffset;
+    const targetSemitone = definition.semitoneOffset + rootDefinition.semitoneOffset + octave * 12;
 
     if (!this.sampleLayers.length) {
       this.playFallbackTone(context, 261.63 * Math.pow(2, targetSemitone / 12), durationMs, velocity);

@@ -16,6 +16,13 @@ export interface MelodyEvent {
   note: Note;
   durationMs: number;
   velocity: number;
+  /**
+   * 八度偏移（相对于默认中音区）。
+   *  0  = 默认（不偏移）
+   * -1  = 低一个八度（简谱中数字下方有点）
+   *  1  = 高一个八度（简谱中数字上方有点，如 "i"）
+   */
+  octave?: number;
 }
 
 export interface SoundSampleLayer {

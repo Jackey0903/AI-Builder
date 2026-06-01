@@ -406,8 +406,8 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲ 小
       { note: 'G', durationMs: 375, velocity: 0.86 }, // 5̲ 火
 
-      // 小节3：6·  3̲2̲  1̲2̲  (车 摆动的 旋律)
-      { note: 'A', durationMs: 1125, velocity: 0.90 }, // 6· 车（附点四分）
+      // 小节3：6̣·  3̲2̲  1̲2̲  (车 摆动的 旋律)  — 低音La（6̣=A3）
+      { note: 'A', durationMs: 1125, velocity: 0.90, octave: -1 }, // 6̣· 车（附点四分，低八度）
       { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲ 摆
       { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲ 动
       { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲ 的
@@ -431,35 +431,35 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
       { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
 
-      // 小节6：2̲3̲5̲3̲1̲  1̲7̲  (我都会相信 因为)
+      // 小节6：2̲3̲5̲3̲1̲  1̲7̣̲  (我都会相信 因为) — 末尾低音Si（7̣=B3）
       { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
       { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
       { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
       { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
       { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
       { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
-      { note: 'B', durationMs: 375, velocity: 0.86 }, // 7̲
+      { note: 'B', durationMs: 375, velocity: 0.86, octave: -1 }, // 7̣̲ 低音Si
 
-      // 小节7：6·  3̲2̲  1̲2̲  (我 完全 信任)
-      { note: 'A', durationMs: 1125, velocity: 0.90 }, // 6·
+      // 小节7：6̣·  3̲2̲  1̲2̲  (我 完全 信任) — 低音La
+      { note: 'A', durationMs: 1125, velocity: 0.90, octave: -1 }, // 6̣·（低八度）
       { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲
       { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲
       { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
       { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲
 
-      // 小节8：1 - -  1̲7̲  + 小节9：6̲1̲2̲1̲2̲  (你 细腻的喜欢)
+      // 小节8：1 - -  1̲7̣̲  + 小节9：6̣̲1̲2̲1̲2̲  (你 细腻的喜欢) — 低音Si、低音La
       { note: 'C', durationMs: 2250, velocity: 0.88 }, // 1--- 你（三拍延音）
       { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
-      { note: 'B', durationMs: 375, velocity: 0.84 }, // 7̲
-      { note: 'A', durationMs: 375, velocity: 0.84 }, // 6̲
+      { note: 'B', durationMs: 375, velocity: 0.84, octave: -1 }, // 7̣̲ 低音Si
+      { note: 'A', durationMs: 375, velocity: 0.84, octave: -1 }, // 6̣̲ 低音La
       { note: 'C', durationMs: 375, velocity: 0.86 }, // 1̲
       { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
       { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
       { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
 
       // ══════════════════════════════════════════════════════
-      // 行3 主歌B段
-      // 小节10：3̲5̲2̲3̲1̲  1̲7̲  (般的厚重感 晒过)
+      // 行3 主歌B段（低音La/Si 均低八度）
+      // 小节10：3̲5̲2̲3̲1̲  1̲7̣̲  (般的厚重感 晒过)
       // ══════════════════════════════════════════════════════
       { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
       { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
@@ -467,10 +467,10 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
       { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
       { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
-      { note: 'B', durationMs: 375, velocity: 0.86 }, // 7̲
+      { note: 'B', durationMs: 375, velocity: 0.86, octave: -1 }, // 7̣̲ 低音Si
 
-      // 小节11：6̲  1̲  2̲3̲2̲1̲2̲  (太 阳 熟悉的安全感)
-      { note: 'A', durationMs: 750, velocity: 0.88 }, // 6̲ 太（四分）
+      // 小节11：6̣̲  1̲  2̲3̲2̲1̲2̲  (太 阳 熟悉的安全感) — 低音La
+      { note: 'A', durationMs: 750, velocity: 0.88, octave: -1 }, // 6̣̲ 太（低八度四分）
       { note: 'C', durationMs: 750, velocity: 0.88 }, // 1̲ 阳
       { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
       { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
@@ -478,13 +478,13 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
       { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
 
-      // 小节12：3 - -  1̲7̲  (感 分享)
+      // 小节12：3 - -  1̲7̣̲  (感 分享) — 低音Si
       { note: 'E', durationMs: 2250, velocity: 0.90 }, // 3---
       { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
-      { note: 'B', durationMs: 375, velocity: 0.84 }, // 7̲
+      { note: 'B', durationMs: 375, velocity: 0.84, octave: -1 }, // 7̣̲ 低音Si
 
-      // 小节13：6̲  1̲  2̲3̲2̲1̲2̲  (热 汤 我们两支)
-      { note: 'A', durationMs: 750, velocity: 0.88 }, // 6̲
+      // 小节13：6̣̲  1̲  2̲3̲2̲1̲2̲  (热 汤 我们两支) — 低音La
+      { note: 'A', durationMs: 750, velocity: 0.88, octave: -1 }, // 6̣̲（低八度）
       { note: 'C', durationMs: 750, velocity: 0.88 }, // 1̲
       { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
       { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲

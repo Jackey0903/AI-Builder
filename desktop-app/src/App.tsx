@@ -201,7 +201,7 @@ function App() {
           window.setTimeout(() => {
             setActiveNote((current) => (current === event.note ? null : current));
           }, Math.min(event.durationMs, 540));
-          void audioEngine.playNoteLegato(event.note, event.durationMs, event.velocity ?? 1, root);
+          void audioEngine.playNoteLegato(event.note, event.durationMs, event.velocity ?? 1, root, event.octave ?? 0);
         }, startAt);
         timeoutsRef.current.push(timeoutId);
         offset += event.durationMs;
