@@ -116,17 +116,13 @@ h1, h2, p { margin: 0; }
 }
 
 /* 标题旁边的星星 */
+/* 标题星星图片 (140×26 PNG) */
 .title-stars {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+  height: 26px;
+  width: auto;
   margin-left: 12px;
-}
-
-.title-star {
-  width: 20px;
-  height: 20px;
-  color: var(--blue-accent);
+  flex-shrink: 0;
+  display: block;
 }
 
 /* ── 主体三栏布局 ──────────────────────── */

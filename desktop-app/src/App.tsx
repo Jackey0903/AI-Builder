@@ -621,12 +621,7 @@ function App() {
       {/* ── 标题条 ── */}
       <section className="top-strip">
         <h1>精灵合奏台</h1>
-        <div className="title-stars">
-          <StarIcon size={16} />
-          <StarIcon size={20} />
-          <StarIcon size={16} />
-          <StarIcon size={12} />
-        </div>
+        <img className="title-stars" src="/ui/title-stars.png" alt="" draggable="false" />
       </section>
 
       {/* ── 主体三栏 ── */}
