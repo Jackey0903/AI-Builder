@@ -610,7 +610,7 @@ h1, h2, p { margin: 0; }
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 10px 44px 14px calc(44px + 110px);
+  padding: 10px 44px 14px 80px;
   margin-top: auto;   /* 自动撑到底部 */
   flex-shrink: 0;
 }
