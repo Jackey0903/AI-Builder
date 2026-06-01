@@ -608,7 +608,9 @@ function App() {
     'emoding':           '/ui/精灵头像/恶魔叮.png',
     'houmaizai':         '/ui/精灵头像/猴麦仔.png',
   };
-  const stageIllustration = SPRITE_ILLUSTRATION[activePresetId] ?? '/sound-sprite.svg';
+  const stageIllustration = activePresetId
+    ? (SPRITE_ILLUSTRATION[activePresetId] ?? '/sound-sprite.svg')
+    : '/ui/等待ing.png';
   const activePresetName = enabledSoundPresets.find((p) => p.id === activePresetId)?.name
     ?? customGuests.find((g) => g.id === activePresetId)?.name
     ?? '精灵';
