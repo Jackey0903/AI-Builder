@@ -132,10 +132,10 @@ h1, h2, p { margin: 0; }
 /* ── 主体三栏布局 ──────────────────────── */
 .workspace-grid {
   display: grid;
-  /* 左侧随背景图自然宽度，中间弹性，右侧固定 */
-  grid-template-columns: 110px 1fr 340px;
+  /* 左侧：头像(110px) + 名字区(90px)，中间弹性，右侧固定 */
+  grid-template-columns: 200px 1fr 340px;
   gap: 0;
-  padding: 0 44px;
+  padding: 50px 44px 0;
   align-items: start;
   flex: 1;
   min-height: 0;
@@ -147,20 +147,20 @@ h1, h2, p { margin: 0; }
    ══════════════════════════════════════════ */
 .sprite-sidebar {
   position: relative;
-  /* 精灵名字通过 absolute 溢出到右侧，需要高于 stage-panel 避免被遮挡 */
   z-index: 2;
   display: flex;
   flex-direction: column;
-  /* 头像在魔杖主干区域水平居中 */
-  align-items: center;
+  /* 头像靠左对齐，名字自然跟在右侧 */
+  align-items: flex-start;
   gap: 6px;
-  /* 顶部让出宝石区（图高约 28%） */
-  padding: 28% 0 6%;
+  /* 顶部让出宝石区（图高约 28%），左侧对齐魔杖 */
+  padding-top: 170px;
+  padding-bottom: 6%;
+  padding-left: 0;
+  padding-right: 0;
   /* 背景图已合并到全局 app-bg.png，侧边栏本身透明 */
   background: none;
   width: 100%;
-  aspect-ratio: 244 / 632;
-  /* 名字在魔杖右侧，需要 overflow visible */
   overflow: visible;
 }
 
@@ -168,10 +168,9 @@ h1, h2, p { margin: 0; }
   position: relative;
   display: flex;
   flex-direction: row;
-  /* 头像居中在魔杖内 */
   align-items: center;
-  justify-content: center;
-  gap: 0;
+  justify-content: flex-start;
+  gap: 10px;
   cursor: pointer;
   border: none;
   background: none;
@@ -189,6 +188,7 @@ h1, h2, p { margin: 0; }
   position: relative;
   width: 56px;
   height: 56px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 3px solid #C1B6A2;   /* Figma default 态描边 */
   background: #9D9387;          /* Figma 底色 */
@@ -198,6 +198,8 @@ h1, h2, p { margin: 0; }
   align-items: center;
   justify-content: center;
   transition: border-color 150ms ease, box-shadow 150ms ease;
+  /* 头像在魔杖区域内居中：魔杖宽约110px，头像56px，左边距=(110-56)/2=27px */
+  margin-left: 27px;
 }
 
 /* 头像里的 img 铺满圆形 */
@@ -224,18 +226,14 @@ h1, h2, p { margin: 0; }
   box-shadow: 0 0 0 2px rgba(201, 97, 50, 0.35), -3px 3px 12px rgba(63, 50, 44, 0.39);
 }
 
-/* 名字 + 副文本：绝对定位到头像右侧（魔杖外面） */
+/* 名字 + 副文本：正常文档流排列在头像右侧 */
 .sprite-slot .sprite-info {
-  position: absolute;
-  /* 魔杖宽度 = 100%（sidebar 宽），名字从魔杖右边缘 + 8px 开始 */
-  left: calc(100% + 8px);
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   gap: 1px;
   white-space: nowrap;
   pointer-events: none;
+  min-width: 0;
 }
 
 .sprite-slot .sprite-name {
@@ -424,107 +422,147 @@ h1, h2, p { margin: 0; }
 /* ══════════════════════════════════════════
    右侧硬件面板
    ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   右侧硬件面板 — Figma node 11-730 / 11-844
+   width: 336px, column gap: 18px
+   ══════════════════════════════════════════ */
 .hardware-column {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
+  width: 336px;
+  flex-shrink: 0;
   padding-top: 0;
   max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* 连接硬件按钮 */
+/* ── 连接硬件按钮 (硬件button / 11-844) ── */
 .hw-connect-btn {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 17px;              /* Figma layout_NIAACT gap: 17px */
   width: 100%;
   padding: 0;
-  border: 2px solid var(--hw-border);
+  border: 2px solid var(--hw-border);   /* #3284A3 */
   border-radius: 6px;
-  background: var(--parchment);
-  box-shadow: 0px 1px 2px rgba(22, 44, 53, 1);
+  background: var(--parchment);         /* #FDF8EC default */
+  box-shadow: 0px 1px 2px rgba(22, 44, 53, 1); /* effect_VRVCAE */
   overflow: hidden;
   cursor: pointer;
-  transition: transform 100ms ease;
+  transition: background 120ms ease;
 }
+.hw-connect-btn:hover  { background: var(--parchment-2); } /* #EBE5D2 hover */
+.hw-connect-btn:active { background: var(--panel-bg);    } /* #DFD8C1 click */
+.hw-connect-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-.hw-connect-btn:hover {
-  transform: translateY(-1px);
-}
-
+/* 左侧白色图标圆形区 */
 .hw-connect-btn .hw-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 14px;
+  width: 64px;
+  min-width: 64px;
+  padding: 14px 0 28px;    /* 下方留出底条空间 */
+}
+
+/* Figma: Frame 内嵌白色圆形图标背景 (fill_BKC9VN #FFFFFF) */
+.hw-connect-btn .hw-icon__circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--blue-accent);   /* #3284A3 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  flex-shrink: 0;
+}
+
+/* 已连接态：蓝色背景 */
+.hw-connect-btn.is-connected .hw-icon__circle {
+  background: var(--blue-accent);
   color: #FFFFFF;
 }
 
+/* 右侧文字区 —— 右对齐（Figma layout_LXWMKN: alignItems: flex-end） */
 .hw-connect-btn .hw-label {
   flex: 1;
-  text-align: right;
-  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;                /* Figma gap: 5px */
+  padding: 10px 16px 28px 0; /* 下方留出底条空间 */
 }
 
+/* "Connect Hardware" — 20px 灰色 */
 .hw-connect-btn .hw-label-en {
   display: block;
   font-family: "SentyWatermelon", serif;
   font-size: 20px;
-  color: var(--ink-faint);
+  line-height: 1.08em;
+  color: var(--ink-faint);  /* #938F86 */
+  text-align: right;
 }
 
+/* "连接硬件" — 24px 墨色 */
 .hw-connect-btn .hw-label-cn {
   display: block;
   font-family: "SentyWatermelon", serif;
   font-size: 24px;
-  color: var(--ink);
+  line-height: 1.08em;
+  color: var(--ink);        /* #3D3D3D */
+  text-align: right;
 }
 
-/* 蓝色顶栏条 */
+/* 底部蓝色条 (Rectangle 38: borderRadius 6px 6px 0 0, fill #2C84A4) */
 .hw-connect-btn .hw-bar {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: var(--hw-top);
-  border-radius: 6px 6px 0 0;
+  height: 14px;
+  background: var(--hw-top);            /* #2C84A4 default */
+  border-radius: 6px 6px 0px 0px;
+  transition: background 120ms ease;
 }
+.hw-connect-btn:hover  .hw-bar { background: var(--hw-border); } /* #3284A3 hover */
+.hw-connect-btn:active .hw-bar { background: var(--hw-border); }
 
-.hw-connect-btn {
-  position: relative;
-}
-
-/* GPIO 映射面板 */
+/* ── GPIO 映射行 (layout_NIAACT: row, gap:17px) ── */
 .hw-gpio-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 10px;
 }
 
 .hw-gpio-row {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 17px;             /* Figma gap: 17px */
 }
 
+/* 左侧填充棒 */
 .hw-gpio-bar {
   flex: 1;
   height: 34px;
   border-radius: 14px;
-  border: 6px solid var(--panel-bg);
-  background: var(--panel-bg);
+  background: var(--panel-bg);   /* #DFD8C1 */
+  border: none;
 }
 
+/* 右侧胶囊标签 (layout_B7MK1F: padding 10px 32px, gap 10px) */
 .hw-gpio-label {
   font-family: "SentyWatermelon", serif;
   font-size: 20px;
+  line-height: 1.08em;
   text-transform: capitalize;
-  color: var(--ink);
+  color: var(--ink);             /* #3D3D3D */
   padding: 10px 32px;
-  border: 2px solid var(--border-dark);
+  border: 2px solid var(--border-dark);  /* #3A2C31 */
   border-radius: 999px;
   background: var(--parchment);
   box-shadow: 1px 3px 0px var(--shadow-warm);
@@ -572,9 +610,8 @@ h1, h2, p { margin: 0; }
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  /* 左边 = workspace-grid 的 padding(44px) + 侧边栏宽(110px)，整体内容对齐键盘区 */
-  padding: 10px 44px 14px calc(44px + 110px);
-  margin-top: 6px;
+  padding: 100px;
+  margin-top: 56px;
   flex-shrink: 0;
 }
 

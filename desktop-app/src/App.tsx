@@ -739,23 +739,28 @@ function App() {
           </div>
         </div>
 
-        {/* 右侧：硬件面板 */}
+        {/* 右侧：硬件面板 — Figma node 11-730/11-844 */}
         <div className="hardware-column">
-          {/* 连接硬件按钮 */}
+          {/* 连接硬件按钮：左图标 + 右文字 + 底部蓝条 */}
           <button
-            className="hw-connect-btn"
+            className={`hw-connect-btn${serial.isConnected ? ' is-connected' : ''}`}
             type="button"
             onClick={() => (serial.isConnected ? void serial.disconnect() : void serial.connect())}
             disabled={!serial.isSupported}
           >
-            <div className="hw-bar" />
+            {/* 左侧白色圆形图标区 */}
             <div className="hw-icon">
-              <Cable size={28} />
+              <div className="hw-icon__circle">
+                <Cable size={22} />
+              </div>
             </div>
+            {/* 右侧文字（右对齐）*/}
             <div className="hw-label">
               <span className="hw-label-en">Connect Hardware</span>
               <span className="hw-label-cn">{serial.isConnected ? '已连接' : '连接硬件'}</span>
             </div>
+            {/* 底部蓝色条 */}
+            <div className="hw-bar" />
           </button>
 
           {/* GPIO 映射 */}
