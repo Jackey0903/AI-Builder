@@ -68,13 +68,16 @@ export const SOUND_PRESETS: SoundPreset[] = [
   {
     id: 'houmaizai',
     name: '猴麦仔',
-    description: '猴麦仔单音采样（149ms），基频约 E4（324Hz），baseSemitoneOffset=4 固定基准，音头干净无气音。',
+    // 实测基频 E4（~658Hz），采样 149ms，全段有声（RMS 0.25→0.55，峰值在 50ms）。
+    // baseSemitoneOffset=0：C 键播放原始采样（无 WSOLA 处理，音色最纯），
+    // 其他键向上移调 +2~+11 半音，全部命中 ±12 pitchCache，与录音锚定方式一致。
+    description: '猴麦仔单音采样（149ms），基频 E4（658Hz）。C键=原声，其他音阶向上移调，WSOLA还原时长。',
     file: '/sounds/猴麦仔/猴麦仔采样.wav',
     baseNote: 'E',
-    baseSemitoneOffset: 4,
+    baseSemitoneOffset: 0,
     trimStartMs: 0,
     trimEndMs: 0,
-    gain: 0.9,
+    gain: 0.86,
     enabled: true,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
     tags: ['character', 'single']
