@@ -5,7 +5,7 @@ import {
   Plus,
   X,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AudioEngine, noteColor } from './audio/audioEngine';
 import type { PitchBuildProgress } from './audio/audioEngine';
 import { generateMelody, melodyDuration } from './audio/melody';
@@ -77,8 +77,28 @@ const MAX_MOTIF = 8;
 const firstSoundPresetId = enabledSoundPresets[0]?.id ?? '';
 const firstPresetMelodyId = PRESET_MELODIES[0]?.id ?? '';
 
+/** 样机固定尺寸 */
+const MOCKUP_W = 1440;
+const MOCKUP_H = 990;
+
 function App() {
   const audioEngine = useMemo(() => new AudioEngine(), []);
+  const mockupRef = useRef<HTMLDivElement>(null);
+
+  // ── 自动缩放样机以适配视口 ──
+  useLayoutEffect(() => {
+    const fit = () => {
+      const el = mockupRef.current;
+      if (!el) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const scale = Math.min(vw / MOCKUP_W, vh / MOCKUP_H, 1);
+      el.style.transform = `scale(${scale})`;
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
   const [isRecording, setIsRecording] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const [isPlayingMelody, setIsPlayingMelody] = useState(false);
@@ -550,7 +570,28 @@ function App() {
   // 当前激活的精灵 = selectedSoundPresetIds 第一个
   const activePresetId = selectedSoundPresetIds[0] ?? '';
 
+  // 音色 id → 中央舞台插图映射
+  const SPRITE_ILLUSTRATION: Record<string, string> = {
+    'yuanhaoyu-voice-2': '/ui/圆号鱼插图.png',
+    'yuanhaoyu':         '/ui/圆号鱼插图.png',
+    'xiaoya':            '/ui/小夜插图.png',
+    'lilayao':           '/ui/里拉鳐插图.png',
+  };
+
+  // 音色 id → 左侧头像图片映射（复用插图裁成圆形）
+  const SPRITE_AVATAR: Record<string, string> = {
+    'yuanhaoyu-voice-2': '/ui/圆号鱼插图.png',
+    'yuanhaoyu':         '/ui/圆号鱼插图.png',
+    'xiaoya':            '/ui/小夜插图.png',
+    'lilayao':           '/ui/里拉鳐插图.png',
+  };
+  const stageIllustration = SPRITE_ILLUSTRATION[activePresetId] ?? '/sound-sprite.svg';
+  const activePresetName = enabledSoundPresets.find((p) => p.id === activePresetId)?.name
+    ?? customGuests.find((g) => g.id === activePresetId)?.name
+    ?? '精灵';
+
   return (
+    <div className="screen-mockup" ref={mockupRef}>
     <main className="app-shell">
       {/* ── 标题条 ── */}
       <section className="top-strip">
@@ -568,27 +609,32 @@ function App() {
 
         {/* 左侧：精灵音色列表 */}
         <div className="sprite-sidebar">
-          {enabledSoundPresets.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              className={`sprite-slot ${selectedSoundPresetIds.includes(preset.id) ? 'is-active' : ''}`}
-              onClick={() => {
-                toggleSoundPreset(preset.id);
-                previewPresetSound(preset.id);
-                // 自动加载选中的音色
-                window.setTimeout(() => void loadSelectedSoundPreset(), 100);
-              }}
-            >
-              <div className="sprite-avatar">
-                {preset.name.charAt(0)}
-              </div>
-              <span className="sprite-name">{preset.name}</span>
-              {selectedSoundPresetIds.includes(preset.id) && activePresetId === preset.id && (
-                <span className="sprite-sub">当前音色</span>
-              )}
-            </button>
-          ))}
+          {enabledSoundPresets.map((preset) => {
+            const avatarSrc = SPRITE_AVATAR[preset.id];
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                className={`sprite-slot ${selectedSoundPresetIds.includes(preset.id) ? 'is-active' : ''}`}
+                onClick={() => {
+                  toggleSoundPreset(preset.id);
+                  previewPresetSound(preset.id);
+                  window.setTimeout(() => void loadSelectedSoundPreset(), 100);
+                }}
+              >
+                <div className="sprite-avatar">
+                  {avatarSrc
+                    ? <img className="sprite-avatar__img" src={avatarSrc} alt={preset.name} />
+                    : <span className="sprite-avatar__letter">{preset.name.charAt(0)}</span>
+                  }
+                </div>
+                <span className="sprite-name">{preset.name}</span>
+                {selectedSoundPresetIds.includes(preset.id) && activePresetId === preset.id && (
+                  <span className="sprite-sub">当前音色</span>
+                )}
+              </button>
+            );
+          })}
 
           {/* 已保存的自定义嘉宾 */}
           {customGuests.map((guest) => (
@@ -610,7 +656,7 @@ function App() {
               }}
             >
               <div className="sprite-avatar sprite-avatar--guest">
-                {guest.name.charAt(0)}
+                <span className="sprite-avatar__letter">{guest.name.charAt(0)}</span>
               </div>
               <span className="sprite-name">{guest.name}</span>
               {selectedSoundPresetIds.includes(guest.id) && (
@@ -619,14 +665,14 @@ function App() {
             </button>
           ))}
 
-          {/* 添加神秘嘉宾 slot */}
+          {/* 添加神秘嘉宾 slot — Figma node 11-1060 */}
           <button
             type="button"
             className="sprite-slot sprite-slot-add"
             onClick={openGuestModal}
           >
             <div className="sprite-avatar">
-              <Plus size={20} />
+              <span className="sprite-avatar__letter"><Plus size={20} /></span>
             </div>
             <span className="sprite-name">神秘嘉宾</span>
             <span className="sprite-sub">点击添加</span>
@@ -636,7 +682,7 @@ function App() {
         {/* 中央：舞台 + 键盘 */}
         <div className="stage-panel">
           <div className="stage-orbit" style={{ '--note-color': activeNote ? noteColor(activeNote) : '#20c7c7' } as React.CSSProperties}>
-            <img className="sprite" src="/sound-sprite.svg" alt="精灵吉祥物" />
+            <img className="sprite" src={stageIllustration} alt={activePresetName} />
           </div>
 
           <div className="keybed" aria-label="playable notes">
@@ -752,20 +798,18 @@ function App() {
           />
         </label>
 
-        {/* 生成旋律 / 演奏预设 */}
+        {/* 生成旋律 / 演奏预设（金色胶囊三态，星星用 CSS ::before/::after） */}
         <button
           className="generate-action"
           type="button"
           onClick={handleGenerate}
           disabled={isPlayingMelody || isAnalysingBgm}
         >
-          <GoldStar size={16} />
           {isPlayingMelody || isAnalysingBgm
             ? '演奏中…'
             : selectedPresetMelodyId === 'free'
               ? '生成旋律'
               : '演奏旋律'}
-          <GoldStar size={12} />
         </button>
       </section>
 
@@ -857,6 +901,7 @@ function App() {
         </div>
       )}
     </main>
+    </div>
   );
 }
 
