@@ -158,6 +158,15 @@ function App() {
     );
   }, []);
 
+  /** 点击 chip 时试听原音频（1.5 秒淡入淡出，新点击自动打断上一个） */
+  const previewPresetSound = useCallback((presetId: string) => {
+    const preset = enabledSoundPresets.find((p) => p.id === presetId);
+    if (!preset) return;
+    const url = preset.file ?? preset.samples?.[0]?.file;
+    if (!url) return;
+    void audioEngine.previewSound(url, 1500);
+  }, [audioEngine]);
+
   const loadSelectedSoundPreset = useCallback(async () => {
     const presets = enabledSoundPresets.filter((p) => selectedSoundPresetIds.includes(p.id));
     if (!presets.length) {
@@ -505,7 +514,10 @@ function App() {
                   key={preset.id}
                   type="button"
                   className={`preset-chip ${selectedSoundPresetIds.includes(preset.id) ? 'is-selected' : ''}`}
-                  onClick={() => toggleSoundPreset(preset.id)}
+                  onClick={() => {
+                    toggleSoundPreset(preset.id);
+                    previewPresetSound(preset.id);
+                  }}
                 >
                   {preset.name}
                 </button>

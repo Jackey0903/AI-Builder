@@ -58,6 +58,8 @@ export class AudioEngine {
   ensembleMode = false;
   private backingSource: AudioBufferSourceNode | null = null;
   private backingGain: GainNode | null = null;
+  /** 当前预览源（点击 chip 时短暂试听原音，新预览自动打断上一个） */
+  private previewSource: AudioBufferSourceNode | null = null;
 
   async ensureContext() {
     if (!this.context) {
@@ -193,6 +195,50 @@ export class AudioEngine {
   /** 合奏加载：先清空，再逐个 preset 追加，并开启合奏模式 */
   clearSampleLayers() {
     this.sampleLayers = [];
+  }
+
+  /**
+   * 试听预览：直接播放原始文件（不经音高移调），最长 maxDurationMs 毫秒。
+   * 若上一个预览仍在播放，自动打断再开新的。
+   */
+  async previewSound(url: string, maxDurationMs = 1500) {
+    const context = await this.ensureContext();
+
+    // 打断上一个预览
+    if (this.previewSource) {
+      try { this.previewSource.stop(); } catch { /* 已自然结束 */ }
+      this.previewSource = null;
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) return;
+
+    const decoded = await this.decodeArrayBuffer(context, await response.arrayBuffer());
+    const source = context.createBufferSource();
+    const gain = context.createGain();
+
+    source.buffer = decoded;
+
+    const now = context.currentTime;
+    const duration = Math.min(decoded.duration, maxDurationMs / 1000);
+    const fadeIn  = 0.015;
+    const fadeOut = Math.min(0.12, duration * 0.2);
+    const peakGain = 0.72;
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(peakGain, now + fadeIn);
+    gain.gain.setValueAtTime(peakGain, now + Math.max(fadeIn, duration - fadeOut));
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    source.connect(gain);
+    gain.connect(context.destination);
+    source.start(now);
+    source.stop(now + duration + 0.02);
+
+    this.previewSource = source;
+    source.onended = () => {
+      if (this.previewSource === source) this.previewSource = null;
+    };
   }
 
   getSampleDuration() {
