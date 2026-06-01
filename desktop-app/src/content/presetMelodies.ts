@@ -52,110 +52,101 @@ export const PRESET_MELODIES: PresetMelody[] = [
   {
     id: 'mermaid-bay-vocal',
     name: '人鱼湾 正谱',
-    description: '洛克王国人鱼湾BGM正谱（笛小笛制），1=F 4/4，90BPM，舒缓抒情。',
+    description: '洛克王国人鱼湾BGM正谱（笛小笛制），1=F 4/4，60BPM，舒缓抒情，每音充分共鸣。',
     style: 'soft',
     root: 'F',
     events: [
       // ════════════════════════════════════════════
       // 行1 · 第1小节（弱起）：0 0 0  [0 1 2]
-      // 三拍休止后接两个十六分音符 1(C) 2(D) 作 pickup
+      // 60BPM：十六分=250ms  八分=500ms  附点八分=750ms  四分=1000ms  附点四分=1500ms  二分=2000ms
       // ════════════════════════════════════════════
-      { note: 'C', durationMs: 165, velocity: 0.76 }, // 1（十六分pickup）
-      { note: 'D', durationMs: 165, velocity: 0.78 }, // 2
+      { note: 'C', durationMs: 250, velocity: 0.76 }, // 1（十六分pickup）
+      { note: 'D', durationMs: 250, velocity: 0.78 }, // 2
 
       // ════════════════════════════════════════════
       // 行1 · 第2小节：[3̲3̲]  [3̲·3̲2̲3̲]  4  -
-      // 3 3 (两个八分) | 3· 3 2 3 (附点八分+3个十六分) | 4–(二分)
       // ════════════════════════════════════════════
-      { note: 'E', durationMs: 330, velocity: 0.88 }, // 3（八分）
-      { note: 'E', durationMs: 330, velocity: 0.88 }, // 3
-      { note: 'E', durationMs: 500, velocity: 0.90 }, // 3·（附点八分）
-      { note: 'E', durationMs: 165, velocity: 0.86 }, // 3（十六分）
-      { note: 'D', durationMs: 165, velocity: 0.84 }, // 2
-      { note: 'E', durationMs: 165, velocity: 0.86 }, // 3
-      { note: 'F', durationMs: 1230, velocity: 0.90 }, // 4–（二分，含延音）
+      { note: 'E', durationMs: 500, velocity: 0.88 }, // 3（八分）
+      { note: 'E', durationMs: 500, velocity: 0.88 }, // 3
+      { note: 'E', durationMs: 750, velocity: 0.90 }, // 3·（附点八分）
+      { note: 'E', durationMs: 250, velocity: 0.86 }, // 3（十六分）
+      { note: 'D', durationMs: 250, velocity: 0.84 }, // 2
+      { note: 'E', durationMs: 250, velocity: 0.86 }, // 3
+      { note: 'F', durationMs: 2000, velocity: 0.90 }, // 4–（二分，含延音）
 
       // ════════════════════════════════════════════
       // 行1 · 第3小节：[5̲5̲]  [2̲4̲]  3  [2̲3̲]
-      // 5 5 | 2 4 (各八分) | 3（四分）| 2 3（各八分）
       // ════════════════════════════════════════════
-      { note: 'G', durationMs: 330, velocity: 0.88 }, // 5（八分）
-      { note: 'G', durationMs: 330, velocity: 0.88 }, // 5
-      { note: 'D', durationMs: 330, velocity: 0.86 }, // 2（八分）
-      { note: 'F', durationMs: 330, velocity: 0.88 }, // 4
-      { note: 'E', durationMs: 665, velocity: 0.90 }, // 3（四分）
-      { note: 'D', durationMs: 330, velocity: 0.86 }, // 2（八分）
-      { note: 'E', durationMs: 330, velocity: 0.88 }, // 3
+      { note: 'G', durationMs: 500, velocity: 0.88 }, // 5（八分）
+      { note: 'G', durationMs: 500, velocity: 0.88 }, // 5
+      { note: 'D', durationMs: 500, velocity: 0.86 }, // 2（八分）
+      { note: 'F', durationMs: 500, velocity: 0.88 }, // 4
+      { note: 'E', durationMs: 1000, velocity: 0.90 }, // 3（四分）
+      { note: 'D', durationMs: 500, velocity: 0.86 }, // 2（八分）
+      { note: 'E', durationMs: 500, velocity: 0.88 }, // 3
 
       // ════════════════════════════════════════════
       // 行2 · 第4小节：1  [1̲6̲·1̲]  2·  3
-      // 1（四分）| [1(八) 6·(附点八) 1(十六)] | 2·（附点四分）| 3（四分）
       // ════════════════════════════════════════════
-      { note: 'C', durationMs: 665, velocity: 0.88 }, // 1（四分）
-      { note: 'C', durationMs: 330, velocity: 0.86 }, // 1（八分）
-      { note: 'A', durationMs: 500, velocity: 0.90 }, // 6·（附点八分）
-      { note: 'C', durationMs: 165, velocity: 0.86 }, // 1（十六分）
-      { note: 'D', durationMs: 1000, velocity: 0.90 }, // 2·（附点四分）
-      { note: 'E', durationMs: 665, velocity: 0.92 }, // 3（四分）
+      { note: 'C', durationMs: 1000, velocity: 0.88 }, // 1（四分）
+      { note: 'C', durationMs: 500, velocity: 0.86 },  // 1（八分）
+      { note: 'A', durationMs: 750, velocity: 0.90 },  // 6·（附点八分）
+      { note: 'C', durationMs: 250, velocity: 0.86 },  // 1（十六分）
+      { note: 'D', durationMs: 1500, velocity: 0.90 }, // 2·（附点四分）
+      { note: 'E', durationMs: 1000, velocity: 0.92 }, // 3（四分）
 
       // ════════════════════════════════════════════
       // 行2 · 第5小节：[1̲3̲]  [4̲5̲]  2·  [3̲·4̲]
-      // [1 3](各八分) | [4 5](各八分) | 2·（附点四分）| [3·(附点八) 4(十六)]
       // ════════════════════════════════════════════
-      { note: 'C', durationMs: 330, velocity: 0.88 }, // 1（八分）
-      { note: 'E', durationMs: 330, velocity: 0.90 }, // 3
-      { note: 'F', durationMs: 330, velocity: 0.92 }, // 4（八分）
-      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5
-      { note: 'D', durationMs: 1000, velocity: 0.90 }, // 2·（附点四分）
-      { note: 'E', durationMs: 500, velocity: 0.92 }, // 3·（附点八分）
-      { note: 'F', durationMs: 165, velocity: 0.88 }, // 4（十六分）
+      { note: 'C', durationMs: 500, velocity: 0.88 },  // 1（八分）
+      { note: 'E', durationMs: 500, velocity: 0.90 },  // 3
+      { note: 'F', durationMs: 500, velocity: 0.92 },  // 4（八分）
+      { note: 'G', durationMs: 500, velocity: 0.92 },  // 5
+      { note: 'D', durationMs: 1500, velocity: 0.90 }, // 2·（附点四分）
+      { note: 'E', durationMs: 750, velocity: 0.92 },  // 3·（附点八分）
+      { note: 'F', durationMs: 250, velocity: 0.88 },  // 4（十六分）
 
       // ════════════════════════════════════════════
       // 行2 · 第6小节：[5̲5̲]  [5̲6̲·7̲]  5·  [6̲·7̲]
-      // [5 5](八分) | [5 6·(附点八) 7(十六)] | 5·（附点四分）| [6·(附点八) 7(十六)]
       // ════════════════════════════════════════════
-      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5（八分）
-      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5
-      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5（八分）
-      { note: 'A', durationMs: 500, velocity: 0.94 }, // 6·（附点八分）
-      { note: 'B', durationMs: 165, velocity: 0.90 }, // 7（十六分）
-      { note: 'G', durationMs: 1000, velocity: 0.92 }, // 5·（附点四分）
-      { note: 'A', durationMs: 500, velocity: 0.90 }, // 6·（附点八分）
-      { note: 'B', durationMs: 165, velocity: 0.88 }, // 7（十六分）
+      { note: 'G', durationMs: 500, velocity: 0.92 },  // 5（八分）
+      { note: 'G', durationMs: 500, velocity: 0.92 },  // 5
+      { note: 'G', durationMs: 500, velocity: 0.92 },  // 5（八分）
+      { note: 'A', durationMs: 750, velocity: 0.94 },  // 6·（附点八分）
+      { note: 'B', durationMs: 250, velocity: 0.90 },  // 7（十六分）
+      { note: 'G', durationMs: 1500, velocity: 0.92 }, // 5·（附点四分）
+      { note: 'A', durationMs: 750, velocity: 0.90 },  // 6·（附点八分）
+      { note: 'B', durationMs: 250, velocity: 0.88 },  // 7（十六分）
 
       // ════════════════════════════════════════════
       // 行3 · 第7小节：[i̲5̲]  [5̲4̲]  3  [5̲2̲]
-      // i=高八度1，代码仍写C，引擎自动选高八度
-      // [i 5](八分) | [5 4](八分) | 3（四分）| [5 2](八分)
       // ════════════════════════════════════════════
-      { note: 'C', durationMs: 330, velocity: 0.94 }, // i（高C，八分）
-      { note: 'G', durationMs: 330, velocity: 0.92 }, // 5
-      { note: 'G', durationMs: 330, velocity: 0.90 }, // 5（八分）
-      { note: 'F', durationMs: 330, velocity: 0.88 }, // 4
-      { note: 'E', durationMs: 665, velocity: 0.92 }, // 3（四分）
-      { note: 'G', durationMs: 330, velocity: 0.90 }, // 5（八分）
-      { note: 'D', durationMs: 330, velocity: 0.88 }, // 2
+      { note: 'C', durationMs: 500, velocity: 0.94 },  // i（高C，八分）
+      { note: 'G', durationMs: 500, velocity: 0.92 },  // 5
+      { note: 'G', durationMs: 500, velocity: 0.90 },  // 5（八分）
+      { note: 'F', durationMs: 500, velocity: 0.88 },  // 4
+      { note: 'E', durationMs: 1000, velocity: 0.92 }, // 3（四分）
+      { note: 'G', durationMs: 500, velocity: 0.90 },  // 5（八分）
+      { note: 'D', durationMs: 500, velocity: 0.88 },  // 2
 
       // ════════════════════════════════════════════
       // 行3 · 第8小节：[i̲i̲]  [7̲·i̲]  6  2̇
-      // [i i](八分) | [7·(附点八) i(十六)] | 6（四分）| 2̇（高八度2，四分）
       // ════════════════════════════════════════════
-      { note: 'C', durationMs: 330, velocity: 0.94 }, // i（八分）
-      { note: 'C', durationMs: 330, velocity: 0.94 }, // i
-      { note: 'B', durationMs: 500, velocity: 0.92 }, // 7·（附点八分）
-      { note: 'C', durationMs: 165, velocity: 0.90 }, // i（十六分）
-      { note: 'A', durationMs: 665, velocity: 0.92 }, // 6（四分）
-      { note: 'D', durationMs: 665, velocity: 0.94 }, // 2̇（高八度D，四分）
+      { note: 'C', durationMs: 500, velocity: 0.94 },  // i（八分）
+      { note: 'C', durationMs: 500, velocity: 0.94 },  // i
+      { note: 'B', durationMs: 750, velocity: 0.92 },  // 7·（附点八分）
+      { note: 'C', durationMs: 250, velocity: 0.90 },  // i（十六分）
+      { note: 'A', durationMs: 1000, velocity: 0.92 }, // 6（四分）
+      { note: 'D', durationMs: 1000, velocity: 0.94 }, // 2̇（高八度D，四分）
 
       // ════════════════════════════════════════════
       // 行3 · 第9小节：[i̲7̲]  [6̲7̲]  i  -  ‖
-      // [i 7](八分) | [6 7](八分) | i–（二分，收尾）
       // ════════════════════════════════════════════
-      { note: 'C', durationMs: 330, velocity: 0.96 }, // i（八分）
-      { note: 'B', durationMs: 330, velocity: 0.94 }, // 7
-      { note: 'A', durationMs: 330, velocity: 0.92 }, // 6（八分）
-      { note: 'B', durationMs: 330, velocity: 0.94 }, // 7
-      { note: 'C', durationMs: 1330, velocity: 1.00 }, // i–（二分，终止）
+      { note: 'C', durationMs: 500, velocity: 0.96 },  // i（八分）
+      { note: 'B', durationMs: 500, velocity: 0.94 },  // 7
+      { note: 'A', durationMs: 500, velocity: 0.92 },  // 6（八分）
+      { note: 'B', durationMs: 500, velocity: 0.94 },  // 7
+      { note: 'C', durationMs: 2000, velocity: 1.00 }, // i–（二分，终止）
     ]
   },
   {

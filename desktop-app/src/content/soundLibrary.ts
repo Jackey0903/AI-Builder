@@ -110,16 +110,16 @@ export const SOUND_PRESETS: SoundPreset[] = [
   {
     id: 'emoding',
     name: '恶魔叮',
-    description: '恶魔叮战斗采样（1451ms），主体爆发在 240~400ms（峰值最高），前 100ms 为低幅过渡，trimStartMs=100 跳过。基频约 D#6（1231Hz），baseSemitoneOffset=27 固定基准。',
-    file: '/sounds/恶魔叮/恶魔叮战斗.wav',
-    baseNote: 'D',   // 实际基频 D#6；精确偏移由 baseSemitoneOffset:27 控制
-    baseSemitoneOffset: 27,
-    trimStartMs: 100,
+    description: '恶魔叮单音采样（405ms），pYIN 检测 A5（870Hz），置信度 69%。经两轮谱减法降噪去除气息底噪，发音结实无气感，baseSemitoneOffset=9。',
+    file: '/sounds/恶魔叮/恶魔叮采样_clean.wav',
+    baseNote: 'A',
+    baseSemitoneOffset: 9,
+    trimStartMs: 0,
     trimEndMs: 0,
-    gain: 0.8,
+    gain: 0.85,
     enabled: true,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
-    tags: ['character', 'single', 'sharp', 'ding', 'battle']
+    tags: ['character', 'single', 'sharp', 'ding']
   },
   {
     id: 'beng-squirrel-adult',

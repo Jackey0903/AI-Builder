@@ -42,6 +42,8 @@ interface LoadedSampleLayer {
   baseSemitoneOffset?: number;
   gain: number;
   role?: SoundSampleLayer['role'];
+  /** 所属 preset 分组 id，合奏时按组各选一层 */
+  presetGroupId?: string;
 }
 
 interface SelectedSampleLayer {
@@ -52,6 +54,8 @@ interface SelectedSampleLayer {
 export class AudioEngine {
   private context: AudioContext | null = null;
   private sampleLayers: LoadedSampleLayer[] = [];
+  /** 合奏模式：每个 presetGroupId 各出一层同时发声 */
+  ensembleMode = false;
   private backingSource: AudioBufferSourceNode | null = null;
   private backingGain: GainNode | null = null;
 
@@ -131,17 +135,20 @@ export class AudioEngine {
       }
     }
 
-    this.sampleLayers = [
-      {
-        id: options.id ?? 'recorded',
-        name: options.name ?? '录音样本',
-        buffer: trimmed,
-        baseNote: options.baseNote ?? 'C',
-        baseSemitoneOffset,
-        gain: options.gain ?? 1,
-        role: options.role ?? 'single'
-      }
-    ];
+    const newLayer: LoadedSampleLayer = {
+      id: options.id ?? 'recorded',
+      name: options.name ?? '录音样本',
+      buffer: trimmed,
+      baseNote: options.baseNote ?? 'C',
+      baseSemitoneOffset,
+      gain: options.gain ?? 1,
+      role: options.role ?? 'single',
+      presetGroupId: options.id  // id 即为 preset 分组键
+    };
+    // 合奏模式下追加；普通模式下覆写
+    this.sampleLayers = this.ensembleMode
+      ? [...this.sampleLayers, newLayer]
+      : [newLayer];
 
     return detectResult;
   }
@@ -155,7 +162,7 @@ export class AudioEngine {
     await this.setSample(await response.blob(), options);
   }
 
-  async loadSampleSet(samples: SoundSampleLayer[]) {
+  async loadSampleSet(samples: SoundSampleLayer[], presetGroupId?: string) {
     const context = await this.ensureContext();
     const loaded: LoadedSampleLayer[] = [];
 
@@ -175,11 +182,17 @@ export class AudioEngine {
         baseNote: sample.baseNote,
         baseSemitoneOffset: sample.baseSemitoneOffset,
         gain: sample.gain ?? 1,
-        role: sample.role
+        role: sample.role,
+        presetGroupId
       });
     }
 
-    this.sampleLayers = loaded;
+    this.sampleLayers = [...this.sampleLayers, ...loaded];
+  }
+
+  /** 合奏加载：先清空，再逐个 preset 追加，并开启合奏模式 */
+  clearSampleLayers() {
+    this.sampleLayers = [];
   }
 
   getSampleDuration() {
@@ -253,37 +266,19 @@ export class AudioEngine {
       return;
     }
 
-    const selectedLayer = this.pickClosestSample(targetSemitone);
-    const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
+    const layers = this.ensembleMode
+      ? this.pickEnsembleLayers(targetSemitone)
+      : [this.pickClosestSample(targetSemitone)];
 
-    const source = context.createBufferSource();
-    const gain = context.createGain();
-    const filter = context.createBiquadFilter();
-
-    source.buffer = selectedLayer.sample.buffer;
-    source.playbackRate.value = ratio;
-
-    filter.type = 'lowpass';
-    filter.frequency.value = 6800;
-    filter.Q.value = 0.2;
-
-    const now = context.currentTime;
-    const attack = 0.012;
+    const attack  = 0.012;
     const release = 0.12;
-    const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
-    const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, naturalDuration));
 
-    gain.gain.setValueAtTime(0.0001, now);
-    const targetGain = MASTER_GAIN * velocity * selectedLayer.sample.gain;
-    gain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
-    gain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - release));
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(context.destination);
-    source.start(now);
-    source.stop(now + sustainSeconds + 0.04);
+    for (const selectedLayer of layers) {
+      const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
+      const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
+      const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, naturalDuration));
+      this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, release);
+    }
   }
 
   /**
@@ -307,51 +302,22 @@ export class AudioEngine {
       return;
     }
 
-    const selectedLayer = this.pickClosestSample(targetSemitone);
-    const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
+    const layers = this.ensembleMode
+      ? this.pickEnsembleLayers(targetSemitone)
+      : [this.pickClosestSample(targetSemitone)];
 
-    const buf = selectedLayer.sample.buffer;
-    const naturalDuration = buf.duration / ratio; // 按目标音高正常播放的时长
-
-    const now = context.currentTime;
-    const attack = 0.003;
+    const attack    = 0.003;
     const crossfade = 0.080;
     const sustainSeconds = Math.max(durationMs / 1000, 0.05);
 
-    // 降速拉伸：最多放慢 8 倍（stretchFactor ≥ 0.125）
-    // 猴麦仔 149ms × 8 = ~1200ms，足以覆盖常见音符时长
-    // playbackRate × stretchFactor → 降速；detune 补偿 → 音高不变
-    const stretchFactor = naturalDuration < sustainSeconds
-      ? Math.max(naturalDuration / sustainSeconds, 0.125)
-      : 1;
-
-    const source = context.createBufferSource();
-    const gain   = context.createGain();
-    const filter = context.createBiquadFilter();
-
-    source.buffer = buf;
-    source.playbackRate.value = ratio * stretchFactor;
-
-    // detune 补偿：2^(detune/1200) = 1/stretchFactor → detune = -1200×log2(stretchFactor)
-    source.detune.value = stretchFactor < 1
-      ? -1200 * Math.log2(stretchFactor)
-      : 0;
-
-    filter.type = 'lowpass';
-    filter.frequency.value = 6800;
-    filter.Q.value = 0.2;
-
-    const targetGain = MASTER_GAIN * velocity * selectedLayer.sample.gain;
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
-    gain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - crossfade));
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(context.destination);
-    source.start(now);
-    source.stop(now + sustainSeconds + 0.01);
+    for (const selectedLayer of layers) {
+      const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
+      const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
+      const stretchFactor = naturalDuration < sustainSeconds
+        ? Math.max(naturalDuration / sustainSeconds, 0.125)
+        : 1;
+      this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, crossfade, stretchFactor);
+    }
   }
 
   async playClick() {
@@ -401,6 +367,74 @@ export class AudioEngine {
       sample: this.sampleLayers[0],
       baseSemitone: this.bestPlayableBaseSemitone(this.sampleLayers[0], targetSemitone)
     });
+  }
+
+  /**
+   * 合奏模式：按 presetGroupId 分组，每组各选最近音高的一层返回。
+   * 若某层没有 presetGroupId，视为独立的一组（id 用自身 id）。
+   */
+  private pickEnsembleLayers(targetSemitone: number): SelectedSampleLayer[] {
+    const groups = new Map<string, LoadedSampleLayer[]>();
+    for (const layer of this.sampleLayers) {
+      const key = layer.presetGroupId ?? layer.id;
+      const group = groups.get(key) ?? [];
+      group.push(layer);
+      groups.set(key, group);
+    }
+
+    const result: SelectedSampleLayer[] = [];
+    for (const layers of groups.values()) {
+      const best = layers.reduce<SelectedSampleLayer>((acc, sample) => {
+        const baseSemitone = this.bestPlayableBaseSemitone(sample, targetSemitone);
+        const score = this.pitchShiftScore(targetSemitone, baseSemitone);
+        const bestScore = this.pitchShiftScore(targetSemitone, acc.baseSemitone);
+        return score < bestScore ? { sample, baseSemitone } : acc;
+      }, {
+        sample: layers[0],
+        baseSemitone: this.bestPlayableBaseSemitone(layers[0], targetSemitone)
+      });
+      result.push(best);
+    }
+    return result;
+  }
+
+  /** 合奏模式下播放单个音节（所有 preset 组同时发声） */
+  private playLayerNote(
+    context: AudioContext,
+    layer: SelectedSampleLayer,
+    ratio: number,
+    sustainSeconds: number,
+    velocity: number,
+    attack: number,
+    release: number,
+    stretchFactor = 1
+  ) {
+    const source = context.createBufferSource();
+    const gain   = context.createGain();
+    const filter = context.createBiquadFilter();
+
+    source.buffer = layer.sample.buffer;
+    source.playbackRate.value = ratio * stretchFactor;
+    if (stretchFactor < 1) {
+      source.detune.value = -1200 * Math.log2(stretchFactor);
+    }
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 6800;
+    filter.Q.value = 0.2;
+
+    const now = context.currentTime;
+    const targetGain = MASTER_GAIN * velocity * layer.sample.gain;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(targetGain, now + attack);
+    gain.gain.setValueAtTime(targetGain, now + Math.max(attack, sustainSeconds - release));
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + sustainSeconds);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(context.destination);
+    source.start(now);
+    source.stop(now + sustainSeconds + 0.04);
   }
 
   private bestPlayableBaseSemitone(sample: LoadedSampleLayer, targetSemitone: number) {

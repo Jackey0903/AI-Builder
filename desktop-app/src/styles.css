@@ -353,6 +353,41 @@ h2 {
   box-shadow: var(--neu-inset);
 }
 
+/* ── Preset Chip Grid ───────────────────────────── */
+.preset-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.preset-chip {
+  flex: 0 0 auto;
+  padding: 6px 13px;
+  border: none;
+  border-radius: 20px;
+  background: var(--raised);
+  box-shadow: var(--neu-btn);
+  color: var(--ink-dim);
+  font-family: "Georgia", serif;
+  font-size: 0.80rem;
+  font-style: italic;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, background 120ms ease, color 120ms ease;
+  user-select: none;
+}
+
+.preset-chip:hover {
+  color: var(--ink);
+  box-shadow: var(--neu-btn-hover, var(--neu-btn));
+}
+
+.preset-chip.is-selected {
+  background: color-mix(in srgb, var(--amber) 12%, var(--raised));
+  box-shadow: var(--neu-btn-active);
+  color: var(--amber);
+  font-weight: 600;
+}
+
 /* ── Select ────────────────────────────────────── */
 select {
   width: 100%;
@@ -556,7 +591,7 @@ select:disabled { color: var(--ink-dim); }
 /* ── Composer Strip ────────────────────────────── */
 .composer-strip {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr minmax(110px, 0.32fr) 0.8fr auto;
+  grid-template-columns: 1.1fr 0.9fr minmax(260px, 1.2fr) 0.8fr auto;
   align-items: center;
   gap: 14px;
   margin-top: 20px;

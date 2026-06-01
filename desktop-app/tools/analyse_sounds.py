@@ -31,7 +31,8 @@ SILENCE_THRESHOLD_DB = -40   # 低于此分贝视为静音（去头用）
 PADDING_MS = 30              # 去头后保留的过渡 padding（ms）
 YIN_FMIN = 60                # 音高检测最低频率（Hz）
 YIN_FMAX = 1400              # 音高检测最高频率（Hz）
-CONFIDENCE_THRESHOLD = 0.5   # YIN 置信度阈值，低于此值标记为不可靠
+CONFIDENCE_THRESHOLD = 0.5   # YIN 置信度阈值，低于此值启用 FFT fallback
+FFT_FALLBACK_THRESHOLD = 0.3 # 低于此置信度连 FFT 结果也标注为不可靠
 ANALYSIS_SEGMENT_MS = 200    # 用于音高分析的中段长度（ms）
 
 NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -82,6 +83,62 @@ def detect_voice_end(y: np.ndarray, sr: int) -> int:
             padding = int(sr * PADDING_MS / 1000)
             return min(len(y), i + frame_len + padding)
     return len(y)
+
+
+# ── FFT 谱峰检测 ──────────────────────────────────────────────────────────────
+
+def fft_peak_pitch(y: np.ndarray, sr: int,
+                   fmin: float = 60, fmax: float = 2000) -> tuple[float | None, float]:
+    """
+    基于 FFT 的谱峰检测，适用于打击音 / 铃声 / 短促音节。
+
+    策略：
+      1. 取信号的前 1/3（攻击段）做 FFT，能量最集中
+      2. 用调和积谱（HPS，×3 次下采样乘积）增强基频，抑制泛音误识别
+      3. 返回 (频率Hz, 伪置信度)；伪置信度 = 谱峰高度占总能量比
+
+    对纯音置信度接近 1.0；对噪声/非谐波声通常 < 0.3。
+    """
+    # 只取前 1/3 的攻击段（不超过 100ms）
+    attack_end = min(len(y), int(sr * 0.10), len(y) // 3 + 1)
+    segment    = y[:attack_end] if attack_end > 64 else y
+
+    # Hann 窗 FFT
+    n_fft   = max(2048, 1 << (len(segment) - 1).bit_length())  # 向上取 2 的幂
+    window  = np.hanning(len(segment))
+    padded  = np.zeros(n_fft)
+    padded[:len(segment)] = segment * window
+    spectrum = np.abs(np.fft.rfft(padded)) ** 2   # 功率谱
+    freqs    = np.fft.rfftfreq(n_fft, d=1.0 / sr)
+
+    # 频率范围掩码
+    mask = (freqs >= fmin) & (freqs <= fmax)
+    if not np.any(mask):
+        return None, 0.0
+
+    spec_roi  = spectrum[mask]
+    freqs_roi = freqs[mask]
+
+    # 调和积谱（HPS）：谱 × 下采样2倍谱 × 下采样3倍谱
+    hps = spec_roi.copy()
+    for h in range(2, 4):
+        # 将 spec_roi 下采样 h 倍后乘到 hps 上
+        ds_len = len(spec_roi) // h
+        if ds_len < 2:
+            break
+        ds = spec_roi[:ds_len * h:h]          # 步长为 h 的下采样
+        hps[:ds_len] *= ds
+        hps[ds_len:] = 0                       # 超出范围清零
+
+    peak_idx  = int(np.argmax(hps))
+    peak_freq = float(freqs_roi[peak_idx])
+
+    # 伪置信度：谱峰功率 / 总功率（越集中越可信）
+    total_power = float(np.sum(spec_roi)) + 1e-12
+    peak_power  = float(spectrum[mask][peak_idx])
+    confidence  = min(1.0, peak_power / total_power * 5)   # 缩放使分布合理
+
+    return peak_freq, confidence
 
 
 def analyse_file(wav_path: str, save_trimmed: bool = False) -> dict:
@@ -138,8 +195,25 @@ def analyse_file(wav_path: str, save_trimmed: bool = False) -> dict:
             best_conf = probs[best_idx]
             best_freq = freqs[best_idx]
 
+    method_used = "pYIN"
+
+    # ── pYIN 置信度不足时，启用 FFT 谱峰 fallback ──
     if best_freq is None or best_conf < CONFIDENCE_THRESHOLD:
-        print(f"  ⚠️  音高检测不可靠（置信度={best_conf:.2f}），建议手动核查")
+        print(f"  pYIN 置信度低（{best_conf:.2f}），尝试 FFT 谱峰检测…")
+        # 对三类难检测音色分别调整 fmax
+        fmax_fft = 2000 if trimmed_ms < 300 else YIN_FMAX   # 短音扩大搜索范围
+        fft_freq, fft_conf = fft_peak_pitch(y_analysis, sr_yin, fmin=YIN_FMIN, fmax=fmax_fft)
+
+        if fft_freq and fft_conf > FFT_FALLBACK_THRESHOLD:
+            best_freq = fft_freq
+            best_conf = fft_conf
+            method_used = "FFT-HPS"
+            print(f"  FFT 补充检测：{fft_freq:.1f}Hz  伪置信度={fft_conf:.2f}")
+        else:
+            print(f"  FFT 也无可靠结果（伪置信度={fft_conf:.2f}）")
+
+    if best_freq is None or (best_conf < FFT_FALLBACK_THRESHOLD and method_used == "FFT-HPS"):
+        print(f"  ⚠️  音高检测不可靠，建议手动核查（参考已知物理基频）")
         midi_exact    = None
         note_name     = "N/A"
         semitone_off  = None
@@ -149,8 +223,10 @@ def analyse_file(wav_path: str, save_trimmed: bool = False) -> dict:
         cents_off     = round((midi_exact - midi_rounded) * 100)
         note_name     = midi_to_note_name(midi_exact)
         semitone_off  = midi_semitone_offset(midi_exact)
-        print(f"  音高：{best_freq:.1f}Hz → {note_name}  MIDI={midi_rounded}  cents偏差={cents_off:+d}")
-        print(f"  推荐 baseSemitoneOffset = {semitone_off}  （置信度 {best_conf:.0%}）")
+        reliable      = "✓" if best_conf >= CONFIDENCE_THRESHOLD else "△（FFT估算，仅供参考）"
+        print(f"  [{method_used}] 音高：{best_freq:.1f}Hz → {note_name}  "
+              f"MIDI={midi_rounded}  cents偏差={cents_off:+d}  {reliable}")
+        print(f"  推荐 baseSemitoneOffset = {semitone_off}  （置信度/伪置信度 {best_conf:.0%}）")
 
     # 4. 可选保存裁剪后的文件
     if save_trimmed and len(y_trimmed) > 0:

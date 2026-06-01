@@ -43,7 +43,9 @@ function App() {
   const [motif, setMotif] = useState<Note[]>([]);
   const [style, setStyle] = useState<MelodyStyle>('bright');
   const [melody, setMelody] = useState<MelodyEvent[]>([]);
-  const [selectedSoundPresetId, setSelectedSoundPresetId] = useState(firstSoundPresetId);
+  const [selectedSoundPresetIds, setSelectedSoundPresetIds] = useState<string[]>(
+    firstSoundPresetId ? [firstSoundPresetId] : []
+  );
   const [selectedPresetMelodyId, setSelectedPresetMelodyId] = useState(firstPresetMelodyId);
   const [scaleRoot, setScaleRoot] = useState<Note>('C');
   const [serialLog, setSerialLog] = useState<SerialLine[]>([
@@ -150,36 +152,54 @@ function App() {
     window.setTimeout(() => void playGeneratedMelody(events), 420);
   }, [audioEngine, motif, playGeneratedMelody, sendHardware, style]);
 
+  const toggleSoundPreset = useCallback((id: string) => {
+    setSelectedSoundPresetIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }, []);
+
   const loadSelectedSoundPreset = useCallback(async () => {
-    const preset = enabledSoundPresets.find((item) => item.id === selectedSoundPresetId);
-    if (!preset) {
-      setStatus('暂无可用音色预设。请在 public/sounds 目录添加音频文件并启用元数据。');
+    const presets = enabledSoundPresets.filter((p) => selectedSoundPresetIds.includes(p.id));
+    if (!presets.length) {
+      setStatus('请先选择至少一个音色。');
       return;
     }
 
+    const isEnsemble = presets.length > 1;
+    audioEngine.clearSampleLayers();
+    audioEngine.ensembleMode = isEnsemble;
+
     try {
-      setStatus(`正在加载音色：${preset.name}`);
-      if (preset.samples?.length) {
-        await audioEngine.loadSampleSet(preset.samples);
-      } else if (preset.file && preset.baseNote) {
-        await audioEngine.loadSampleFromUrl(preset.file, {
-          baseNote: preset.baseNote,
-          baseSemitoneOffset: preset.baseSemitoneOffset,
-          trimStartMs: preset.trimStartMs,
-          trimEndMs: preset.trimEndMs,
-          gain: preset.gain
-        });
-      } else {
-        throw new Error(`音色预设缺少可播放样本：${preset.name}`);
+      const names: string[] = [];
+      for (const preset of presets) {
+        setStatus(`正在加载音色：${preset.name}…`);
+        if (preset.samples?.length) {
+          await audioEngine.loadSampleSet(preset.samples, preset.id);
+        } else if (preset.file && preset.baseNote) {
+          await audioEngine.loadSampleFromUrl(preset.file, {
+            id: preset.id,
+            baseNote: preset.baseNote,
+            baseSemitoneOffset: preset.baseSemitoneOffset,
+            trimStartMs: preset.trimStartMs,
+            trimEndMs: preset.trimEndMs,
+            gain: preset.gain
+          });
+        } else {
+          throw new Error(`音色预设缺少可播放样本：${preset.name}`);
+        }
+        names.push(preset.name);
       }
 
       setSampleReady(true);
-      setStatus(`音色已加载：${preset.name}${preset.samples?.length ? `（${preset.samples.length} 层）` : ''}`);
+      setStatus(isEnsemble
+        ? `合奏音色已加载：${names.join(' + ')}`
+        : `音色已加载：${names[0]}`
+      );
       sendHardware('LED:RAINBOW');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '音色加载失败。');
     }
-  }, [audioEngine, selectedSoundPresetId, sendHardware]);
+  }, [audioEngine, selectedSoundPresetIds, sendHardware]);
 
   const playPresetMelody = useCallback(async () => {
     const preset = PRESET_MELODIES.find((item) => item.id === selectedPresetMelodyId);
@@ -470,26 +490,34 @@ function App() {
               <Library size={18} />
               <div>
                 <h2>音色库</h2>
-                <p>{enabledSoundPresets.length ? '加载团队预制音色。' : '等待队友提供音频文件。'}</p>
+                <p>
+                  {enabledSoundPresets.length
+                    ? selectedSoundPresetIds.length > 1
+                      ? `已选 ${selectedSoundPresetIds.length} 个合奏音色`
+                      : '可多选组成合奏。'
+                    : '等待队友提供音频文件。'}
+                </p>
               </div>
             </div>
-            <select
-              value={selectedSoundPresetId}
-              onChange={(event) => setSelectedSoundPresetId(event.target.value)}
-              disabled={!enabledSoundPresets.length}
+            <div className="preset-chip-grid">
+              {enabledSoundPresets.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={`preset-chip ${selectedSoundPresetIds.includes(preset.id) ? 'is-selected' : ''}`}
+                  onClick={() => toggleSoundPreset(preset.id)}
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="small-action"
+              onClick={loadSelectedSoundPreset}
+              disabled={!selectedSoundPresetIds.length}
             >
-              {enabledSoundPresets.length ? (
-                enabledSoundPresets.map((preset) => (
-                  <option key={preset.id} value={preset.id}>
-                    {preset.name}
-                  </option>
-                ))
-              ) : (
-                <option>暂无可用预设</option>
-              )}
-            </select>
-            <button type="button" className="small-action" onClick={loadSelectedSoundPreset} disabled={!enabledSoundPresets.length}>
-              加载音色
+              {selectedSoundPresetIds.length > 1 ? '加载合奏' : '加载音色'}
             </button>
           </div>
 
