@@ -4,7 +4,8 @@ import { buildPitchVariants } from './pitchShifter';
 import type { Note, SoundSampleLayer } from '../types';
 
 const MASTER_GAIN = 0.82;
-const DOWNSHIFT_PENALTY_SEMITONES = 3;
+// 下移惩罚必须 > 12（一个八度），确保任何上移选项都优先于下移选项
+const DOWNSHIFT_PENALTY_SEMITONES = 13;
 
 export interface SampleOptions {
   id?: string;
@@ -146,18 +147,11 @@ export class AudioEngine {
           confidence: bestConfidence,
           trimmedDuration: trimmed.duration
         };
-        // ── 关键：不设 baseSemitoneOffset，改用 baseNote ──
-        // baseSemitoneOffset 固定值会绕过八度感知逻辑（bestPlayableBaseSemitone），
-        // 导致偏移量最大达 ±11 半音（例如录 A 弹 C：shift=-9）。
-        // 改用 baseNote + 无偏移 → 引擎自动选最近八度，最大偏移约 ±6 半音。
-        // 升降号（C#→C, D#→E 等）映射到最近自然音，残余 ≤0.5 半音由 phase vocoder 补偿。
-        const chromaticToNote: Record<string, Note> = {
-          'C': 'C', 'C#': 'D', 'D': 'D', 'D#': 'E',
-          'E': 'E', 'F': 'F', 'F#': 'G', 'G': 'G',
-          'G#': 'A', 'A': 'A', 'A#': 'B', 'B': 'B'
-        };
-        detectedBaseNote = chromaticToNote[bestPitch.noteName] ?? 'C';
-        // baseSemitoneOffset 保持 undefined，触发八度自动选优
+        // ── 录音统一以 Do/C 为锚点 ──
+        // 用户录「do」→ 期望 C 键 = 原始录音，其他键从录音向上移调（Re+2, Mi+4, …, Si+11）。
+        // 固定 baseSemitoneOffset=0 → 所有移调均为正值（0~11），全部命中 ±12 pitchCache。
+        // 八度感知（baseNote/octave搜优）仅对预设音色有意义，录音无需此逻辑。
+        baseSemitoneOffset = 0;
       }
     }
 
@@ -383,8 +377,10 @@ export class AudioEngine {
       // 优先用预计算 buffer 的时长做自然时长计算，避免 WSOLA 导致时长微差
       const semitoneShift = Math.round(Math.log2(ratio) * 12);
       const cachedBuf = this.pitchCache.get(selectedLayer.sample.id)?.get(semitoneShift);
+      // 播放完整采样时长，不截断（SoundTouch 已保证音高变换不改变时长）
+      // durationMs 仅供旋律曲谱回放（playNoteLegato）使用，按键触发不做截断
       const effectiveDuration = cachedBuf ? cachedBuf.duration : selectedLayer.sample.buffer.duration / ratio;
-      const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, effectiveDuration));
+      const sustainSeconds = Math.max(0.12, effectiveDuration);
       this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, release, 1, ensembleScale);
     }
   }
