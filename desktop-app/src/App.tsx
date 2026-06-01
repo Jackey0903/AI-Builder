@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AudioEngine, noteColor } from './audio/audioEngine';
 import { generateMelody, melodyDuration } from './audio/melody';
 import { analyseBgm, analyseBgmFromUrl } from './audio/bgmAnalyser';
+import { saveSample, loadSample } from './audio/sampleStorage';
 import { enabledSoundPresets } from './content/soundLibrary';
 import { PRESET_MELODIES } from './content/presetMelodies';
 import { NOTES, noteByKey, noteByName } from './data/notes';
@@ -304,6 +305,9 @@ function App() {
           const detected = await audioEngine.setSample(blob);
           setSampleReady(true);
 
+          // 持久化到 IndexedDB，刷新后可恢复
+          void saveSample(blob, detected).catch(() => undefined);
+
           if (detected) {
             const confPct = Math.round(detected.confidence * 100);
             setStatus(
@@ -355,6 +359,46 @@ function App() {
   );
 
   const serial = useSerialDevice({ onLine: handleSerialLine, onLog: appendLog });
+
+  // ── 启动时从 IndexedDB 恢复上次录音 ──
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const stored = await loadSample();
+        if (!stored || cancelled) return;
+
+        const ageDays = (Date.now() - stored.savedAt) / 86_400_000;
+        // 超过 7 天的录音不再自动恢复
+        if (ageDays > 7) return;
+
+        await audioEngine.setSample(stored.blob, {
+          autoDetect: false,
+          baseSemitoneOffset: stored.detectResult?.baseSemitoneOffset
+        });
+
+        if (cancelled) return;
+        setSampleReady(true);
+
+        const age = ageDays < 1
+          ? `${Math.round(ageDays * 24)} 小时前`
+          : `${Math.round(ageDays)} 天前`;
+
+        if (stored.detectResult) {
+          setStatus(
+            `已恢复录音（${age}）· ` +
+            `音高 ${stored.detectResult.noteName}（${Math.round(stored.detectResult.frequency)} Hz）`
+          );
+        } else {
+          setStatus(`已恢复录音（${age}）`);
+        }
+      } catch {
+        // IndexedDB 不可用或数据损坏时静默忽略
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     hardwareSendRef.current = (message: string) => {
