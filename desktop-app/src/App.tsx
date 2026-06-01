@@ -158,10 +158,17 @@ function App() {
   }, [audioEngine, motif, playGeneratedMelody, sendHardware, style]);
 
   const toggleSoundPreset = useCallback((id: string) => {
-    setSelectedSoundPresetIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  }, []);
+    const isSelected = selectedSoundPresetIds.includes(id);
+    if (isSelected) {
+      // 取消选中：立即从引擎中撤下该精灵，无需重新加载
+      audioEngine.removePresetLayers(id);
+      const remaining = selectedSoundPresetIds.filter((x) => x !== id);
+      audioEngine.ensembleMode = remaining.length > 1;
+      setSelectedSoundPresetIds(remaining);
+    } else {
+      setSelectedSoundPresetIds((prev) => [...prev, id]);
+    }
+  }, [audioEngine, selectedSoundPresetIds]);
 
   /** 点击 chip 时试听原音频（1.5 秒淡入淡出，新点击自动打断上一个） */
   const previewPresetSound = useCallback((presetId: string) => {

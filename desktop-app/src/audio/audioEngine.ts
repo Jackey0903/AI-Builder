@@ -235,6 +235,17 @@ export class AudioEngine {
   }
 
   /**
+   * 移除特定 preset 的所有采样层（含预计算缓存）。
+   * 用于用户二次点击 chip 取消选中时，立即从合奏中撤下该精灵。
+   */
+  removePresetLayers(presetGroupId: string) {
+    this.sampleLayers = this.sampleLayers.filter(
+      (layer) => layer.presetGroupId !== presetGroupId && layer.id !== presetGroupId
+    );
+    this.pitchCache.delete(presetGroupId);
+  }
+
+  /**
    * 试听预览：直接播放原始文件（不经音高移调），最长 maxDurationMs 毫秒。
    * 若上一个预览仍在播放，自动打断再开新的。
    */
