@@ -171,10 +171,21 @@ export class AudioEngine {
       ? [...this.sampleLayers, newLayer]
       : [newLayer];
 
-    // 离线预计算 -6~+6 音高变体（进度通过 onProgress 回调上报）
+    // 离线预计算 -12~+12 音高变体（进度通过 onProgress 回调上报）
     if (onProgress) {
       const variants = await buildPitchVariants(trimmed, context, undefined, onProgress);
       this.pitchCache.set(layerId, variants);
+      // 诊断日志：确认缓存已建立，并检查各变体是否都有独立 buffer
+      const cacheEntries = [...variants.entries()];
+      const uniqueBuffers = new Set(cacheEntries.map(([, buf]) => buf));
+      console.debug(
+        `[audioEngine] pitchCache set: id="${layerId}" ` +
+        `variants=${variants.size} uniqueBuffers=${uniqueBuffers.size} ` +
+        `baseSemitoneOffset=${baseSemitoneOffset} trimDuration=${trimmed.duration.toFixed(3)}s`
+      );
+      if (uniqueBuffers.size < variants.size * 0.5) {
+        console.warn(`[audioEngine] WARNING: Many pitch variants share the same buffer! SoundTouch may have failed for most shifts.`);
+      }
     }
 
     return detectResult;
@@ -190,7 +201,8 @@ export class AudioEngine {
       throw new Error(`Could not load sample: ${url}`);
     }
 
-    await this.setSample(await response.blob(), options, onProgress);
+    // 预设音色：关闭自动音高检测与去头，用 cropBuffer 按 trimStartMs/trimEndMs 精确裁剪
+    await this.setSample(await response.blob(), { autoDetect: false, ...options }, onProgress);
   }
 
   async loadSampleSet(
@@ -381,6 +393,12 @@ export class AudioEngine {
       // durationMs 仅供旋律曲谱回放（playNoteLegato）使用，按键触发不做截断
       const effectiveDuration = cachedBuf ? cachedBuf.duration : selectedLayer.sample.buffer.duration / ratio;
       const sustainSeconds = Math.max(0.12, effectiveDuration);
+      // 调试：打印每层的音高计算结果，确认合奏时音阶是否正确
+      console.debug(
+        `[playNote] note=${note} target=${targetSemitone} | ` +
+        `layer=${selectedLayer.sample.id} base=${selectedLayer.baseSemitone} ` +
+        `shift=${semitoneShift} cached=${!!cachedBuf} ratio=${ratio.toFixed(4)}`
+      );
       this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, release, 1, ensembleScale);
     }
   }

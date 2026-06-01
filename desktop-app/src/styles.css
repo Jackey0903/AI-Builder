@@ -1,827 +1,835 @@
 /* ═══════════════════════════════════════════════════════════
-   Indigo Depth → Warm Vintage Neumorphic
-   底色：暖羊皮纸  阴影：暖棕双色  点缀：橄榄绿 / 琥珀金
+   精灵合奏台 — Figma 设计稿全面还原
+   配色取自 Figma globalVars：
+     背景 #358FAF  羊皮纸 #FDF8EC  墨色 #3D3D3D
+     暖棕 #917A5D  金色 #FFC65F  灰色 #938F86
    ═══════════════════════════════════════════════════════════ */
 
+/* ── 西瓜体字体 ── */
+@font-face {
+  font-family: "SentyWatermelon";
+  src: url("https://db.onlinewebfonts.com/t/ca1fc6e5a0a93c543fd0d12ee6ccd0aa.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/ca1fc6e5a0a93c543fd0d12ee6ccd0aa.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* mic-blink for rec button SVG */
+@keyframes mic-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
 :root {
-  font-family: "Georgia", "Palatino Linotype", "Book Antiqua", serif;
-  color: #3b2f20;
-  background: #e4dbc8;
+  font-family: "SentyWatermelon", "Georgia", serif;
+  color: #3D3D3D;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 
-  /* ── 色板 ── */
-  --bg:        #e4dbc8;   /* 羊皮纸底色 */
-  --raised:    #ede5cf;   /* 浮起面 */
-  --inset:     #d8cebb;   /* 内陷面 */
-  --ink:       #3b2f20;   /* 主文字 */
-  --ink-dim:   rgba(59, 47, 32, 0.50);
-  --ink-faint: rgba(59, 47, 32, 0.28);
-  --green:     #4e7c5f;   /* 橄榄绿 */
-  --green-dim: rgba(78, 124, 95, 0.18);
-  --amber:     #c07e30;   /* 琥珀金 */
-  --red:       #a84040;   /* 砖红 */
-
-  /* ── 轻拟态阴影（亮面 + 暗面各一层）── */
-  --neu-raised:
-    6px 6px 14px rgba(160, 138, 100, 0.40),
-    -4px -4px 10px rgba(255, 249, 234, 0.80);
-  --neu-inset:
-    inset 4px 4px 10px rgba(160, 138, 100, 0.35),
-    inset -3px -3px 8px rgba(255, 249, 234, 0.70);
-  --neu-btn:
-    3px 3px 8px rgba(160, 138, 100, 0.40),
-    -2px -2px 6px rgba(255, 249, 234, 0.75);
-  --neu-btn-active:
-    inset 2px 2px 6px rgba(160, 138, 100, 0.45),
-    inset -1px -1px 4px rgba(255, 249, 234, 0.60);
+  /* ── Figma 色板 ── */
+  --bg-blue:     #358FAF;
+  --parchment:   #FDF8EC;
+  --parchment-2: #EBE5D2;
+  --ink:         #3D3D3D;
+  --ink-dim:     #917A5D;
+  --ink-faint:   #938F86;
+  --ink-light:   #DCC7AA;
+  --border-dark: #3A2C31;
+  --border-warm: #D2B48D;
+  --gold:        #FFC65F;
+  --blue-accent: #3284A3;
+  --hw-top:      #2C84A4;
+  --hw-border:   #3284A3;
+  --panel-bg:    #DFD8C1;
+  --serial-bg:   #62605E;
+  --shadow-warm: rgba(145, 122, 93, 1);
+  --shadow-soft: rgba(63, 50, 44, 0.20);
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    /* 细微纸纹感：两组细格 */
-    linear-gradient(90deg, rgba(59,47,32,0.03) 1px, transparent 1px),
-    linear-gradient(0deg,  rgba(59,47,32,0.03) 1px, transparent 1px),
-    /* 四角暗角 */
-    radial-gradient(ellipse at 0% 0%,   rgba(100,80,40,0.08), transparent 42%),
-    radial-gradient(ellipse at 100% 100%, rgba(100,80,40,0.08), transparent 42%),
-    var(--bg);
-  background-size: 28px 28px, 28px 28px, auto, auto, auto;
+  background: var(--bg-blue);
+  overflow-x: hidden;
 }
 
-button { font: inherit; }
-
+button { font: inherit; cursor: pointer; }
 h1, h2, p { margin: 0; }
 
-h1 {
-  font-size: clamp(1.6rem, 4vw, 3.2rem);
-  line-height: 1;
-  letter-spacing: -0.01em;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-h2 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  font-family: "Georgia", serif;
-}
-
-/* ── App Shell ─────────────────────────────────── */
+/* ══════════════════════════════════════════
+   App Shell — 全屏背景图 + 内容层
+   ══════════════════════════════════════════ */
 .app-shell {
-  width: min(1440px, 100%);
-  margin: 0 auto;
-  padding: 28px 24px;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background:
+    url("/bg-music-sheet.png") center top / cover no-repeat fixed,
+    var(--bg-blue);
 }
 
-/* ── Top Strip ─────────────────────────────────── */
+/* ── 标题条 ─────────────────────────────── */
 .top-strip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  min-height: 88px;
-  padding: 18px 26px;
-  background: var(--raised);
-  border-radius: 18px;
-  box-shadow: var(--neu-raised);
+  gap: 16px;
+  padding: 18px 44px;
 }
 
-.eyebrow {
-  margin: 0 0 5px;
-  font-family: "Georgia", serif;
-  font-size: 0.72rem;
+.top-strip h1 {
+  font-family: "SentyWatermelon", serif;
+  font-size: 48px;
   font-weight: 400;
-  font-style: italic;
-  letter-spacing: 0.08em;
-  color: var(--ink-dim);
-  text-transform: uppercase;
+  line-height: 1.08;
+  color: #FFFFFF;
+  text-shadow: 2px 3px 6px rgba(0,0,0,0.25);
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
+/* 标题旁边的星星 */
+.title-stars {
+  display: flex;
   gap: 8px;
-  padding: 8px 16px;
-  background: var(--bg);
-  border-radius: 999px;
-  box-shadow: var(--neu-inset);
-  font-family: "Georgia", serif;
-  font-size: 0.82rem;
-  font-style: italic;
-  color: var(--ink-dim);
-  white-space: nowrap;
+  align-items: center;
+  margin-left: 12px;
 }
 
-.dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--ink-faint);
+.title-star {
+  width: 20px;
+  height: 20px;
+  color: var(--blue-accent);
 }
-.dot-ok { background: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
 
-/* ── Workspace Grid ────────────────────────────── */
+/* ── 主体三栏布局 ──────────────────────── */
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 0.68fr) minmax(360px, 1.6fr) minmax(240px, 0.8fr);
-  gap: 20px;
-  margin-top: 20px;
+  grid-template-columns: 120px 1fr 340px;
+  gap: 0;
+  padding: 0 44px;
+  align-items: start;
 }
 
-/* ── Tool Panel (shared) ───────────────────────── */
-.tool-panel,
+/* ══════════════════════════════════════════
+   左侧精灵选择列
+   ══════════════════════════════════════════ */
+.sprite-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.sprite-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 4px;
+  transition: transform 120ms ease;
+}
+
+.sprite-slot:hover {
+  transform: scale(1.08);
+}
+
+.sprite-slot .sprite-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid var(--border-warm);
+  object-fit: cover;
+  background: var(--parchment);
+  box-shadow: -3px 3px 12px rgba(63, 50, 44, 0.39);
+}
+
+.sprite-slot.is-active .sprite-avatar {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(255, 198, 95, 0.4), -3px 3px 12px rgba(63, 50, 44, 0.39);
+}
+
+.sprite-slot .sprite-name {
+  font-family: "SentyWatermelon", serif;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.sprite-slot .sprite-sub {
+  font-family: "SentyWatermelon", serif;
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: -4px;
+}
+
+/* "+" 录制按钮 slot */
+.sprite-slot-add .sprite-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-bg);
+  color: var(--ink-faint);
+  font-size: 24px;
+  font-weight: 300;
+}
+
+/* ══════════════════════════════════════════
+   中央舞台面板 + 键盘
+   ══════════════════════════════════════════ */
 .stage-panel {
-  background: var(--raised);
-  border-radius: 20px;
-  box-shadow: var(--neu-raised);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 20px;
 }
 
-.tool-panel {
+/* 舞台图像框 */
+.stage-orbit {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  border: 11px solid #3F322C;
+  box-shadow: -3px 6px 2px rgba(63, 50, 44, 0.20);
+  overflow: hidden;
+  background: var(--parchment-2);
+}
+
+.stage-orbit .sprite {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.note-badge {
+  display: none; /* 隐藏旧徽章 */
+}
+
+/* ── 键盘 ─────────────────────────────── */
+.keybed {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.note-key {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 130px;
+  padding: 15px 8px 20px;
+  border: 1px solid #3D3D3D;
+  border-radius: 4px;
+  background: var(--parchment);
+  box-shadow:
+    inset 0px 5px 4px rgba(251, 252, 251, 1),
+    inset 0px -9px 0px rgba(207, 179, 143, 0.71);
+  cursor: pointer;
+  transition: box-shadow 120ms ease, transform 100ms ease, background 120ms ease;
+}
+
+/* 底部金色小星星 */
+.note-key::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  background: conic-gradient(from 195deg at 50% 50%,
+    rgba(234, 175, 81, 1) 0%,
+    rgba(253, 249, 211, 1) 24%,
+    rgba(240, 197, 120, 1) 49%,
+    rgba(253, 249, 211, 1) 79%);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: 0.6;
+}
+
+.note-key span {
+  font-family: "SentyWatermelon", serif;
+  font-size: 24px;
+  line-height: 1.08;
+  color: var(--ink-dim);
+}
+
+/* 分隔线 */
+.note-key .key-divider {
+  width: 60%;
+  height: 1px;
+  background: var(--border-warm);
+  margin: 8px 0;
+}
+
+.note-key strong {
+  font-family: "SentyWatermelon", serif;
+  font-size: 48px;
+  line-height: 1.08;
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.note-key em {
+  display: none; /* 快捷键提示隐藏 */
+}
+
+/* 顶部色条 - 移除旧的 */
+.note-key::before {
+  display: none;
+}
+
+.note-key:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset 0px 5px 4px rgba(251, 252, 251, 1),
+    inset 0px -9px 0px rgba(207, 179, 143, 0.71),
+    0 4px 12px rgba(63, 50, 44, 0.25);
+}
+
+.note-key.is-active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0px 3px 8px rgba(207, 179, 143, 0.5);
+  background: color-mix(in srgb, var(--gold) 15%, var(--parchment));
+}
+
+.note-key.is-active::after {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════
+   右侧硬件面板
+   ══════════════════════════════════════════ */
+.hardware-column {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  min-height: 540px;
-  padding: 22px 20px;
+  padding-top: 0;
 }
 
-.panel-heading {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.panel-heading svg {
-  flex: 0 0 auto;
-  margin-top: 2px;
-  color: var(--green);
-  opacity: 0.85;
-}
-
-.panel-heading p {
-  margin-top: 4px;
-  color: var(--ink-dim);
-  font-family: "Georgia", serif;
-  font-size: 0.82rem;
-  font-style: italic;
-  line-height: 1.35;
-}
-
-.compact p { max-width: 680px; }
-
-/* ── Buttons ───────────────────────────────────── */
-.primary-action,
-.secondary-action,
-.generate-action,
-.icon-action,
-.small-action,
-.bgm-upload-label,
-.tuning-picker,
-.style-switcher button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 42px;
-  border: none;
-  border-radius: 12px;
-  color: var(--ink);
-  font-weight: 700;
-  cursor: pointer;
-  transition: box-shadow 140ms ease, transform 100ms ease, background 140ms ease;
-}
-
-.primary-action {
-  width: 100%;
-  min-height: 52px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  color: var(--red);
-  font-family: "Georgia", serif;
-  font-style: italic;
-  letter-spacing: 0.04em;
-}
-
-/* 录制进行中：砖红底色 + 脉冲感 */
-.primary-action.is-recording {
-  background: color-mix(in srgb, var(--red) 12%, var(--raised));
-  color: var(--red);
-  animation: rec-pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes rec-pulse {
-  0%, 100% { box-shadow: var(--neu-btn); }
-  50%       { box-shadow:
-    6px 6px 16px rgba(160, 60, 60, 0.35),
-    -4px -4px 10px rgba(255, 249, 234, 0.80); }
-}
-
-.secondary-action {
-  width: 100%;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  color: var(--green);
-  font-family: "Georgia", serif;
-  font-style: italic;
-}
-
-.small-action {
-  width: 100%;
-  min-height: 38px;
-  padding: 0 12px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  font-family: "Georgia", serif;
-  font-size: 0.84rem;
-  font-style: italic;
-  color: var(--ink);
-}
-
-.generate-action {
-  min-width: 200px;
-  min-height: 52px;
-  padding: 0 20px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  color: var(--green);
-  font-family: "Georgia", serif;
-  font-style: italic;
-  font-size: 1rem;
-  letter-spacing: 0.03em;
-}
-
-.primary-action:hover,
-.secondary-action:hover,
-.generate-action:hover,
-.icon-action:hover,
-.small-action:hover,
-.style-switcher button:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    5px 5px 12px rgba(160, 138, 100, 0.42),
-    -3px -3px 9px rgba(255, 249, 234, 0.82);
-}
-
-.primary-action:active,
-.secondary-action:active,
-.generate-action:active,
-.small-action:active {
-  transform: translateY(0);
-  box-shadow: var(--neu-btn-active);
-}
-
-.primary-action:disabled,
-.secondary-action:disabled,
-.generate-action:disabled,
-.small-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-  transform: none;
-}
-
-/* ── Waveform Meter ────────────────────────────── */
-.meter {
+/* 连接硬件按钮 */
+.hw-connect-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 3px;
-  height: 110px;
-  padding: 14px;
-  background: var(--inset);
-  border-radius: 14px;
-  box-shadow: var(--neu-inset);
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 2px solid var(--hw-border);
+  border-radius: 6px;
+  background: var(--parchment);
+  box-shadow: 0px 1px 2px rgba(22, 44, 53, 1);
   overflow: hidden;
+  cursor: pointer;
+  transition: transform 100ms ease;
 }
 
-.meter span {
-  width: 100%;
-  min-width: 3px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--amber), var(--red));
-  opacity: 0.75;
-  transition: height 180ms ease;
+.hw-connect-btn:hover {
+  transform: translateY(-1px);
 }
 
-/* ── Mini Specs / Hardware Map ─────────────────── */
-.mini-specs,
-.hardware-map {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.mini-specs div {
-  padding: 12px;
-  background: var(--raised);
-  border-radius: 12px;
-  box-shadow: var(--neu-inset);
-}
-
-.hardware-map span,
-.hardware-map strong {
-  min-height: 54px;
-  padding: 10px;
-  background: var(--raised);
-  border-radius: 12px;
-  box-shadow: var(--neu-inset);
+.hw-connect-btn .hw-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Georgia", serif;
-  font-size: 0.82rem;
+  padding: 10px 14px;
+  color: #FFFFFF;
 }
 
-.hardware-map span { color: var(--ink-dim); font-style: italic; }
-.hardware-map strong { color: var(--green); font-weight: 700; }
-
-.mini-specs strong { display: block; font-size: 0.9rem; color: var(--ink); }
-.mini-specs span   { display: block; margin-top: 3px; font-family: "Georgia", serif; font-size: 0.76rem; font-style: italic; color: var(--ink-dim); }
-
-/* ── Content Loader ────────────────────────────── */
-.content-loader {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-  background: var(--inset);
-  border-radius: 14px;
-  box-shadow: var(--neu-inset);
+.hw-connect-btn .hw-label {
+  flex: 1;
+  text-align: right;
+  padding: 8px 14px;
 }
 
-/* ── Preset Chip Grid ───────────────────────────── */
-.preset-chip-grid {
+.hw-connect-btn .hw-label-en {
+  display: block;
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: var(--ink-faint);
+}
+
+.hw-connect-btn .hw-label-cn {
+  display: block;
+  font-family: "SentyWatermelon", serif;
+  font-size: 24px;
+  color: var(--ink);
+}
+
+/* 蓝色顶栏条 */
+.hw-connect-btn .hw-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--hw-top);
+  border-radius: 6px 6px 0 0;
+}
+
+.hw-connect-btn {
+  position: relative;
+}
+
+/* GPIO 映射面板 */
+.hw-gpio-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.preset-chip {
-  flex: 0 0 auto;
-  padding: 6px 13px;
-  border: none;
-  border-radius: 20px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  color: var(--ink-dim);
-  font-family: "Georgia", serif;
-  font-size: 0.80rem;
-  font-style: italic;
-  cursor: pointer;
-  transition: box-shadow 120ms ease, background 120ms ease, color 120ms ease;
-  user-select: none;
+.hw-gpio-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
-.preset-chip:hover {
+.hw-gpio-bar {
+  flex: 1;
+  height: 34px;
+  border-radius: 14px;
+  border: 6px solid var(--panel-bg);
+  background: var(--panel-bg);
+}
+
+.hw-gpio-label {
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  text-transform: capitalize;
   color: var(--ink);
-  box-shadow: var(--neu-btn-hover, var(--neu-btn));
+  padding: 10px 32px;
+  border: 2px solid var(--border-dark);
+  border-radius: 999px;
+  background: var(--parchment);
+  box-shadow: 1px 3px 0px var(--shadow-warm);
+  white-space: nowrap;
+  min-width: 100px;
+  text-align: center;
 }
 
-.preset-chip.is-selected {
-  background: color-mix(in srgb, var(--amber) 12%, var(--raised));
-  box-shadow: var(--neu-btn-active);
-  color: var(--amber);
-  font-weight: 600;
-}
-
-/* ── Select ────────────────────────────────────── */
-select {
-  width: 100%;
-  min-height: 38px;
-  padding: 0 12px;
-  border: none;
-  border-radius: 10px;
-  background: var(--raised);
-  box-shadow: var(--neu-inset);
-  color: var(--ink);
-  font: inherit;
-  font-family: "Georgia", serif;
-  font-size: 0.85rem;
-  font-style: italic;
-  cursor: pointer;
-  appearance: auto;
-}
-
-select:disabled { color: var(--ink-dim); }
-
-/* ── Serial Log ────────────────────────────────── */
+/* 串口日志 */
 .serial-box {
-  min-height: 180px;
-  max-height: 240px;
-  padding: 12px;
-  background: #2a2018;
-  border-radius: 12px;
-  box-shadow:
-    inset 3px 3px 10px rgba(0,0,0,0.5),
-    inset -2px -2px 6px rgba(80,60,30,0.2);
-  color: #e8d8a0;
+  min-height: 140px;
+  max-height: 200px;
+  padding: 14px;
+  background: var(--serial-bg);
+  border: 4px solid var(--border-dark);
+  border-radius: 4px;
+  color: #FFFFFF;
   overflow: auto;
 }
 
 .serial-box p {
   display: flex;
   gap: 8px;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(232,216,160,0.10);
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 0.72rem;
+  padding: 3px 0;
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  line-height: 1.08;
+  border: none;
 }
 
 .serial-box span {
-  min-width: 46px;
-  color: var(--amber);
+  color: #FFFFFF;
   text-transform: uppercase;
 }
 
-/* ── Stage Panel ───────────────────────────────── */
-.stage-panel {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  min-height: 540px;
-  padding: 20px;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(78,124,95,0.06), transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(192,126,48,0.06), transparent 50%),
-    var(--raised);
-  overflow: hidden;
-}
-
-/* ── Stage Orbit ───────────────────────────────── */
-.stage-orbit {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 300px;
-  border-radius: 16px;
-  background:
-    radial-gradient(
-      circle,
-      color-mix(in srgb, var(--note-color) 18%, transparent) 0 18%,
-      transparent 19%
-    ),
-    var(--inset);
-  box-shadow: var(--neu-inset);
-}
-
-/* 轨道环（细线复古仪表风格） */
-.stage-orbit::before,
-.stage-orbit::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.stage-orbit::before {
-  width: min(54vw, 380px); height: min(54vw, 380px);
-  max-width: 74%; max-height: 74%;
-  border: 1px solid rgba(59,47,32,0.18);
-  animation: spin 24s linear infinite;
-}
-
-.stage-orbit::after {
-  width: min(36vw, 240px); height: min(36vw, 240px);
-  max-width: 52%; max-height: 52%;
-  border: 1px dashed rgba(59,47,32,0.12);
-  animation: spin 16s linear infinite reverse;
-}
-
-.sprite {
-  position: relative;
-  z-index: 1;
-  width: min(240px, 50vw);
-  filter: drop-shadow(4px 6px 12px rgba(59,47,32,0.22));
-  transform: translateY(-4px);
-}
-
-.note-badge {
-  position: absolute;
-  right: 16px; bottom: 16px;
-  min-width: 72px;
-  padding: 8px 14px;
-  background: var(--raised);
-  border-radius: 10px;
-  box-shadow: var(--neu-raised);
-  color: var(--ink);
-  font-size: 1.1rem;
-  font-weight: 700;
-  font-family: "Georgia", serif;
-  text-align: center;
-  letter-spacing: 0.04em;
-}
-
-/* ── Keybed ────────────────────────────────────── */
-.keybed {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(56px, 1fr));
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.note-key {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 128px;
-  padding: 12px 8px;
-  border: none;
-  border-radius: 16px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  cursor: pointer;
-  transition: box-shadow 120ms ease, transform 100ms ease, background 120ms ease;
-}
-
-/* 顶部色条 */
-.note-key::before {
-  content: "";
-  position: absolute;
-  top: 10px; left: 14px; right: 14px;
-  height: 5px;
-  border-radius: 3px;
-  background: var(--key-color);
-  opacity: 0.55;
-  transition: opacity 120ms ease, height 120ms ease;
-}
-
-.note-key span {
-  font-family: "Georgia", serif;
-  font-size: clamp(0.68rem, 1.3vw, 0.85rem);
-  font-style: italic;
-  color: var(--ink-dim);
-}
-
-.note-key strong {
-  font-size: clamp(1.6rem, 3.2vw, 3rem);
-  line-height: 0.9;
-  color: var(--ink);
-  font-family: "Georgia", serif;
-}
-
-.note-key em {
-  position: absolute;
-  right: 8px; bottom: 6px;
-  color: var(--ink-faint);
-  font-style: normal;
-  font-size: 0.72rem;
-  font-family: "Georgia", serif;
-}
-
-.note-key:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    6px 6px 14px rgba(160,138,100,0.42),
-    -4px -4px 10px rgba(255,249,234,0.82);
-}
-
-.note-key:hover::before { opacity: 0.85; height: 7px; }
-
-.note-key.is-active {
-  transform: translateY(1px);
-  box-shadow: var(--neu-btn-active);
-  background: color-mix(in srgb, var(--key-color) 20%, var(--raised));
-}
-
-.note-key.is-active::before { opacity: 1; height: 8px; }
-
-/* ── Composer Strip ────────────────────────────── */
+/* ══════════════════════════════════════════
+   底部控制条（Composer Strip）
+   ══════════════════════════════════════════ */
 .composer-strip {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr minmax(260px, 1.2fr) 0.8fr auto;
-  align-items: center;
-  gap: 14px;
-  margin-top: 20px;
-  padding: 18px 22px;
-  background: var(--raised);
-  border-radius: 20px;
-  box-shadow: var(--neu-raised);
-}
-
-.motif-readout {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 18px;
+  padding: 14px 44px 20px;
+  margin-top: 12px;
+}
+
+/* 音乐动机区域 */
+.motif-area {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  min-width: 0;
 }
 
-.icon-action {
-  min-width: 66px;
-  padding: 0 12px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  font-family: "Georgia", serif;
-  font-style: italic;
-  font-size: 0.84rem;
-  color: var(--ink-dim);
+.motif-book-icon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 
-/* ── Style Switcher ────────────────────────────── */
-.style-switcher {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+.motif-text h2 {
+  font-family: "SentyWatermelon", serif;
+  font-size: 24px;
+  color: var(--ink);
 }
 
-.style-switcher button {
-  min-height: 42px;
-  padding: 8px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  font-family: "Georgia", serif;
-  font-size: 0.74rem;
-  font-style: italic;
-  color: var(--ink-dim);
-  line-height: 1.1;
-  border-radius: 12px;
+.motif-text p {
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: var(--ink-faint);
 }
 
-.style-switcher button.selected {
-  box-shadow: var(--neu-btn-active);
-  color: var(--amber);
-  background: color-mix(in srgb, var(--amber) 8%, var(--raised));
-}
-
-/* ── Tuning Picker ─────────────────────────────── */
-.tuning-picker {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 5px;
-  padding: 10px 12px;
-  background: var(--inset);
-  box-shadow: var(--neu-inset);
-  border-radius: 12px;
-  cursor: default;
-  min-height: 56px;
-}
-
-.tuning-picker span {
+/* Figma 风格胶囊按钮（底部控制用） */
+.pill-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  color: var(--ink-dim);
-  font-family: "Georgia", serif;
-  font-size: 0.7rem;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  gap: 10px;
+  padding: 12px 32px;
+  border: 2px solid var(--border-dark);
+  border-radius: 999px;
+  background: var(--parchment);
+  box-shadow: 1px 3px 0px var(--shadow-warm);
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  line-height: 1.08;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+  white-space: nowrap;
 }
 
-.tuning-picker select {
-  min-height: 26px;
-  padding: 0 6px;
-  box-shadow: none;
-  background: transparent;
-  font-size: 0.88rem;
+.pill-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 1px 4px 0px var(--shadow-warm);
 }
 
-/* ── Preset Picker ─────────────────────────────── */
-.preset-picker {
-  display: grid;
-  grid-template-columns: minmax(120px, 1fr) minmax(112px, 0.8fr);
-  gap: 8px;
+.pill-btn:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0px var(--shadow-warm);
 }
 
-/* ── BGM Analyser ──────────────────────────────── */
-.bgm-analyser {
+.pill-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pill-btn .pill-arrow {
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+/* 预设选择（嵌入版） */
+.preset-select-area {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 20px;
 }
 
+.preset-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 14px;
+  border: 6px solid var(--panel-bg);
+  background: var(--panel-bg);
+  overflow: hidden;
+}
+
+.preset-select-wrapper select {
+  flex: 1;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: var(--ink);
+  cursor: pointer;
+  appearance: none;
+}
+
+.preset-select-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 32px;
+}
+
+.preset-select-inner span {
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+/* BGM 解析按钮 */
 .bgm-upload-label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 12px 32px;
+  border: 2px solid var(--border-dark);
+  border-radius: 999px;
+  background: var(--parchment);
+  box-shadow: 1px 3px 0px var(--shadow-warm);
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: var(--ink);
   cursor: pointer;
-  user-select: none;
-  width: 100%;
-  min-height: 38px;
-  padding: 0 12px;
-  background: var(--raised);
-  box-shadow: var(--neu-btn);
-  border-radius: 12px;
-  font-family: "Georgia", serif;
-  font-size: 0.84rem;
-  font-style: italic;
-  color: var(--ink-dim);
-  transition: box-shadow 140ms ease, transform 100ms ease;
+  transition: transform 100ms ease;
+  white-space: nowrap;
 }
 
 .bgm-upload-label:hover {
   transform: translateY(-1px);
-  box-shadow:
-    5px 5px 12px rgba(160,138,100,0.42),
-    -3px -3px 9px rgba(255,249,234,0.82);
 }
 
 .bgm-upload-label.disabled {
-  opacity: 0.50;
+  opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }
 
+/* 生成旋律按钮 —— Figma 黄金渐变 */
+.generate-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 180px;
+  min-height: 52px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 36px;
+  background: var(--gold);
+  box-shadow: 1px 3px 0px var(--shadow-warm);
+  font-family: "SentyWatermelon", serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+  white-space: nowrap;
+}
+
+/* 金色小星星装饰 */
+.generate-action .gen-star {
+  display: inline-block;
+}
+
+.generate-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 1px 5px 0px var(--shadow-warm);
+}
+
+.generate-action:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0px var(--shadow-warm);
+}
+
+.generate-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── BGM 进度条 ─────────────────────────── */
 .bgm-progress-bar {
   height: 3px;
-  background: var(--inset);
+  background: var(--panel-bg);
   border-radius: 2px;
   overflow: hidden;
-  box-shadow: var(--neu-inset);
 }
 
 .bgm-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--green), var(--amber));
+  background: linear-gradient(90deg, var(--blue-accent), var(--gold));
   border-radius: 2px;
   transition: width 0.15s ease;
 }
 
-/* ── Bottom Status ─────────────────────────────── */
+/* ── 底部状态条（隐藏旧样式，合并到composer） ── */
 .bottom-status {
-  display: grid;
-  grid-template-columns: 1.1fr 0.75fr 1fr;
-  gap: 14px;
-  margin-top: 20px;
-  padding: 16px 22px;
-  background: var(--inset);
-  border-radius: 16px;
-  box-shadow: var(--neu-inset);
-  color: var(--ink-dim);
+  display: none;
 }
-
-.bottom-status div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  font-family: "Georgia", serif;
-  font-size: 0.82rem;
-  font-style: italic;
-}
-
-.bottom-status svg { color: var(--green); opacity: 0.75; flex-shrink: 0; }
-
-.bottom-status span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Spinner ───────────────────────────────────── */
-.spin { animation: spin 1s linear infinite; }
-
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ══════════════════════════════════════════
-   Responsive
+   录制按钮 —— Figma 风格
+   ══════════════════════════════════════════ */
+.rec-btn-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.rec-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 16px 8px 12px;
+  border: none;
+  border-radius: 36px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 140ms ease, box-shadow 140ms ease, transform 100ms ease;
+  background: #22D2DF;
+  box-shadow: 1px 3px 0px rgba(2, 84, 90, 1);
+}
+
+.rec-btn__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 12px;
+  background: #1BA1AB;
+  border-radius: 28px;
+  box-shadow: 1px 3px 0px rgba(2, 84, 90, 1);
+  transition: background 140ms ease;
+}
+
+.rec-btn__label {
+  font-family: "SentyWatermelon", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.08;
+  color: #FFFFFF;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.rec-btn__mic-svg {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.rec-btn:hover {
+  background: #38B5BE;
+  transform: translateY(-1px);
+  box-shadow: 1px 4px 0px rgba(2, 84, 90, 1);
+}
+
+.rec-btn:hover .rec-btn__inner {
+  background: #2FA8B2;
+}
+
+.rec-btn.is-recording {
+  background: #1ABECA;
+  box-shadow: 1px 2px 0px rgba(2, 84, 90, 1);
+  transform: translateY(1px);
+  animation: rec-btn-pulse 1.4s ease-in-out infinite;
+}
+
+.rec-btn.is-recording .rec-btn__inner {
+  background: #19868E;
+}
+
+@keyframes rec-btn-pulse {
+  0%, 100% {
+    box-shadow: 1px 2px 0px rgba(2, 84, 90, 1),
+                0 0 0 0 rgba(26, 190, 202, 0.5);
+  }
+  50% {
+    box-shadow: 1px 2px 0px rgba(2, 84, 90, 1),
+                0 0 0 10px rgba(26, 190, 202, 0);
+  }
+}
+
+.rec-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  animation: none;
+}
+
+/* ══════════════════════════════════════════
+   旧 UI 兼容 / 隐藏（保留功能、隐藏外观）
+   ══════════════════════════════════════════ */
+
+/* 隐藏旧面板结构中不需要的元素 */
+.panel-heading { display: none; }
+.meter { display: none; }
+.mini-specs { display: none; }
+.content-loader { display: none; }
+.eyebrow { display: none; }
+.status-pill { display: none; }
+.tool-panel { display: none; }
+
+/* ── Spinner ──────────────────────────── */
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Select 基础 ─────────────────────── */
+select {
+  border: none;
+  background: transparent;
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: var(--ink);
+  cursor: pointer;
+  appearance: none;
+}
+
+/* ══════════════════════════════════════════
+   响应式
    ══════════════════════════════════════════ */
 @media (max-width: 1120px) {
   .workspace-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 80px 1fr 280px;
+    padding: 0 20px;
   }
 
-  .tool-panel,
-  .stage-panel {
-    min-height: auto;
-  }
-
-  .composer-strip,
-  .bottom-status {
-    grid-template-columns: 1fr;
+  .composer-strip {
+    flex-wrap: wrap;
+    padding: 14px 20px;
   }
 }
 
-@media (max-width: 680px) {
-  .app-shell { padding: 14px 12px; }
+@media (max-width: 768px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+    padding: 0 12px;
+  }
+
+  .sprite-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .hardware-column {
+    display: none;
+  }
 
   .top-strip {
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 12px 16px;
+  }
+
+  .top-strip h1 {
+    font-size: 32px;
   }
 
   .keybed {
-    grid-template-columns: repeat(4, minmax(64px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
   }
 
-  .note-key { min-height: 100px; }
+  .note-key {
+    min-height: 100px;
+  }
 
-  .style-switcher { grid-template-columns: 1fr; }
-
-  .preset-picker { grid-template-columns: 1fr; }
-
-  .motif-readout {
+  .composer-strip {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .icon-action,
-  .small-action,
-  .generate-action {
-    width: 100%;
+    padding: 14px 12px;
   }
 }

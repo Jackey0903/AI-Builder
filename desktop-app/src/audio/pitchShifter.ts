@@ -32,13 +32,13 @@ export async function pitchShiftBuffer(
 
   const pitchMultiplier = Math.pow(2, semitones / 12);
 
-  const st = new SoundTouch(buffer.sampleRate) as {
+  const st = new SoundTouch() as {
     pitch: number;
     tempo: number;
     rate: number;
   };
   st.pitch = pitchMultiplier;
-  st.tempo = 1;   // 保持原速
+  st.tempo = 1;   // 保持原速（WSOLA 模式，只改音高）
   st.rate  = 1;
 
   const source = new WebAudioBufferSource(buffer);
@@ -52,6 +52,9 @@ export async function pitchShiftBuffer(
   const chunk = new Float32Array(EXTRACT_CHUNK * 2); // 交织立体声
 
   let extracted: number;
+  // 最多允许抽 ceil(buffer.length/EXTRACT_CHUNK) + 8 次，防止死循环
+  const maxIter = Math.ceil(buffer.length / EXTRACT_CHUNK) + 8;
+  let iter = 0;
   do {
     chunk.fill(0);
     extracted = filter.extract(chunk, EXTRACT_CHUNK);
@@ -59,16 +62,41 @@ export async function pitchShiftBuffer(
       outLeft.push(chunk[i * 2]);
       outRight.push(chunk[i * 2 + 1]);
     }
-  } while (extracted > 0);
+    iter++;
+  } while (extracted > 0 && iter < maxIter);
 
   const outLen = outLeft.length;
-  if (outLen === 0) return buffer; // 处理失败时回退到原 buffer
+  if (outLen === 0) {
+    // SoundTouch 未产生输出（buffer 太短或格式异常），回退到 OfflineAudioContext playbackRate 方式
+    // 注意：此回退会改变时长，但至少保证音高正确（不会与其他键同音）
+    console.warn(`[pitchShiftBuffer] SoundTouch produced 0 frames for shift=${semitones} (buffer=${buffer.duration.toFixed(3)}s, ${buffer.length} frames). Falling back to playbackRate.`);
+    return pitchShiftByPlaybackRate(buffer, pitchMultiplier, context);
+  }
 
   // 输出为单声道（取左声道；原本就是单声道采样）
   const outBuffer = context.createBuffer(1, outLen, buffer.sampleRate);
   outBuffer.copyToChannel(new Float32Array(outLeft), 0);
 
   return outBuffer;
+}
+
+/**
+ * 回退方案：用 OfflineAudioContext + playbackRate 实现音高移调（会改变时长）。
+ * 仅在 SoundTouch WSOLA 无法处理时使用（极短 buffer 等边界情况）。
+ */
+async function pitchShiftByPlaybackRate(
+  buffer: AudioBuffer,
+  pitchMultiplier: number,
+  context: AudioContext
+): Promise<AudioBuffer> {
+  const outLength = Math.ceil(buffer.length / pitchMultiplier);
+  const offlineCtx = new OfflineAudioContext(1, outLength, buffer.sampleRate);
+  const src = offlineCtx.createBufferSource();
+  src.buffer = buffer;
+  src.playbackRate.value = pitchMultiplier;
+  src.connect(offlineCtx.destination);
+  src.start(0);
+  return offlineCtx.startRendering();
 }
 
 /**
