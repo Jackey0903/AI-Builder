@@ -14,10 +14,13 @@ export const SOUND_PRESETS: SoundPreset[] = [
   {
     id: 'yuanhaoyu-voice-2',
     name: '圆号鱼',
-    description: 'Clean single-syllable sample with lower pitch; useful for comparison.',
+    // YIN 实测基频 552Hz ≈ C#5（semitone=1）。
+    // 原配置 baseSemitoneOffset=5（F）导致音阶偏移4半音（C键响G#而非C）。
+    // 修正为 1（C#），C键=C5, D=D5, E=E5, ..., B=B5。
+    description: 'Clean single-syllable sample, C#5（552Hz），baseSemitoneOffset=1 修正基准。',
     file: '/sounds/yuanhaoyu-voice-mid.wav',
-    baseNote: 'F',
-    baseSemitoneOffset: 5,
+    baseNote: 'C',
+    baseSemitoneOffset: 1,
     trimStartMs: 0,
     trimEndMs: 277,
     gain: 1.12,
@@ -69,15 +72,15 @@ export const SOUND_PRESETS: SoundPreset[] = [
     id: 'houmaizai',
     name: '猴麦仔',
     // 实测基频 E4（~658Hz），采样 149ms，全段有声（RMS 0.25→0.55，峰值在 50ms）。
-    // baseSemitoneOffset=0：C 键播放原始采样（无 WSOLA 处理，音色最纯），
-    // 其他键向上移调 +2~+11 半音，全部命中 ±12 pitchCache，与录音锚定方式一致。
-    description: '猴麦仔单音采样（149ms），基频 E4（658Hz）。C键=原声，其他音阶向上移调，WSOLA还原时长。',
+    // baseSemitoneOffset=4（E）：引擎将样本从 E 映射到标准音阶，C键=C4，D=D4，E=E4原声，以此类推。
+    // 注意：此值不能改为 0，否则 C 键会响 E4（整个音阶上移4半音）。
+    description: '猴麦仔单音采样（149ms），基频 E4（658Hz），baseSemitoneOffset=4 固定基准，音头干净无气音。',
     file: '/sounds/猴麦仔/猴麦仔采样.wav',
     baseNote: 'E',
-    baseSemitoneOffset: 0,
+    baseSemitoneOffset: 4,
     trimStartMs: 0,
     trimEndMs: 0,
-    gain: 0.86,
+    gain: 0.9,
     enabled: true,
     credit: 'Team uploaded sample; confirm usage rights before public release.',
     tags: ['character', 'single']
