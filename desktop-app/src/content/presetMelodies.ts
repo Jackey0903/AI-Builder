@@ -62,8 +62,12 @@ export const PRESET_MELODIES: PresetMelody[] = [
     events: [
       // ════════════════════════════════════════════
       // 行1 · 第1小节（弱起）：0 0 0  [0 1 2]
-      // 三拍休止后接两个十六分音符 1(C) 2(D) 作 pickup
+      // 90BPM 4/4：前三拍休止（3×667=2001ms），第4拍起弱起
+      // 伴奏从 t=0 启动，旋律用静默 padding 等前3拍后同步
       // ════════════════════════════════════════════
+      { note: 'C', durationMs: 667, velocity: 0 }, // 休止 拍1（静默哑音，等伴奏）
+      { note: 'C', durationMs: 667, velocity: 0 }, // 休止 拍2
+      { note: 'C', durationMs: 501, velocity: 0 }, // 休止 拍3（含两个十六分预留空间）
       { note: 'C', durationMs: 165, velocity: 0.76 }, // 1（十六分pickup）
       { note: 'D', durationMs: 165, velocity: 0.78 }, // 2
 

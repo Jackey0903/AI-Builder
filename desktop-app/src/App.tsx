@@ -118,14 +118,23 @@ function App() {
       let offset = 0;
 
       events.forEach((event, index) => {
-        // 第一个音不提前；后续音符提前 LEGATO_OVERLAP_MS 启动，实现无缝衔接
-        const startAt = index === 0 ? offset : Math.max(0, offset - LEGATO_OVERLAP_MS);
+        const vel = event.velocity ?? 1;
+
+        // velocity=0：静默休止拍，只累加时间偏移，不发声不点亮
+        if (vel === 0) {
+          offset += event.durationMs;
+          return;
+        }
+
+        // 第一个发声音符不提前；后续音符提前 LEGATO_OVERLAP_MS 启动，实现无缝衔接
+        const isFirstSound = index === 0 || events.slice(0, index).every(e => (e.velocity ?? 1) === 0);
+        const startAt = isFirstSound ? offset : Math.max(0, offset - LEGATO_OVERLAP_MS);
         const timeoutId = window.setTimeout(() => {
           setActiveNote(event.note);
           window.setTimeout(() => {
             setActiveNote((current) => (current === event.note ? null : current));
           }, Math.min(event.durationMs, 540));
-          void audioEngine.playNoteLegato(event.note, event.durationMs, event.velocity ?? 1, root);
+          void audioEngine.playNoteLegato(event.note, event.durationMs, vel, root);
         }, startAt);
 
         timeoutsRef.current.push(timeoutId);
