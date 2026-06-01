@@ -359,8 +359,11 @@ export class AudioEngine {
 
     for (const selectedLayer of layers) {
       const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
-      const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
-      const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, naturalDuration));
+      // 优先用预计算 buffer 的时长做自然时长计算，避免 WSOLA 导致时长微差
+      const semitoneShift = Math.round(Math.log2(ratio) * 12);
+      const cachedBuf = this.pitchCache.get(selectedLayer.sample.id)?.get(semitoneShift);
+      const effectiveDuration = cachedBuf ? cachedBuf.duration : selectedLayer.sample.buffer.duration / ratio;
+      const sustainSeconds = Math.min(durationMs / 1000, Math.max(0.12, effectiveDuration));
       this.playLayerNote(context, selectedLayer, ratio, sustainSeconds, velocity, attack, release, 1, ensembleScale);
     }
   }
@@ -397,7 +400,10 @@ export class AudioEngine {
 
     for (const selectedLayer of layers) {
       const ratio = Math.pow(2, (targetSemitone - selectedLayer.baseSemitone) / 12);
-      const naturalDuration = selectedLayer.sample.buffer.duration / ratio;
+      // 优先用预计算 buffer 的时长，WSOLA 输出时长与原始略有出入
+      const semitoneShift = Math.round(Math.log2(ratio) * 12);
+      const cachedBuf = this.pitchCache.get(selectedLayer.sample.id)?.get(semitoneShift);
+      const naturalDuration = cachedBuf ? cachedBuf.duration : selectedLayer.sample.buffer.duration / ratio;
       const stretchFactor = naturalDuration < sustainSeconds
         ? Math.max(naturalDuration / sustainSeconds, 0.125)
         : 1;

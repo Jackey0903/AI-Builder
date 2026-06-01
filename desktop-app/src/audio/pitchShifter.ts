@@ -74,8 +74,11 @@ export async function pitchShiftBuffer(
 /**
  * 为一个 AudioBuffer 预生成一组音高变体。
  *
+ * 默认范围 -12..+12（25 步），覆盖 7 音阶中任意根音与任意 baseSemitoneOffset 的组合。
+ * 例：恶魔叮 baseSemitoneOffset=9（A），根音 C 时 C 键 shift=-9，需要 -12 才能命中缓存。
+ *
  * @param buffer   原始 buffer
- * @param semitoneRange  生成的半音范围，默认 [-6, -5, ..., +6]（13 个）
+ * @param semitoneRange  生成的半音范围，默认 [-12, -11, ..., +12]（25 个）
  * @param context  AudioContext
  * @param onProgress  进度回调 (done: number, total: number)
  * @returns  Map<semitones, AudioBuffer>，其中 0 即为原始 buffer
@@ -83,7 +86,7 @@ export async function pitchShiftBuffer(
 export async function buildPitchVariants(
   buffer: AudioBuffer,
   context: AudioContext,
-  semitoneRange: number[] = Array.from({ length: 13 }, (_, i) => i - 6),
+  semitoneRange: number[] = Array.from({ length: 25 }, (_, i) => i - 12),
   onProgress?: (done: number, total: number) => void
 ): Promise<Map<number, AudioBuffer>> {
   const result = new Map<number, AudioBuffer>();
