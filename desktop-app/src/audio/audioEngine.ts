@@ -1,5 +1,6 @@
 import { NOTES, noteByName } from '../data/notes';
 import { detectPitch } from './pitchDetector';
+import { buildPitchVariants } from './pitchShifter';
 import type { Note, SoundSampleLayer } from '../types';
 
 const MASTER_GAIN = 0.82;
@@ -51,6 +52,9 @@ interface SelectedSampleLayer {
   baseSemitone: number;
 }
 
+/** 进度回调：已完成步骤数、总步骤数 */
+export type PitchBuildProgress = (done: number, total: number) => void;
+
 export class AudioEngine {
   private context: AudioContext | null = null;
   private sampleLayers: LoadedSampleLayer[] = [];
@@ -60,6 +64,12 @@ export class AudioEngine {
   private backingGain: GainNode | null = null;
   /** 当前预览源（点击 chip 时短暂试听原音，新预览自动打断上一个） */
   private previewSource: AudioBufferSourceNode | null = null;
+  /**
+   * 预计算的音高变体缓存。
+   * 外层 key = 层 id；内层 key = 相对半音偏移（baseSemitoneOffset 的增量，-6~+6）。
+   * 播放时按 (目标半音 - 基准半音) 查表，命中则 playbackRate=1（零失真）。
+   */
+  private pitchCache = new Map<string, Map<number, AudioBuffer>>();
 
   async ensureContext() {
     if (!this.context) {
@@ -80,7 +90,11 @@ export class AudioEngine {
     return this.sampleLayers.length > 0;
   }
 
-  async setSample(blob: Blob, options: SampleOptions = {}): Promise<AutoDetectResult | null> {
+  async setSample(
+    blob: Blob,
+    options: SampleOptions = {},
+    onProgress?: PitchBuildProgress
+  ): Promise<AutoDetectResult | null> {
     const context = await this.ensureContext();
     const arrayBuffer = await blob.arrayBuffer();
     const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
@@ -137,8 +151,9 @@ export class AudioEngine {
       }
     }
 
+    const layerId = options.id ?? 'recorded';
     const newLayer: LoadedSampleLayer = {
-      id: options.id ?? 'recorded',
+      id: layerId,
       name: options.name ?? '录音样本',
       buffer: trimmed,
       baseNote: options.baseNote ?? 'C',
@@ -152,19 +167,33 @@ export class AudioEngine {
       ? [...this.sampleLayers, newLayer]
       : [newLayer];
 
+    // 离线预计算 -6~+6 音高变体（进度通过 onProgress 回调上报）
+    if (onProgress) {
+      const variants = await buildPitchVariants(trimmed, context, undefined, onProgress);
+      this.pitchCache.set(layerId, variants);
+    }
+
     return detectResult;
   }
 
-  async loadSampleFromUrl(url: string, options: SampleOptions = {}) {
+  async loadSampleFromUrl(
+    url: string,
+    options: SampleOptions = {},
+    onProgress?: PitchBuildProgress
+  ) {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Could not load sample: ${url}`);
     }
 
-    await this.setSample(await response.blob(), options);
+    await this.setSample(await response.blob(), options, onProgress);
   }
 
-  async loadSampleSet(samples: SoundSampleLayer[], presetGroupId?: string) {
+  async loadSampleSet(
+    samples: SoundSampleLayer[],
+    presetGroupId?: string,
+    onProgress?: PitchBuildProgress
+  ) {
     const context = await this.ensureContext();
     const loaded: LoadedSampleLayer[] = [];
 
@@ -176,25 +205,33 @@ export class AudioEngine {
 
       const arrayBuffer = await response.arrayBuffer();
       const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
+      const cropped = this.cropBuffer(decoded, sample.trimStartMs, sample.trimEndMs);
 
       loaded.push({
         id: sample.id,
         name: sample.name,
-        buffer: this.cropBuffer(decoded, sample.trimStartMs, sample.trimEndMs),
+        buffer: cropped,
         baseNote: sample.baseNote,
         baseSemitoneOffset: sample.baseSemitoneOffset,
         gain: sample.gain ?? 1,
         role: sample.role,
         presetGroupId
       });
+
+      // 预计算该层的音高变体
+      if (onProgress) {
+        const variants = await buildPitchVariants(cropped, context, undefined, onProgress);
+        this.pitchCache.set(sample.id, variants);
+      }
     }
 
     this.sampleLayers = [...this.sampleLayers, ...loaded];
   }
 
-  /** 合奏加载：先清空，再逐个 preset 追加，并开启合奏模式 */
+  /** 合奏加载：先清空（含预计算缓存），再逐个 preset 追加，并开启合奏模式 */
   clearSampleLayers() {
     this.sampleLayers = [];
+    this.pitchCache.clear();
   }
 
   /**
@@ -463,10 +500,27 @@ export class AudioEngine {
     const gain   = context.createGain();
     const filter = context.createBiquadFilter();
 
-    source.buffer = layer.sample.buffer;
-    source.playbackRate.value = ratio * stretchFactor;
-    if (stretchFactor < 1) {
-      source.detune.value = -1200 * Math.log2(stretchFactor);
+    // ── 预计算缓存命中：找最近整数半音变体，残余差距用 playbackRate 微调 ──
+    // 这样整数部分音质完美，非整数残余（最多 ±0.5 半音）几乎不可感知
+    const semitoneShift = Math.log2(ratio) * 12; // ratio → 半音数（含小数）
+    const roundedShift  = Math.round(semitoneShift);
+    const residualRatio = ratio / Math.pow(2, roundedShift / 12); // 残余 ratio（≈1.0）
+
+    const cached = this.pitchCache.get(layer.sample.id)?.get(roundedShift);
+    if (cached) {
+      // 命中：用预移调 buffer，playbackRate 仅做微残余补偿（几乎 =1）
+      source.buffer = cached;
+      source.playbackRate.value = residualRatio * stretchFactor;
+      if (stretchFactor < 1) {
+        source.detune.value = -1200 * Math.log2(stretchFactor);
+      }
+    } else {
+      // 未命中（未预计算或超出 ±6 范围）：回退到原始 playbackRate 方式
+      source.buffer = layer.sample.buffer;
+      source.playbackRate.value = ratio * stretchFactor;
+      if (stretchFactor < 1) {
+        source.detune.value = -1200 * Math.log2(stretchFactor);
+      }
     }
 
     filter.type = 'lowpass';

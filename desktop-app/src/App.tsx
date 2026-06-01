@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AudioEngine, noteColor } from './audio/audioEngine';
+import type { PitchBuildProgress } from './audio/audioEngine';
 import { generateMelody, melodyDuration } from './audio/melody';
 import { analyseBgm, analyseBgmFromUrl } from './audio/bgmAnalyser';
 import { saveSample } from './audio/sampleStorage';
@@ -37,6 +38,8 @@ function App() {
   const [isPlayingMelody, setIsPlayingMelody] = useState(false);
   const [isAnalysingBgm, setIsAnalysingBgm] = useState(false);
   const [bgmAnalysisProgress, setBgmAnalysisProgress] = useState(0);
+  /** 音高预计算进度：null=未进行，[done, total]=进行中 */
+  const [pitchBuild, setPitchBuild] = useState<[number, number] | null>(null);
   const [sampleReady, setSampleReady] = useState(false);
   const [status, setStatus] = useState('准备就绪。录制声音或使用备用音色演奏。');
   const [activeNote, setActiveNote] = useState<Note | null>(null);
@@ -167,6 +170,16 @@ function App() {
     void audioEngine.previewSound(url, 1500);
   }, [audioEngine]);
 
+  /** 统一的 onProgress 回调工厂：更新 pitchBuild 状态并刷新 status 文字 */
+  const makePitchProgress = useCallback(
+    (presetName: string): PitchBuildProgress =>
+      (done, total) => {
+        setPitchBuild([done, total]);
+        setStatus(`生成音阶 ${done}/${total}（${presetName}）…`);
+      },
+    []
+  );
+
   const loadSelectedSoundPreset = useCallback(async () => {
     const presets = enabledSoundPresets.filter((p) => selectedSoundPresetIds.includes(p.id));
     if (!presets.length) {
@@ -182,8 +195,11 @@ function App() {
       const names: string[] = [];
       for (const preset of presets) {
         setStatus(`正在加载音色：${preset.name}…`);
+        setPitchBuild(null);
+        const onProgress = makePitchProgress(preset.name);
+
         if (preset.samples?.length) {
-          await audioEngine.loadSampleSet(preset.samples, preset.id);
+          await audioEngine.loadSampleSet(preset.samples, preset.id, onProgress);
         } else if (preset.file && preset.baseNote) {
           await audioEngine.loadSampleFromUrl(preset.file, {
             id: preset.id,
@@ -192,23 +208,25 @@ function App() {
             trimStartMs: preset.trimStartMs,
             trimEndMs: preset.trimEndMs,
             gain: preset.gain
-          });
+          }, onProgress);
         } else {
           throw new Error(`音色预设缺少可播放样本：${preset.name}`);
         }
         names.push(preset.name);
       }
 
+      setPitchBuild(null);
       setSampleReady(true);
       setStatus(isEnsemble
-        ? `合奏音色已加载：${names.join(' + ')}`
-        : `音色已加载：${names[0]}`
+        ? `合奏音色已加载：${names.join(' + ')}（音阶已预热）`
+        : `音色已加载：${names[0]}（音阶已预热）`
       );
       sendHardware('LED:RAINBOW');
     } catch (error) {
+      setPitchBuild(null);
       setStatus(error instanceof Error ? error.message : '音色加载失败。');
     }
-  }, [audioEngine, selectedSoundPresetIds, sendHardware]);
+  }, [audioEngine, makePitchProgress, selectedSoundPresetIds, sendHardware]);
 
   const playPresetMelody = useCallback(async () => {
     const preset = PRESET_MELODIES.find((item) => item.id === selectedPresetMelodyId);
@@ -349,18 +367,22 @@ function App() {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
 
         try {
-          const detected = await audioEngine.setSample(blob);
+          setPitchBuild(null);
+          setStatus('正在分析录音音高…');
+          const onProgress = makePitchProgress('录音样本');
+          const detected = await audioEngine.setSample(blob, {}, onProgress);
           setSampleReady(true);
 
           // 持久化到 IndexedDB，刷新后可恢复
           void saveSample(blob, detected).catch(() => undefined);
 
+          setPitchBuild(null);
           if (detected) {
             const confPct = Math.round(detected.confidence * 100);
             setStatus(
               `样本已加载：${detected.trimmedDuration.toFixed(2)} 秒 · ` +
               `检测音高 ${detected.noteName}（${Math.round(detected.frequency)} Hz）· ` +
-              `置信度 ${confPct}%`
+              `置信度 ${confPct}%（音阶已预热）`
             );
           } else {
             setStatus(`样本已加载：${audioEngine.getSampleDuration().toFixed(2)} 秒有效音频（音高未检出，按 C 处理）`);
@@ -368,6 +390,7 @@ function App() {
 
           sendHardware('LED:RAINBOW');
         } catch (error) {
+          setPitchBuild(null);
           setStatus(error instanceof Error ? error.message : '录音解码失败。');
         } finally {
           setIsRecording(false);
@@ -527,10 +550,20 @@ function App() {
               type="button"
               className="small-action"
               onClick={loadSelectedSoundPreset}
-              disabled={!selectedSoundPresetIds.length}
+              disabled={!selectedSoundPresetIds.length || pitchBuild !== null}
             >
-              {selectedSoundPresetIds.length > 1 ? '加载合奏' : '加载音色'}
+              {pitchBuild
+                ? <><Loader size={15} className="spin" />生成音阶 {pitchBuild[0]}/{pitchBuild[1]}</>
+                : selectedSoundPresetIds.length > 1 ? '加载合奏' : '加载音色'}
             </button>
+            {pitchBuild && (
+              <div className="bgm-progress-bar" style={{ marginTop: '6px' }}>
+                <div
+                  className="bgm-progress-fill"
+                  style={{ width: `${Math.round((pitchBuild[0] / pitchBuild[1]) * 100)}%` }}
+                />
+              </div>
+            )}
           </div>
 
           <div className="meter" aria-label="sample status">
