@@ -30,12 +30,6 @@ const RECORD_MS = 4200;
 const firstSoundPresetId = enabledSoundPresets[0]?.id ?? '';
 const firstPresetMelodyId = PRESET_MELODIES[0]?.id ?? '';
 
-const statusCopy: Record<MelodyStyle, string> = {
-  bright: '欢快进行曲',
-  soft: '轻柔摇篮曲',
-  electro: '电子节拍'
-};
-
 function App() {
   const audioEngine = useMemo(() => new AudioEngine(), []);
   const [isRecording, setIsRecording] = useState(false);
@@ -559,17 +553,6 @@ function App() {
               <p>{motif.length ? motif.join(' - ') : '按 2~8 个音符作为生成器的种子。'}</p>
             </div>
           </div>
-          <button className="icon-action" type="button" onClick={() => setMotif([])} aria-label="清空动机">
-            清空
-          </button>
-        </div>
-
-        <div className="style-switcher" aria-label="melody style">
-          {(['bright', 'soft', 'electro'] as MelodyStyle[]).map((item) => (
-            <button key={item} className={style === item ? 'selected' : ''} type="button" onClick={() => setStyle(item)}>
-              {statusCopy[item]}
-            </button>
-          ))}
         </div>
 
         <label className="tuning-picker">
