@@ -375,4 +375,221 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'C', durationMs: 750, velocity: 0.92 }, // 1  友（结尾稍拉长）
     ]
   }
+,
+  {
+    id: 'nuannuan',
+    name: '暖暖',
+    // 1=C，4/4拍，♩≈80BPM
+    // 四分=750ms  八分=375ms  附点四分=1125ms  附点八分=562ms  十六分=187ms  二分=1500ms  全音符=3000ms
+    // 音级：1=C  2=D  3=E  4=F  5=G  6=A  7=B  i=C(高)
+    description: '暖暖，1=C 大调，4/4拍 80BPM，温柔抒情，梁静茹经典情歌主歌+副歌。',
+    style: 'soft',
+    root: 'C',
+    events: [
+      // ══════════════════════════════════════════════════════
+      // 行1 主歌A段（第一遍）
+      // 小节1：2̲3̲3̲  2̲3̲3̲  (随便的 你说的)
+      // ══════════════════════════════════════════════════════
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲ 随
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲ 便
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲ 的
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲ 你
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲ 说
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲ 的
+
+      // 小节2：2̲3̲5̲3̲1̲  1̲5̲  (我都愿意去 小火)
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲
+      { note: 'G', durationMs: 375, velocity: 0.86 }, // 5̲
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲ 小
+      { note: 'G', durationMs: 375, velocity: 0.86 }, // 5̲ 火
+
+      // 小节3：6·  3̲2̲  1̲2̲  (车 摆动的 旋律)
+      { note: 'A', durationMs: 1125, velocity: 0.90 }, // 6· 车（附点四分）
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲ 摆
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲ 动
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲ 的
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲ 旋
+
+      // 小节4：3 -  0̲5̲1̲2̲  (律 都可以)
+      { note: 'E', durationMs: 1500, velocity: 0.88 }, // 3- 律（二分）
+      // 0 休止（省略，直接接下行 pickup）
+      { note: 'G', durationMs: 375, velocity: 0.80 }, // 5̲ 都
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲ 可
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲ 以
+
+      // ══════════════════════════════════════════════════════
+      // 行2 主歌A段（第二遍）
+      // 小节5：2̲3̲3̲  2̲3̲3̲  (是真的 你说的)
+      // ══════════════════════════════════════════════════════
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+
+      // 小节6：2̲3̲5̲3̲1̲  1̲7̲  (我都会相信 因为)
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'B', durationMs: 375, velocity: 0.86 }, // 7̲
+
+      // 小节7：6·  3̲2̲  1̲2̲  (我 完全 信任)
+      { note: 'A', durationMs: 1125, velocity: 0.90 }, // 6·
+      { note: 'E', durationMs: 375, velocity: 0.84 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.82 }, // 2̲
+
+      // 小节8：1 - -  1̲7̲  + 小节9：6̲1̲2̲1̲2̲  (你 细腻的喜欢)
+      { note: 'C', durationMs: 2250, velocity: 0.88 }, // 1--- 你（三拍延音）
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
+      { note: 'B', durationMs: 375, velocity: 0.84 }, // 7̲
+      { note: 'A', durationMs: 375, velocity: 0.84 }, // 6̲
+      { note: 'C', durationMs: 375, velocity: 0.86 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+
+      // ══════════════════════════════════════════════════════
+      // 行3 主歌B段
+      // 小节10：3̲5̲2̲3̲1̲  1̲7̲  (般的厚重感 晒过)
+      // ══════════════════════════════════════════════════════
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'B', durationMs: 375, velocity: 0.86 }, // 7̲
+
+      // 小节11：6̲  1̲  2̲3̲2̲1̲2̲  (太 阳 熟悉的安全感)
+      { note: 'A', durationMs: 750, velocity: 0.88 }, // 6̲ 太（四分）
+      { note: 'C', durationMs: 750, velocity: 0.88 }, // 1̲ 阳
+      { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+
+      // 小节12：3 - -  1̲7̲  (感 分享)
+      { note: 'E', durationMs: 2250, velocity: 0.90 }, // 3---
+      { note: 'C', durationMs: 375, velocity: 0.82 }, // 1̲
+      { note: 'B', durationMs: 375, velocity: 0.84 }, // 7̲
+
+      // 小节13：6̲  1̲  2̲3̲2̲1̲2̲  (热 汤 我们两支)
+      { note: 'A', durationMs: 750, velocity: 0.88 }, // 6̲
+      { note: 'C', durationMs: 750, velocity: 0.88 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+
+      // ══════════════════════════════════════════════════════
+      // 行4 主歌C段
+      // 小节14：3̲5̲5̲3̲6̲  3̲2̲  (汤匙一个碗 左心)
+      // ══════════════════════════════════════════════════════
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'G', durationMs: 375, velocity: 0.90 }, // 5̲
+      { note: 'G', durationMs: 375, velocity: 0.90 }, // 5̲
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'A', durationMs: 375, velocity: 0.90 }, // 6̲
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.86 }, // 2̲
+
+      // 小节15：1·  3̲2̲2̲1̲2̲  (房 暖暖的好饱满)
+      { note: 'C', durationMs: 1125, velocity: 0.92 }, // 1· 房（附点四分）
+      { note: 'E', durationMs: 375, velocity: 0.86 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+      { note: 'C', durationMs: 375, velocity: 0.84 }, // 1̲
+      { note: 'D', durationMs: 375, velocity: 0.84 }, // 2̲
+
+      // 小节16：1 - 0̲1̲3̲4̲  (满 我想说)
+      { note: 'C', durationMs: 1500, velocity: 0.90 }, // 1-
+      { note: 'C', durationMs: 375, velocity: 0.80 }, // 1̲
+      { note: 'E', durationMs: 375, velocity: 0.82 }, // 3̲
+      { note: 'F', durationMs: 375, velocity: 0.84 }, // 4̲
+
+      // 小节17：5̲1̲3̲4̲5̲  6̲7̲  (其实你很好 你自)
+      { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
+      { note: 'C', durationMs: 375, velocity: 0.86 }, // 1̲
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'F', durationMs: 375, velocity: 0.90 }, // 4̲
+      { note: 'G', durationMs: 375, velocity: 0.90 }, // 5̲
+      { note: 'A', durationMs: 375, velocity: 0.90 }, // 6̲
+      { note: 'B', durationMs: 375, velocity: 0.90 }, // 7̲
+
+      // ══════════════════════════════════════════════════════
+      // 行5 副歌
+      // 小节18：i̲3̲3̲4̲5̲ -  (己却不知道)
+      // ══════════════════════════════════════════════════════
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲ 己（高C）
+      { note: 'E', durationMs: 375, velocity: 0.90 }, // 3̲
+      { note: 'E', durationMs: 375, velocity: 0.90 }, // 3̲
+      { note: 'F', durationMs: 375, velocity: 0.92 }, // 4̲
+      { note: 'G', durationMs: 375, velocity: 0.92 }, // 5̲
+      { note: 'G', durationMs: 1125, velocity: 0.90 }, // 5-（附点四分延音）
+
+      // 小节19：6̲  5̲4̲5̲i̲i̲  (真 心的对我好)
+      { note: 'A', durationMs: 750, velocity: 0.90 }, // 6̲
+      { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
+      { note: 'F', durationMs: 375, velocity: 0.88 }, // 4̲
+      { note: 'G', durationMs: 375, velocity: 0.90 }, // 5̲
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲（高C）
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲
+
+      // 小节20：6̲  6̲7̲i̲7̲  (不 要求回报)
+      { note: 'A', durationMs: 750, velocity: 0.90 }, // 6̲
+      { note: 'A', durationMs: 375, velocity: 0.88 }, // 6̲
+      { note: 'B', durationMs: 375, velocity: 0.90 }, // 7̲
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲
+      { note: 'B', durationMs: 375, velocity: 0.90 }, // 7̲
+
+      // 小节21：5̲  3̲4̲5̲  6̲7̲  (爱 一个人 希望)
+      { note: 'G', durationMs: 750, velocity: 0.90 }, // 5̲
+      { note: 'E', durationMs: 375, velocity: 0.88 }, // 3̲
+      { note: 'F', durationMs: 375, velocity: 0.90 }, // 4̲
+      { note: 'G', durationMs: 375, velocity: 0.92 }, // 5̲
+      { note: 'A', durationMs: 375, velocity: 0.92 }, // 6̲
+      { note: 'B', durationMs: 375, velocity: 0.92 }, // 7̲
+
+      // ══════════════════════════════════════════════════════
+      // 行6 副歌（续）
+      // 小节22：i̲  7̲6̲5̲ -  (他 过更好)
+      // ══════════════════════════════════════════════════════
+      { note: 'C', durationMs: 750, velocity: 0.94 }, // i̲
+      { note: 'B', durationMs: 375, velocity: 0.90 }, // 7̲
+      { note: 'A', durationMs: 375, velocity: 0.88 }, // 6̲
+      { note: 'G', durationMs: 375, velocity: 0.86 }, // 5̲
+      { note: 'G', durationMs: 1125, velocity: 0.84 }, // 5- 延音
+
+      // 小节23：4̲5̲6̲4̲5̲i̲i̲  (打从心里暖暖的)
+      { note: 'F', durationMs: 375, velocity: 0.86 }, // 4̲
+      { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
+      { note: 'A', durationMs: 375, velocity: 0.90 }, // 6̲
+      { note: 'F', durationMs: 375, velocity: 0.88 }, // 4̲
+      { note: 'G', durationMs: 375, velocity: 0.90 }, // 5̲
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲
+
+      // 小节24：i̲7̲5̲1̲3̲2̲  (你比自己更重)
+      { note: 'C', durationMs: 375, velocity: 0.94 }, // i̲
+      { note: 'B', durationMs: 375, velocity: 0.90 }, // 7̲
+      { note: 'G', durationMs: 375, velocity: 0.88 }, // 5̲
+      { note: 'C', durationMs: 375, velocity: 0.88 }, // 1̲
+      { note: 'E', durationMs: 375, velocity: 0.90 }, // 3̲
+      { note: 'D', durationMs: 375, velocity: 0.88 }, // 2̲
+
+      // 小节25：1（终止）
+      { note: 'C', durationMs: 1500, velocity: 0.96 }, // 1 要（终止，结尾拉长）
+    ]
+  }
 ];
