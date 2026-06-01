@@ -35,6 +35,8 @@ const firstPresetMelodyId = PRESET_MELODIES[0]?.id ?? '';
 function App() {
   const audioEngine = useMemo(() => new AudioEngine(), []);
   const [isRecording, setIsRecording] = useState(false);
+  /** 录音已停止、正在做音高预计算的转化中状态 */
+  const [isConverting, setIsConverting] = useState(false);
   const [isPlayingMelody, setIsPlayingMelody] = useState(false);
   const [isAnalysingBgm, setIsAnalysingBgm] = useState(false);
   const [bgmAnalysisProgress, setBgmAnalysisProgress] = useState(0);
@@ -366,9 +368,13 @@ function App() {
         stream.getTracks().forEach((track) => track.stop());
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
 
+        // 录音已停止 → 立即切换到"转化中"态，按钮不再显示「停止录制」
+        setIsRecording(false);
+        setIsConverting(true);
+        setPitchBuild(null);
+        setStatus('正在分析录音…');
+
         try {
-          setPitchBuild(null);
-          setStatus('正在分析录音音高…');
           const onProgress = makePitchProgress('录音样本');
           const detected = await audioEngine.setSample(blob, {}, onProgress);
           setSampleReady(true);
@@ -393,7 +399,7 @@ function App() {
           setPitchBuild(null);
           setStatus(error instanceof Error ? error.message : '录音解码失败。');
         } finally {
-          setIsRecording(false);
+          setIsConverting(false);
         }
       };
 
@@ -510,6 +516,23 @@ function App() {
               <CircleStop size={20} />
               停止录制
             </button>
+          ) : isConverting ? (
+            <>
+              <button className="primary-action" type="button" disabled>
+                <Loader size={20} className="spin" />
+                {pitchBuild
+                  ? `转化中 ${pitchBuild[0]}/${pitchBuild[1]}…`
+                  : '转化中…'}
+              </button>
+              {pitchBuild && (
+                <div className="bgm-progress-bar" style={{ marginTop: '6px' }}>
+                  <div
+                    className="bgm-progress-fill"
+                    style={{ width: `${Math.round((pitchBuild[0] / pitchBuild[1]) * 100)}%` }}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <button className="primary-action" type="button" onClick={() => void startRecording()}>
               <Mic size={20} />
