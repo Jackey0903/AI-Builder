@@ -117,6 +117,10 @@ function App() {
   /** 'free' = 自由创作（本地算法），其他值 = 内置预设 id */
   const [selectedPresetMelodyId, setSelectedPresetMelodyId] = useState<string>('free');
   const [scaleRoot, setScaleRoot] = useState<Note>('C');
+  const [showScalePicker, setShowScalePicker] = useState(false);
+  const scalePickerRef = useRef<HTMLDivElement>(null);
+  const [showPresetPicker, setShowPresetPicker] = useState(false);
+  const presetPickerRef = useRef<HTMLDivElement>(null);
   const [serialLog, setSerialLog] = useState<SerialLine[]>([
     { direction: 'system', message: 'desktop app started', at: Date.now() }
   ]);
@@ -567,23 +571,42 @@ function App() {
     [audioEngine]
   );
 
+  // 点击外部关闭弹出面板
+  useEffect(() => {
+    if (!showScalePicker && !showPresetPicker) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showScalePicker && scalePickerRef.current && !scalePickerRef.current.contains(e.target as Node)) {
+        setShowScalePicker(false);
+      }
+      if (showPresetPicker && presetPickerRef.current && !presetPickerRef.current.contains(e.target as Node)) {
+        setShowPresetPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showScalePicker, showPresetPicker]);
+
   // 当前激活的精灵 = selectedSoundPresetIds 第一个
   const activePresetId = selectedSoundPresetIds[0] ?? '';
 
-  // 音色 id → 中央舞台插图映射
+  // 音色 id → 中央舞台大插图映射（/ui/*插图.png）
   const SPRITE_ILLUSTRATION: Record<string, string> = {
     'yuanhaoyu-voice-2': '/ui/圆号鱼插图.png',
     'yuanhaoyu':         '/ui/圆号鱼插图.png',
     'xiaoya':            '/ui/小夜插图.png',
     'lilayao':           '/ui/里拉鳐插图.png',
+    'emoding':           '/ui/恶魔叮插图.png',
+    'houmaizai':         '/ui/猴麦仔插图.png',
   };
 
-  // 音色 id → 左侧头像图片映射（复用插图裁成圆形）
+  // 音色 id → 左侧侧边栏圆形小头像映射（/ui/精灵头像/*.png）
   const SPRITE_AVATAR: Record<string, string> = {
-    'yuanhaoyu-voice-2': '/ui/圆号鱼插图.png',
-    'yuanhaoyu':         '/ui/圆号鱼插图.png',
-    'xiaoya':            '/ui/小夜插图.png',
-    'lilayao':           '/ui/里拉鳐插图.png',
+    'yuanhaoyu-voice-2': '/ui/精灵头像/NO.184_圆号鱼 1.png',
+    'yuanhaoyu':         '/ui/精灵头像/NO.184_圆号鱼 1.png',
+    'xiaoya':            '/ui/精灵头像/小夜.png',
+    'lilayao':           '/ui/精灵头像/里拉鳐.png',
+    'emoding':           '/ui/精灵头像/恶魔叮.png',
+    'houmaizai':         '/ui/精灵头像/猴麦仔.png',
   };
   const stageIllustration = SPRITE_ILLUSTRATION[activePresetId] ?? '/sound-sprite.svg';
   const activePresetName = enabledSoundPresets.find((p) => p.id === activePresetId)?.name
@@ -607,7 +630,7 @@ function App() {
       {/* ── 主体三栏 ── */}
       <section className="workspace-grid">
 
-        {/* 左侧：精灵音色列表 */}
+        {/* 左侧：精灵音色列表（背景图魔杖，横排：头像 + 名字竖列） */}
         <div className="sprite-sidebar">
           {enabledSoundPresets.map((preset) => {
             const avatarSrc = SPRITE_AVATAR[preset.id];
@@ -628,10 +651,12 @@ function App() {
                     : <span className="sprite-avatar__letter">{preset.name.charAt(0)}</span>
                   }
                 </div>
-                <span className="sprite-name">{preset.name}</span>
-                {selectedSoundPresetIds.includes(preset.id) && activePresetId === preset.id && (
-                  <span className="sprite-sub">当前音色</span>
-                )}
+                <div className="sprite-info">
+                  <span className="sprite-name">{preset.name}</span>
+                  {selectedSoundPresetIds.includes(preset.id) && activePresetId === preset.id && (
+                    <span className="sprite-sub">当前音色</span>
+                  )}
+                </div>
               </button>
             );
           })}
@@ -658,10 +683,12 @@ function App() {
               <div className="sprite-avatar sprite-avatar--guest">
                 <span className="sprite-avatar__letter">{guest.name.charAt(0)}</span>
               </div>
-              <span className="sprite-name">{guest.name}</span>
-              {selectedSoundPresetIds.includes(guest.id) && (
-                <span className="sprite-sub">当前音色</span>
-              )}
+              <div className="sprite-info">
+                <span className="sprite-name">{guest.name}</span>
+                {selectedSoundPresetIds.includes(guest.id) && (
+                  <span className="sprite-sub">当前音色</span>
+                )}
+              </div>
             </button>
           ))}
 
@@ -672,10 +699,12 @@ function App() {
             onClick={openGuestModal}
           >
             <div className="sprite-avatar">
-              <span className="sprite-avatar__letter"><Plus size={20} /></span>
+              <img className="sprite-avatar__img" src="/ui/精灵头像/神秘嘉宾.png" alt="神秘嘉宾" />
             </div>
-            <span className="sprite-name">神秘嘉宾</span>
-            <span className="sprite-sub">点击添加</span>
+            <div className="sprite-info">
+              <span className="sprite-name">神秘嘉宾</span>
+              <span className="sprite-sub">点击添加</span>
+            </div>
           </button>
         </div>
 
@@ -691,13 +720,18 @@ function App() {
                 type="button"
                 className={`note-key ${activeNote === definition.note ? 'is-active' : ''}`}
                 key={definition.note}
-                style={{ '--key-color': definition.color } as React.CSSProperties}
                 onClick={() => void triggerNote(definition.note)}
               >
-                <span>{definition.solfege}</span>
-                <div className="key-divider" />
-                <strong>{definition.label}</strong>
-                <em>{definition.key}</em>
+                {/* 三态背景图 */}
+                <img className="key-bg key-bg--default" src="/ui/音阶按钮-bg/Property 1=default.png" alt="" draggable={false} />
+                <img className="key-bg key-bg--hover"   src="/ui/音阶按钮-bg/Property 1=hover.png"   alt="" draggable={false} />
+                <img className="key-bg key-bg--click"   src="/ui/音阶按钮-bg/Property 1=click.png"   alt="" draggable={false} />
+                {/* 文字叠层 */}
+                <div className="key-text-overlay">
+                  <span>{definition.solfege}</span>
+                  <div className="key-divider" />
+                  <strong>{definition.label}</strong>
+                </div>
               </button>
             ))}
           </div>
@@ -748,35 +782,83 @@ function App() {
       <section className="composer-strip">
         {/* 音乐动机 */}
         <div className="motif-area">
+          <img className="motif-book-icon" src="/ui/motif-icon.png" alt="" draggable="false" />
           <div className="motif-text">
             <h2>音乐动机</h2>
             <p>{motif.length ? motif.join('-') : '按键录入动机'}</p>
           </div>
         </div>
 
-        {/* 调式调音 */}
-        <button className="pill-btn" type="button" onClick={() => {
-          const idx = NOTES.findIndex((n) => n.note === scaleRoot);
-          const next = NOTES[(idx + 1) % NOTES.length];
-          setScaleRoot(next.note);
-        }}>
-          调式调音：{scaleRoot}
-          <span className="pill-arrow">▲</span>
-        </button>
+        {/* 调式调音 — Figma node 11-1911 弹出选项 */}
+        <div className="scale-picker-wrapper" ref={scalePickerRef}>
+          <button
+            className="pill-btn"
+            type="button"
+            onClick={() => setShowScalePicker((v) => !v)}
+          >
+            调式调音：{scaleRoot}
+            <span className="pill-arrow" style={{ transform: showScalePicker ? 'rotate(180deg)' : undefined, transition: 'transform 200ms ease' }}>▲</span>
+          </button>
+          {showScalePicker && (
+            <div className="scale-picker-dropdown">
+              {/* 选中项 — 顶部胶囊高亮 */}
+              <div className="melody-picker-dropdown__selected">
+                {NOTES.find((n) => n.note === scaleRoot)?.solfege ?? scaleRoot}（{scaleRoot}）
+              </div>
+              {NOTES.map((def) => (
+                <button
+                  key={def.note}
+                  type="button"
+                  className={`scale-picker-dropdown__item ${scaleRoot === def.note ? 'is-active' : ''}`}
+                  onClick={() => { setScaleRoot(def.note); setShowScalePicker(false); }}
+                >
+                  {def.solfege}（{def.note}）
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* 预设选择 */}
-        <div className="preset-select-area">
-          <div className="preset-select-wrapper">
-            <select value={selectedPresetMelodyId} onChange={(e) => setSelectedPresetMelodyId(e.target.value)}>
-              <option value="free">✦ 自由创作</option>
-              <optgroup label="──内置旋律──">
-                {PRESET_MELODIES.map((preset) => (
-                  <option key={preset.id} value={preset.id}>{preset.name}</option>
-                ))}
-              </optgroup>
-            </select>
-            <span className="pill-arrow" style={{ padding: '0 8px' }}>▲</span>
-          </div>
+        {/* 预设选择 — 自定义弹出面板 */}
+        <div className="melody-picker-wrapper" ref={presetPickerRef}>
+          <button
+            className="pill-btn"
+            type="button"
+            onClick={() => setShowPresetPicker((v) => !v)}
+          >
+            {selectedPresetMelodyId === 'free'
+              ? '✦ 自由创作'
+              : PRESET_MELODIES.find((p) => p.id === selectedPresetMelodyId)?.name ?? '选择旋律'}
+            <span className="pill-arrow" style={{ transform: showPresetPicker ? 'rotate(180deg)' : undefined, transition: 'transform 200ms ease' }}>▲</span>
+          </button>
+          {showPresetPicker && (
+            <div className="melody-picker-dropdown">
+              {/* 选中项 — 顶部胶囊高亮 */}
+              <div className="melody-picker-dropdown__selected">
+                {selectedPresetMelodyId === 'free'
+                  ? '✦ 自由创作'
+                  : PRESET_MELODIES.find((p) => p.id === selectedPresetMelodyId)?.name ?? ''}
+              </div>
+              {/* 选项列表 */}
+              <button
+                type="button"
+                className={`melody-picker-dropdown__item ${selectedPresetMelodyId === 'free' ? 'is-active' : ''}`}
+                onClick={() => { setSelectedPresetMelodyId('free'); setShowPresetPicker(false); }}
+              >
+                自由创作
+              </button>
+              {PRESET_MELODIES.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={`melody-picker-dropdown__item ${selectedPresetMelodyId === preset.id ? 'is-active' : ''}`}
+                  onClick={() => { setSelectedPresetMelodyId(preset.id); setShowPresetPicker(false); }}
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* BGM 解析 */}
@@ -798,18 +880,23 @@ function App() {
           />
         </label>
 
-        {/* 生成旋律 / 演奏预设（金色胶囊三态，星星用 CSS ::before/::after） */}
+        {/* 生成旋律按钮 —— 直接用三张图切换状态 */}
         <button
           className="generate-action"
           type="button"
           onClick={handleGenerate}
           disabled={isPlayingMelody || isAnalysingBgm}
+          aria-label={
+            isPlayingMelody || isAnalysingBgm
+              ? '演奏中'
+              : selectedPresetMelodyId === 'free'
+                ? '生成旋律'
+                : '演奏旋律'
+          }
         >
-          {isPlayingMelody || isAnalysingBgm
-            ? '演奏中…'
-            : selectedPresetMelodyId === 'free'
-              ? '生成旋律'
-              : '演奏旋律'}
+          <img className="gen-img gen-img--default" src="/ui/生成旋律按钮/Property 1=生成-default.png" alt="" draggable="false" />
+          <img className="gen-img gen-img--hover"   src="/ui/生成旋律按钮/Property 1=生成-hover.png"   alt="" draggable="false" />
+          <img className="gen-img gen-img--click"   src="/ui/生成旋律按钮/Property 1=生成-click.png"   alt="" draggable="false" />
         </button>
       </section>
 
