@@ -128,13 +128,14 @@ h1, h2, p { margin: 0; }
 /* ── 主体三栏布局 ──────────────────────── */
 .workspace-grid {
   display: grid;
-  /* 左侧：头像(110px) + 名字区(90px)，中间弹性，右侧固定 */
-  grid-template-columns: 200px 1fr 340px;
+  /* 左侧 200px / 中间弹性 / 右侧 336px */
+  grid-template-columns: 200px 1fr 336px;
   gap: 0;
-  padding: 50px 44px 0;
+  padding: 24px 44px 0;
   align-items: start;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* ══════════════════════════════════════════
@@ -296,6 +297,7 @@ h1, h2, p { margin: 0; }
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
+  max-height: 480px;       /* 防止中间列过宽时撑爆垂直空间 */
   border-radius: 8px;
   border: 11px solid #3F322C;
   box-shadow: -3px 6px 2px rgba(63, 50, 44, 0.20);
@@ -429,7 +431,9 @@ h1, h2, p { margin: 0; }
   width: 336px;
   flex-shrink: 0;
   padding-top: 0;
-  max-height: 100%;
+  /* 限制不超出 workspace-grid 的高度 */
+  align-self: stretch;
+  max-height: 820px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -606,8 +610,8 @@ h1, h2, p { margin: 0; }
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 100px;
-  margin-top: 56px;
+  padding: 10px 44px 14px calc(44px + 110px);
+  margin-top: auto;   /* 自动撑到底部 */
   flex-shrink: 0;
 }
 
