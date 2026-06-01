@@ -168,6 +168,18 @@ h1, h2, p { margin: 0; }
   margin-top: -4px;
 }
 
+/* 自定义嘉宾头像 */
+.sprite-avatar--guest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #22D2DF 0%, #1BA1AB 100%) !important;
+  color: #FFFFFF;
+  font-size: 22px;
+  font-weight: 400;
+  border-color: #1BA1AB !important;
+}
+
 /* "+" 录制按钮 slot */
 .sprite-slot-add .sprite-avatar {
   display: flex;
@@ -832,4 +844,280 @@ select {
     align-items: stretch;
     padding: 14px 12px;
   }
+}
+
+/* ══════════════════════════════════════════
+   神秘嘉宾弹窗（Figma node 11-1633）
+   ══════════════════════════════════════════ */
+
+/* 遮罩层 */
+.guest-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  animation: guest-fade-in 200ms ease;
+}
+
+@keyframes guest-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 弹窗外壳 Frame 51 */
+.guest-modal {
+  position: relative;
+  width: 480px;
+  max-width: 92vw;
+  border-radius: 10px;
+  box-shadow: 0px 7px 4px rgba(0, 0, 0, 0.25);
+  background: #DFD8C1;
+  padding: 16px;
+  animation: guest-slide-up 280ms ease;
+}
+
+@keyframes guest-slide-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 内面板 Frame 49 */
+.guest-modal__inner {
+  position: relative;
+  border-radius: 15px;
+  background: #F9F3E3;
+  padding: 32px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 装饰三角（左下、右下） */
+.guest-modal__deco-left,
+.guest-modal__deco-right {
+  position: absolute;
+  bottom: -12px;
+  width: 28px;
+  height: 22px;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.guest-modal__deco-left {
+  left: 40px;
+  background: linear-gradient(90deg, rgba(228, 210, 185, 1) 0%, rgba(180, 168, 151, 1) 100%);
+}
+
+.guest-modal__deco-right {
+  right: 40px;
+  background: linear-gradient(90deg, rgba(228, 210, 185, 1) 64%, rgba(205, 185, 159, 1) 100%);
+}
+
+/* 大三角装饰（底部中央） */
+.guest-modal__deco-center {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42px;
+  height: 30px;
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  background: linear-gradient(90deg, rgba(228, 210, 185, 1) 0%, rgba(180, 168, 151, 1) 100%);
+  box-shadow: 1px -3px 7px rgba(63, 50, 44, 0.20);
+}
+
+/* 关闭按钮 */
+.guest-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  color: var(--ink-faint);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.guest-modal__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ink);
+}
+
+/* 标题 */
+.guest-modal__title {
+  font-family: "SentyWatermelon", serif;
+  font-size: 33px;
+  font-weight: 400;
+  line-height: 1.08;
+  color: #3D3D3D;
+  text-align: center;
+}
+
+/* 预览/波形区域 Rectangle 44 */
+.guest-modal__preview {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
+  border: 4px solid rgba(207, 179, 143, 0.71);
+  background: #D9D9D9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.guest-modal__preview-text {
+  font-family: "SentyWatermelon", serif;
+  font-size: 18px;
+  color: var(--ink-faint);
+}
+
+/* 波形条动画 */
+.guest-modal__waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 60px;
+}
+
+.guest-modal__waveform span {
+  display: inline-block;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--ink-dim);
+  animation: waveform-bar 0.8s ease-in-out infinite alternate;
+}
+
+.guest-modal__waveform span:nth-child(1) { animation-delay: 0s;    height: 20px; }
+.guest-modal__waveform span:nth-child(2) { animation-delay: 0.1s;  height: 35px; }
+.guest-modal__waveform span:nth-child(3) { animation-delay: 0.15s; height: 50px; }
+.guest-modal__waveform span:nth-child(4) { animation-delay: 0.2s;  height: 40px; }
+.guest-modal__waveform span:nth-child(5) { animation-delay: 0.25s; height: 55px; }
+.guest-modal__waveform span:nth-child(6) { animation-delay: 0.3s;  height: 30px; }
+.guest-modal__waveform span:nth-child(7) { animation-delay: 0.35s; height: 45px; }
+.guest-modal__waveform span:nth-child(8) { animation-delay: 0.4s;  height: 25px; }
+
+@keyframes waveform-bar {
+  from { transform: scaleY(0.4); }
+  to   { transform: scaleY(1); }
+}
+
+/* 昵称输入行 Frame 21 */
+.guest-modal__input-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* "昵称" 标签（pill 样式） */
+.guest-modal__nick-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: 1px 3px 0px rgba(145, 122, 93, 1);
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  line-height: 1.08;
+  color: #3D3D3D;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 输入框 */
+.guest-modal__input {
+  flex: 1;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  border: 6px solid #DFD8C1;
+  background: #DFD8C1;
+  font-family: "SentyWatermelon", serif;
+  font-size: 20px;
+  color: #3D3D3D;
+  outline: none;
+  transition: border-color 150ms ease;
+}
+
+.guest-modal__input::placeholder {
+  color: var(--ink-faint);
+}
+
+.guest-modal__input:focus {
+  border-color: #CFB38F;
+}
+
+/* 录制按钮区域 Frame 50 */
+.guest-modal__rec-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+/* 底部操作栏 */
+.guest-modal__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+/* 保存按钮 */
+.guest-modal__save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 36px;
+  border: none;
+  border-radius: 36px;
+  background: var(--gold);
+  box-shadow: 1px 3px 0px var(--shadow-warm);
+  font-family: "SentyWatermelon", serif;
+  font-size: 22px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+
+.guest-modal__save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 1px 4px 0px var(--shadow-warm);
+}
+
+.guest-modal__save-btn:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0px var(--shadow-warm);
+}
+
+.guest-modal__save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 已录制成功提示 */
+.guest-modal__status {
+  font-family: "SentyWatermelon", serif;
+  font-size: 16px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.guest-modal__status.is-ready {
+  color: #1BA1AB;
 }

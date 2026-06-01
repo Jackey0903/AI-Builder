@@ -3,6 +3,7 @@ import {
   FileMusic,
   Loader,
   Plus,
+  X,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AudioEngine, noteColor } from './audio/audioEngine';
@@ -65,6 +66,13 @@ function GoldStar({ size = 14 }: { size?: number }) {
   );
 }
 
+/** 自定义嘉宾（录音后保存到侧边栏的角色） */
+interface CustomGuest {
+  id: string;
+  name: string;
+  blob: Blob;
+}
+
 const MAX_MOTIF = 8;
 const firstSoundPresetId = enabledSoundPresets[0]?.id ?? '';
 const firstPresetMelodyId = PRESET_MELODIES[0]?.id ?? '';
@@ -86,11 +94,25 @@ function App() {
   const [selectedSoundPresetIds, setSelectedSoundPresetIds] = useState<string[]>(
     firstSoundPresetId ? [firstSoundPresetId] : []
   );
-  const [selectedPresetMelodyId, setSelectedPresetMelodyId] = useState(firstPresetMelodyId);
+  /** 'free' = 自由创作（本地算法），其他值 = 内置预设 id */
+  const [selectedPresetMelodyId, setSelectedPresetMelodyId] = useState<string>('free');
   const [scaleRoot, setScaleRoot] = useState<Note>('C');
   const [serialLog, setSerialLog] = useState<SerialLine[]>([
     { direction: 'system', message: 'desktop app started', at: Date.now() }
   ]);
+  // ── 神秘嘉宾弹窗状态 ──
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestRecording, setGuestRecording] = useState(false);
+  const [guestConverting, setGuestConverting] = useState(false);
+  const [guestSampleBlob, setGuestSampleBlob] = useState<Blob | null>(null);
+  const [guestSampleReady, setGuestSampleReady] = useState(false);
+  const [guestStatus, setGuestStatus] = useState('');
+  const [customGuests, setCustomGuests] = useState<CustomGuest[]>([]);
+  const guestRecorderRef = useRef<MediaRecorder | null>(null);
+  const guestChunksRef = useRef<Blob[]>([]);
+  const guestAutoStopRef = useRef<number | null>(null);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timeoutsRef = useRef<number[]>([]);
@@ -169,15 +191,6 @@ function App() {
     },
     [audioEngine, isPlayingMelody, scaleRoot, sendHardware]
   );
-
-  const handleGenerate = useCallback(() => {
-    const events = generateMelody(motif, style);
-    setMelody(events);
-    setStatus(`已生成 ${events.length} 个音符`);
-    sendHardware('LED:GENERATE');
-    void audioEngine.playClick();
-    window.setTimeout(() => void playGeneratedMelody(events), 420);
-  }, [audioEngine, motif, playGeneratedMelody, sendHardware, style]);
 
   const toggleSoundPreset = useCallback((id: string) => {
     const isSelected = selectedSoundPresetIds.includes(id);
@@ -285,6 +298,29 @@ function App() {
     void playGeneratedMelody(preset.events, presetRoot, presetBacking);
   }, [isAnalysingBgm, isPlayingMelody, playGeneratedMelody, scaleRoot, selectedPresetMelodyId]);
 
+  /** 自由创作：本地算法生成旋律并演奏 */
+  const handleFreeGenerate = useCallback(() => {
+    const events = generateMelody(motif, style);
+    setMelody(events);
+    setStatus(`已生成 ${events.length} 个音符`);
+    sendHardware('LED:GENERATE');
+    void audioEngine.playClick();
+    window.setTimeout(() => void playGeneratedMelody(events), 420);
+  }, [audioEngine, motif, playGeneratedMelody, sendHardware, style]);
+
+  /**
+   * 点击「生成旋律」的统一入口：
+   * - 选中「自由创作」→ 本地算法（handleFreeGenerate）
+   * - 选中内置预设 → 演奏该预设（playPresetMelody）
+   */
+  const handleGenerate = useCallback(() => {
+    if (selectedPresetMelodyId === 'free') {
+      handleFreeGenerate();
+    } else {
+      void playPresetMelody();
+    }
+  }, [handleFreeGenerate, playPresetMelody, selectedPresetMelodyId]);
+
   const handleBgmFileUpload = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -373,6 +409,104 @@ function App() {
     }
   }, [audioEngine, isRecording, makePitchProgress, sendHardware]);
 
+  // ── 神秘嘉宾：弹窗内录音 ──
+  const stopGuestRecording = useCallback(() => {
+    if (guestAutoStopRef.current !== null) {
+      window.clearTimeout(guestAutoStopRef.current);
+      guestAutoStopRef.current = null;
+    }
+    const recorder = guestRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') recorder.stop();
+  }, []);
+
+  const startGuestRecording = useCallback(async () => {
+    if (guestRecording) return;
+    if (!navigator.mediaDevices?.getUserMedia) { setGuestStatus('无法访问麦克风'); return; }
+    setGuestRecording(true);
+    setGuestSampleReady(false);
+    setGuestSampleBlob(null);
+    setGuestStatus('正在录制…');
+    guestChunksRef.current = [];
+    try {
+      await audioEngine.ensureContext();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      guestRecorderRef.current = recorder;
+      recorder.ondataavailable = (e) => { if (e.data.size) guestChunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        if (guestAutoStopRef.current !== null) {
+          window.clearTimeout(guestAutoStopRef.current);
+          guestAutoStopRef.current = null;
+        }
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(guestChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        setGuestRecording(false);
+        setGuestConverting(true);
+        setGuestStatus('正在分析录音…');
+        try {
+          const onProgress = makePitchProgress('嘉宾录音');
+          const detected = await audioEngine.setSample(blob, {}, onProgress);
+          setGuestSampleBlob(blob);
+          setGuestSampleReady(true);
+          setPitchBuild(null);
+          setGuestStatus(detected
+            ? `录制完成：${detected.noteName}（${Math.round(detected.frequency)} Hz）`
+            : '录制完成');
+        } catch (error) {
+          setPitchBuild(null);
+          setGuestStatus(error instanceof Error ? error.message : '录音解码失败');
+        } finally {
+          setGuestConverting(false);
+        }
+      };
+      recorder.start();
+      guestAutoStopRef.current = window.setTimeout(() => {
+        guestAutoStopRef.current = null;
+        if (recorder.state !== 'inactive') recorder.stop();
+      }, 30_000);
+    } catch (error) {
+      setGuestRecording(false);
+      setGuestStatus(error instanceof Error ? error.message : '麦克风权限获取失败');
+    }
+  }, [audioEngine, guestRecording, makePitchProgress]);
+
+  const saveGuest = useCallback(() => {
+    if (!guestSampleBlob || !guestSampleReady) return;
+    const finalName = guestName.trim() || `嘉宾${customGuests.length + 1}`;
+    const guest: CustomGuest = {
+      id: `guest-${Date.now()}`,
+      name: finalName,
+      blob: guestSampleBlob,
+    };
+    setCustomGuests((prev) => [...prev, guest]);
+    // 持久化样本
+    void saveSample(guestSampleBlob, null).catch(() => undefined);
+    setSampleReady(true);
+    setStatus(`已保存嘉宾「${finalName}」`);
+    // 关闭弹窗 & 重置
+    setShowGuestModal(false);
+    setGuestName('');
+    setGuestSampleBlob(null);
+    setGuestSampleReady(false);
+    setGuestStatus('');
+  }, [guestSampleBlob, guestSampleReady, guestName, customGuests.length]);
+
+  const openGuestModal = useCallback(() => {
+    setShowGuestModal(true);
+    setGuestName('');
+    setGuestSampleBlob(null);
+    setGuestSampleReady(false);
+    setGuestStatus('');
+    setGuestRecording(false);
+    setGuestConverting(false);
+  }, []);
+
+  const closeGuestModal = useCallback(() => {
+    // 如果正在录音先停
+    stopGuestRecording();
+    setShowGuestModal(false);
+  }, [stopGuestRecording]);
+
   const handleSerialLine = useCallback(
     (line: string) => {
       if (line.startsWith('NOTE:')) {
@@ -456,19 +590,46 @@ function App() {
             </button>
           ))}
 
-          {/* 录制自定义音色 slot */}
+          {/* 已保存的自定义嘉宾 */}
+          {customGuests.map((guest) => (
+            <button
+              key={guest.id}
+              type="button"
+              className={`sprite-slot ${selectedSoundPresetIds.includes(guest.id) ? 'is-active' : ''}`}
+              onClick={async () => {
+                try {
+                  const onProgress = makePitchProgress(guest.name);
+                  await audioEngine.setSample(guest.blob, {}, onProgress);
+                  setPitchBuild(null);
+                  setSampleReady(true);
+                  setStatus(`已切换到嘉宾「${guest.name}」`);
+                  setSelectedSoundPresetIds([guest.id]);
+                } catch {
+                  setStatus('音色加载失败');
+                }
+              }}
+            >
+              <div className="sprite-avatar sprite-avatar--guest">
+                {guest.name.charAt(0)}
+              </div>
+              <span className="sprite-name">{guest.name}</span>
+              {selectedSoundPresetIds.includes(guest.id) && (
+                <span className="sprite-sub">当前音色</span>
+              )}
+            </button>
+          ))}
+
+          {/* 添加神秘嘉宾 slot */}
           <button
             type="button"
             className="sprite-slot sprite-slot-add"
-            onClick={isRecording ? stopRecording : () => void startRecording()}
+            onClick={openGuestModal}
           >
             <div className="sprite-avatar">
-              {isRecording ? '●' : isConverting ? <Loader size={20} className="spin" /> : <Plus size={20} />}
+              <Plus size={20} />
             </div>
             <span className="sprite-name">神秘嘉宾</span>
-            <span className="sprite-sub">
-              {isRecording ? '停止录制' : isConverting ? '转化中…' : '点击录制声音'}
-            </span>
+            <span className="sprite-sub">点击添加</span>
           </button>
         </div>
 
@@ -561,9 +722,12 @@ function App() {
         <div className="preset-select-area">
           <div className="preset-select-wrapper">
             <select value={selectedPresetMelodyId} onChange={(e) => setSelectedPresetMelodyId(e.target.value)}>
-              {PRESET_MELODIES.map((preset) => (
-                <option key={preset.id} value={preset.id}>{preset.name}</option>
-              ))}
+              <option value="free">✦ 自由创作</option>
+              <optgroup label="──内置旋律──">
+                {PRESET_MELODIES.map((preset) => (
+                  <option key={preset.id} value={preset.id}>{preset.name}</option>
+                ))}
+              </optgroup>
             </select>
             <span className="pill-arrow" style={{ padding: '0 8px' }}>▲</span>
           </div>
@@ -588,13 +752,110 @@ function App() {
           />
         </label>
 
-        {/* 生成旋律 */}
-        <button className="generate-action" type="button" onClick={handleGenerate} disabled={isPlayingMelody}>
+        {/* 生成旋律 / 演奏预设 */}
+        <button
+          className="generate-action"
+          type="button"
+          onClick={handleGenerate}
+          disabled={isPlayingMelody || isAnalysingBgm}
+        >
           <GoldStar size={16} />
-          {isPlayingMelody ? '演奏中…' : '生成旋律'}
+          {isPlayingMelody || isAnalysingBgm
+            ? '演奏中…'
+            : selectedPresetMelodyId === 'free'
+              ? '生成旋律'
+              : '演奏旋律'}
           <GoldStar size={12} />
         </button>
       </section>
+
+      {/* ── 神秘嘉宾弹窗 ── */}
+      {showGuestModal && (
+        <div className="guest-modal-overlay" onClick={closeGuestModal}>
+          <div className="guest-modal" onClick={(e) => e.stopPropagation()}>
+            {/* 装饰三角 */}
+            <div className="guest-modal__deco-left" />
+            <div className="guest-modal__deco-center" />
+            <div className="guest-modal__deco-right" />
+
+            <div className="guest-modal__inner">
+              {/* 关闭 */}
+              <button className="guest-modal__close" type="button" onClick={closeGuestModal}>
+                <X size={18} />
+              </button>
+
+              {/* 标题 */}
+              <h2 className="guest-modal__title">神秘嘉宾</h2>
+
+              {/* 预览区域 */}
+              <div className="guest-modal__preview">
+                {guestRecording ? (
+                  <div className="guest-modal__waveform">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <span key={i} />
+                    ))}
+                  </div>
+                ) : guestSampleReady ? (
+                  <span className="guest-modal__preview-text">✓ 录制完成</span>
+                ) : (
+                  <span className="guest-modal__preview-text">录制预览</span>
+                )}
+              </div>
+
+              {/* 昵称输入 */}
+              <div className="guest-modal__input-row">
+                <span className="guest-modal__nick-label">昵称</span>
+                <input
+                  className="guest-modal__input"
+                  type="text"
+                  placeholder="给嘉宾起个名字"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  maxLength={12}
+                />
+              </div>
+
+              {/* 状态提示 */}
+              {guestStatus && (
+                <p className={`guest-modal__status ${guestSampleReady ? 'is-ready' : ''}`}>
+                  {guestStatus}
+                </p>
+              )}
+
+              {/* 录制按钮 */}
+              <div className="guest-modal__rec-area">
+                <button
+                  className={`rec-btn ${guestRecording ? 'is-recording' : ''}`}
+                  type="button"
+                  onClick={guestRecording ? stopGuestRecording : () => void startGuestRecording()}
+                  disabled={guestConverting}
+                  style={{ width: 'auto', minWidth: 200 }}
+                >
+                  <div className="rec-btn__inner">
+                    <RecMicIcon isRecording={guestRecording} isConverting={guestConverting} />
+                    <span className="rec-btn__label">
+                      {guestConverting ? '分析中…' : guestRecording ? '停止录制' : '点击录制'}
+                    </span>
+                  </div>
+                </button>
+              </div>
+
+              {/* 保存按钮 */}
+              <div className="guest-modal__actions">
+                <button
+                  className="guest-modal__save-btn"
+                  type="button"
+                  onClick={saveGuest}
+                  disabled={!guestSampleReady}
+                >
+                  <GoldStar size={14} />
+                  保存嘉宾
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
