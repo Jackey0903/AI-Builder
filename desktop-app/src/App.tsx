@@ -31,9 +31,9 @@ const firstSoundPresetId = enabledSoundPresets[0]?.id ?? '';
 const firstPresetMelodyId = PRESET_MELODIES[0]?.id ?? '';
 
 const statusCopy: Record<MelodyStyle, string> = {
-  bright: 'Bright toy march',
-  soft: 'Soft lullaby',
-  electro: 'Electro pulse'
+  bright: '欢快进行曲',
+  soft: '轻柔摇篮曲',
+  electro: '电子节拍'
 };
 
 function App() {
@@ -43,7 +43,7 @@ function App() {
   const [isAnalysingBgm, setIsAnalysingBgm] = useState(false);
   const [bgmAnalysisProgress, setBgmAnalysisProgress] = useState(0);
   const [sampleReady, setSampleReady] = useState(false);
-  const [status, setStatus] = useState('Ready. Record a sound or play the fallback tone set.');
+  const [status, setStatus] = useState('准备就绪。录制声音或使用备用音色演奏。');
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [motif, setMotif] = useState<Note[]>([]);
   const [style, setStyle] = useState<MelodyStyle>('bright');
@@ -52,7 +52,7 @@ function App() {
   const [selectedPresetMelodyId, setSelectedPresetMelodyId] = useState(firstPresetMelodyId);
   const [scaleRoot, setScaleRoot] = useState<Note>('C');
   const [serialLog, setSerialLog] = useState<SerialLine[]>([
-    { direction: 'system', message: 'desktop app started', at: Date.now() }
+    { direction: 'system', message: '桌面应用已启动', at: Date.now() }
   ]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -71,7 +71,7 @@ function App() {
     async (note: Note, options: { captureMotif?: boolean; durationMs?: number; velocity?: number; root?: Note } = {}) => {
       const { captureMotif = true, durationMs = 520, velocity = 1, root = scaleRoot } = options;
       setActiveNote(note);
-      setStatus(`${noteByName.get(note)?.solfege ?? note} triggered in ${root}`);
+      setStatus(`${noteByName.get(note)?.solfege ?? note} 已触发，调式根音 ${root}`);
       await audioEngine.playNote(note, durationMs, velocity, root);
       sendHardware(`LED:NOTE:${note}`);
 
@@ -98,7 +98,7 @@ function App() {
       if (!events.length || isPlayingMelody) return;
 
       setIsPlayingMelody(true);
-      setStatus(`Playing ${Math.round(melodyDuration(events) / 1000)}s melody in ${root}`);
+      setStatus(`正在演奏 ${Math.round(melodyDuration(events) / 1000)} 秒旋律，调式根音 ${root}`);
       sendHardware('LED:PLAY');
 
       if (backing?.file) {
@@ -109,7 +109,7 @@ function App() {
             loop: backing.loop
           });
         } catch (error) {
-          setStatus(error instanceof Error ? error.message : 'Backing track failed to load.');
+          setStatus(error instanceof Error ? error.message : '伴奏加载失败。');
         }
       } else {
         audioEngine.stopBackingTrack(120);
@@ -135,7 +135,7 @@ function App() {
       const doneTimeout = window.setTimeout(() => {
         setIsPlayingMelody(false);
         setActiveNote(null);
-        setStatus('Melody finished. Press keys to build a new motif.');
+        setStatus('旋律播放完毕。按键盘按键录入新的动机。');
         audioEngine.stopBackingTrack(420);
         sendHardware('LED:OFF');
       }, offset + 80);
@@ -148,7 +148,7 @@ function App() {
   const handleGenerate = useCallback(() => {
     const events = generateMelody(motif, style);
     setMelody(events);
-    setStatus(`Generated ${events.length} notes from ${motif.length || 4} motif notes`);
+    setStatus(`已从 ${motif.length || 4} 个动机音符生成 ${events.length} 个音符`);
     sendHardware('LED:GENERATE');
     void audioEngine.playClick();
     window.setTimeout(() => void playGeneratedMelody(events), 420);
@@ -157,12 +157,12 @@ function App() {
   const loadSelectedSoundPreset = useCallback(async () => {
     const preset = enabledSoundPresets.find((item) => item.id === selectedSoundPresetId);
     if (!preset) {
-      setStatus('No enabled sound preset yet. Add files in public/sounds and enable metadata.');
+      setStatus('暂无可用音色预设。请在 public/sounds 目录添加音频文件并启用元数据。');
       return;
     }
 
     try {
-      setStatus(`Loading preset: ${preset.name}`);
+      setStatus(`正在加载音色：${preset.name}`);
       if (preset.samples?.length) {
         await audioEngine.loadSampleSet(preset.samples);
       } else if (preset.file && preset.baseNote) {
@@ -174,14 +174,14 @@ function App() {
           gain: preset.gain
         });
       } else {
-        throw new Error(`Sound preset has no playable sample: ${preset.name}`);
+        throw new Error(`音色预设缺少可播放样本：${preset.name}`);
       }
 
       setSampleReady(true);
-      setStatus(`Loaded preset: ${preset.name}${preset.samples?.length ? ` (${preset.samples.length} layers)` : ''}`);
+      setStatus(`音色已加载：${preset.name}${preset.samples?.length ? `（${preset.samples.length} 层）` : ''}`);
       sendHardware('LED:RAINBOW');
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Failed to load preset sound.');
+      setStatus(error instanceof Error ? error.message : '音色加载失败。');
     }
   }, [audioEngine, selectedSoundPresetId, sendHardware]);
 
@@ -235,7 +235,7 @@ function App() {
 
     // 无 bgmUrl：直接用手写乐谱
     setMelody(preset.events);
-    setStatus(`Loaded preset melody: ${preset.name}`);
+    setStatus(`预设旋律已加载：${preset.name}`);
     void playGeneratedMelody(preset.events, presetRoot, presetBacking);
   }, [isAnalysingBgm, isPlayingMelody, playGeneratedMelody, scaleRoot, selectedPresetMelodyId]);
 
@@ -283,12 +283,12 @@ function App() {
     if (isRecording) return;
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setStatus('This browser cannot access a microphone.');
+      setStatus('当前浏览器无法访问麦克风。');
       return;
     }
 
     setIsRecording(true);
-    setStatus('Recording 4 seconds from computer microphone...');
+    setStatus('正在录制 4 秒麦克风音频…');
     sendHardware('LED:REC');
     chunksRef.current = [];
 
@@ -307,12 +307,23 @@ function App() {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
 
         try {
-          await audioEngine.setSample(blob);
+          const detected = await audioEngine.setSample(blob);
           setSampleReady(true);
-          setStatus(`Sample loaded: ${audioEngine.getSampleDuration().toFixed(2)}s trimmed sound`);
+
+          if (detected) {
+            const confPct = Math.round(detected.confidence * 100);
+            setStatus(
+              `样本已加载：${detected.trimmedDuration.toFixed(2)} 秒 · ` +
+              `检测音高 ${detected.noteName}（${Math.round(detected.frequency)} Hz）· ` +
+              `置信度 ${confPct}%`
+            );
+          } else {
+            setStatus(`样本已加载：${audioEngine.getSampleDuration().toFixed(2)} 秒有效音频（音高未检出，按 C 处理）`);
+          }
+
           sendHardware('LED:RAINBOW');
         } catch (error) {
-          setStatus(error instanceof Error ? error.message : 'Failed to decode recording.');
+          setStatus(error instanceof Error ? error.message : '录音解码失败。');
         } finally {
           setIsRecording(false);
         }
@@ -324,7 +335,7 @@ function App() {
       }, RECORD_MS);
     } catch (error) {
       setIsRecording(false);
-      setStatus(error instanceof Error ? error.message : 'Microphone permission failed.');
+      setStatus(error instanceof Error ? error.message : '麦克风权限获取失败。');
       sendHardware('LED:OFF');
     }
   }, [audioEngine, isRecording, sendHardware]);
@@ -406,11 +417,11 @@ function App() {
       <section className="top-strip">
         <div>
           <p className="eyebrow">AI Builder MVP</p>
-          <h1>Sound Sprite Console</h1>
+          <h1>精灵合奏台</h1>
         </div>
         <div className="status-pill">
           <span className={serial.isConnected ? 'dot dot-ok' : 'dot'} />
-          {serial.isConnected ? 'ESP32 connected' : 'Hardware optional'}
+          {serial.isConnected ? 'ESP32 已连接' : '硬件可选'}
         </div>
       </section>
 
@@ -419,22 +430,22 @@ function App() {
           <div className="panel-heading">
             <Mic size={20} />
             <div>
-              <h2>Capture</h2>
-              <p>Computer mic becomes the source timbre.</p>
+              <h2>声音录制</h2>
+              <p>用麦克风录制音色素材。</p>
             </div>
           </div>
 
           <button className="primary-action" type="button" onClick={() => void startRecording()} disabled={isRecording}>
             {isRecording ? <CircleStop size={20} /> : <Mic size={20} />}
-            {isRecording ? 'Recording...' : sampleReady ? 'Record Again' : 'Record Sound'}
+            {isRecording ? '录制中…' : sampleReady ? '重新录制' : '录制声音'}
           </button>
 
           <div className="content-loader">
             <div className="panel-heading compact">
               <Library size={18} />
               <div>
-                <h2>Sound Library</h2>
-                <p>{enabledSoundPresets.length ? 'Load a prepared team sample.' : 'Waiting for teammate audio files.'}</p>
+                <h2>音色库</h2>
+                <p>{enabledSoundPresets.length ? '加载团队预制音色。' : '等待队友提供音频文件。'}</p>
               </div>
             </div>
             <select
@@ -449,11 +460,11 @@ function App() {
                   </option>
                 ))
               ) : (
-                <option>No enabled presets</option>
+                <option>暂无可用预设</option>
               )}
             </select>
             <button type="button" className="small-action" onClick={loadSelectedSoundPreset} disabled={!enabledSoundPresets.length}>
-              Load Preset
+              加载音色
             </button>
           </div>
 
@@ -465,20 +476,20 @@ function App() {
 
           <div className="mini-specs">
             <div>
-              <strong>{sampleReady ? 'Sample ready' : 'Fallback tone'}</strong>
-              <span>Source</span>
+              <strong>{sampleReady ? '样本已就绪' : '备用音色'}</strong>
+              <span>来源</span>
             </div>
             <div>
-              <strong>7 notes</strong>
-              <span>Scale</span>
+              <strong>7 个音符</strong>
+              <span>音阶</span>
             </div>
           </div>
         </aside>
 
         <section className="stage-panel" aria-label="instrument stage">
           <div className="stage-orbit" style={{ '--note-color': activeNote ? noteColor(activeNote) : '#20c7c7' } as React.CSSProperties}>
-            <img className="sprite" src="/sound-sprite.svg" alt="Original sound sprite mascot" />
-            <div className="note-badge">{activeNote ?? 'IDLE'}</div>
+            <img className="sprite" src="/sound-sprite.svg" alt="精灵吉祥物" />
+            <div className="note-badge">{activeNote ?? '待机'}</div>
           </div>
 
           <div className="keybed" aria-label="playable notes">
@@ -502,8 +513,8 @@ function App() {
           <div className="panel-heading">
             <Cpu size={20} />
             <div>
-              <h2>Hardware</h2>
-              <p>ESP32 buttons in, LED commands out.</p>
+              <h2>硬件控制</h2>
+              <p>ESP32 按钮输入，LED 指令输出。</p>
             </div>
           </div>
 
@@ -514,18 +525,18 @@ function App() {
             disabled={!serial.isSupported}
           >
             <Cable size={19} />
-            {serial.isConnected ? 'Disconnect' : 'Connect Hardware'}
+            {serial.isConnected ? '断开连接' : '连接硬件'}
           </button>
 
           <div className="hardware-map">
             <span>GPIO4-10</span>
-            <strong>Notes</strong>
+            <strong>音符</strong>
             <span>GPIO12</span>
-            <strong>REC</strong>
+            <strong>录音</strong>
             <span>GPIO13</span>
-            <strong>GEN</strong>
+            <strong>生成</strong>
             <span>GPIO11</span>
-            <strong>LED</strong>
+            <strong>灯光</strong>
           </div>
 
           <div className="serial-box">
@@ -544,12 +555,12 @@ function App() {
           <div className="panel-heading compact">
             <Waves size={20} />
             <div>
-              <h2>Motif</h2>
-              <p>{motif.length ? motif.join(' - ') : 'Play 2-8 notes to seed the generator.'}</p>
+              <h2>音乐动机</h2>
+              <p>{motif.length ? motif.join(' - ') : '按 2~8 个音符作为生成器的种子。'}</p>
             </div>
           </div>
-          <button className="icon-action" type="button" onClick={() => setMotif([])} aria-label="clear motif">
-            Clear
+          <button className="icon-action" type="button" onClick={() => setMotif([])} aria-label="清空动机">
+            清空
           </button>
         </div>
 
@@ -564,7 +575,7 @@ function App() {
         <label className="tuning-picker">
           <span>
             <SlidersHorizontal size={16} />
-            Key Root
+            调式根音
           </span>
           <select value={scaleRoot} onChange={(event) => setScaleRoot(event.target.value as Note)}>
             {NOTES.map((definition) => (
@@ -587,7 +598,7 @@ function App() {
             {isAnalysingBgm && PRESET_MELODIES.find(p => p.id === selectedPresetMelodyId)?.bgmUrl ? (
               <><Loader size={17} className="spin" />{`解析中 ${bgmAnalysisProgress}%`}</>
             ) : (
-              <><ListMusic size={17} />Play Preset</>
+              <><ListMusic size={17} />播放预设</>
             )}
           </button>
         </div>
@@ -625,7 +636,7 @@ function App() {
 
         <button className="generate-action" type="button" onClick={handleGenerate} disabled={isPlayingMelody}>
           {isPlayingMelody ? <RadioTower size={20} /> : <Sparkles size={20} />}
-          {isPlayingMelody ? 'Playing Melody' : 'Generate Melody'}
+          {isPlayingMelody ? '演奏中…' : '生成旋律'}
         </button>
       </section>
 
@@ -638,13 +649,13 @@ function App() {
           <Music2 size={18} />
           <span>
             {melody.length
-              ? `${melody.length} notes / ${Math.round(melodyDuration(melody) / 1000)}s / ${scaleRoot} root`
-              : `No melody generated yet / ${scaleRoot} root`}
+              ? `${melody.length} 个音符 / ${Math.round(melodyDuration(melody) / 1000)} 秒 / 根音 ${scaleRoot}`
+              : `尚未生成旋律 / 根音 ${scaleRoot}`}
           </span>
         </div>
         <div>
           <Play size={18} />
-          <span>Keyboard: 1-7 notes, R record, G generate</span>
+          <span>键盘快捷键：1-7 弹音符，R 录音，G 生成旋律</span>
         </div>
       </section>
     </main>

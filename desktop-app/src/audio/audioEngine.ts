@@ -1,4 +1,5 @@
 import { NOTES, noteByName } from '../data/notes';
+import { detectPitch } from './pitchDetector';
 import type { Note, SoundSampleLayer } from '../types';
 
 const MASTER_GAIN = 0.82;
@@ -13,6 +14,24 @@ export interface SampleOptions {
   trimEndMs?: number;
   gain?: number;
   role?: SoundSampleLayer['role'];
+  /** 录音后是否自动检测音高并去除头部静音，默认 true（仅对录音有效） */
+  autoDetect?: boolean;
+}
+
+/** 自动分析结果（供调用方展示提示） */
+export interface AutoDetectResult {
+  /** 检测到的频率（Hz） */
+  frequency: number;
+  /** 最近音名（如 'A#'） */
+  noteName: string;
+  /** MIDI 音符号 */
+  midiNote: number;
+  /** 写入样本的绝对半音偏移 */
+  baseSemitoneOffset: number;
+  /** 置信度 0~1 */
+  confidence: number;
+  /** 去头后有效时长（秒） */
+  trimmedDuration: number;
 }
 
 interface LoadedSampleLayer {
@@ -55,21 +74,76 @@ export class AudioEngine {
     return this.sampleLayers.length > 0;
   }
 
-  async setSample(blob: Blob, options: SampleOptions = {}) {
+  async setSample(blob: Blob, options: SampleOptions = {}): Promise<AutoDetectResult | null> {
     const context = await this.ensureContext();
     const arrayBuffer = await blob.arrayBuffer();
     const decoded = await this.decodeArrayBuffer(context, arrayBuffer);
+
+    const autoDetect = options.autoDetect !== false;
+
+    // ── 自动去头：移除头部静音（阈值 0.015），保留约 40ms padding ──
+    const trimmed = autoDetect
+      ? this.trimBuffer(decoded, 0.015)
+      : this.cropBuffer(decoded, options.trimStartMs, options.trimEndMs);
+
+    // ── 自动音高检测 ──
+    let detectResult: AutoDetectResult | null = null;
+    let baseSemitoneOffset = options.baseSemitoneOffset;
+
+    if (autoDetect && baseSemitoneOffset == null) {
+      const sampleRate = trimmed.sampleRate;
+      const channelData = trimmed.getChannelData(0);
+
+      // 多帧投票：把有效音频分成若干段分别检测，取置信度最高的结果
+      // 避免单帧碰到爆破音/噪声导致误判
+      const totalSamples = channelData.length;
+      const segmentSize = Math.min(8192, Math.floor(totalSamples / 3));
+      const offsets = [0.10, 0.25, 0.40, 0.55].map((r) =>
+        Math.min(Math.floor(totalSamples * r), totalSamples - segmentSize)
+      );
+
+      let bestPitch = null;
+      let bestConfidence = 0;
+
+      for (const offset of offsets) {
+        if (offset < 0) continue;
+        const window = channelData.slice(offset, offset + segmentSize);
+        const pitch = detectPitch(window, sampleRate, 0.10);
+        if (pitch && pitch.confidence > bestConfidence) {
+          bestConfidence = pitch.confidence;
+          bestPitch = pitch;
+        }
+      }
+
+      if (bestPitch && bestConfidence > 0.35) {
+        // 映射到 0~11 半音偏移（与音色库 baseSemitoneOffset 体系一致）
+        // midiNote % 12：C=0, C#=1, D=2 … B=11
+        const semitone = ((bestPitch.midiNote % 12) + 12) % 12;
+        baseSemitoneOffset = semitone;
+        detectResult = {
+          frequency: bestPitch.frequency,
+          noteName: bestPitch.noteName,
+          midiNote: bestPitch.midiNote,
+          baseSemitoneOffset: semitone,
+          confidence: bestConfidence,
+          trimmedDuration: trimmed.duration
+        };
+      }
+    }
+
     this.sampleLayers = [
       {
         id: options.id ?? 'recorded',
-        name: options.name ?? 'Recorded Sample',
-        buffer: this.cropBuffer(decoded, options.trimStartMs, options.trimEndMs),
+        name: options.name ?? '录音样本',
+        buffer: trimmed,
         baseNote: options.baseNote ?? 'C',
-        baseSemitoneOffset: options.baseSemitoneOffset,
+        baseSemitoneOffset,
         gain: options.gain ?? 1,
         role: options.role ?? 'single'
       }
     ];
+
+    return detectResult;
   }
 
   async loadSampleFromUrl(url: string, options: SampleOptions = {}) {
