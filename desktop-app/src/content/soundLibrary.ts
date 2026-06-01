@@ -75,7 +75,7 @@ export const SOUND_PRESETS: SoundPreset[] = [
     // baseSemitoneOffset=4（E）：引擎将样本从 E 映射到标准音阶，C键=C4，D=D4，E=E4原声，以此类推。
     // 注意：此值不能改为 0，否则 C 键会响 E4（整个音阶上移4半音）。
     description: '猴麦仔单音采样（149ms），基频 E4（658Hz），baseSemitoneOffset=4 固定基准，音头干净无气音。',
-    file: '/sounds/原声合集/猴麦仔原声.wav',
+    file: '/sounds/猴麦仔/猴麦仔采样.wav',
     baseNote: 'E',
     baseSemitoneOffset: 4,
     trimStartMs: 0,

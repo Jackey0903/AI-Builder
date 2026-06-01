@@ -589,7 +589,7 @@ export const PRESET_MELODIES: PresetMelody[] = [
       { note: 'D', durationMs: 375, velocity: 0.88 }, // 2̲
 
       // 小节25：1（终止）
-      { note: 'C', durationMs: 1500, velocity: 0.96 }, // 1 要（终止，结尾拉长）
+      { note: 'C', durationMs: 3000, velocity: 0.96 }, // 1 要（终止，充分延音）
     ]
   }
 ];
