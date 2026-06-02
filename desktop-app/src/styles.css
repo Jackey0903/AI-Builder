@@ -563,19 +563,35 @@ h1, h2, p { margin: 0; }
 
 /* 右侧胶囊标签 (layout_B7MK1F: padding 10px 32px, gap 10px) */
 .hw-gpio-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-family: "SentyWatermelon", serif;
   font-size: 20px;
   line-height: 1.08em;
   text-transform: capitalize;
   color: var(--ink);             /* #3D3D3D */
-  padding: 10px 32px;
+  padding: 8px 22px;
   border: 2px solid var(--border-dark);  /* #3A2C31 */
   border-radius: 999px;
   background: var(--parchment);
   box-shadow: 1px 3px 0px var(--shadow-warm);
   white-space: nowrap;
-  min-width: 100px;
+  min-width: 118px;
   text-align: center;
+}
+
+.hw-gpio-label strong {
+  font: inherit;
+}
+
+.hw-gpio-label small {
+  margin-top: 2px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* 串口日志 */

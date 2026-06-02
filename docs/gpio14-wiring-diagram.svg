@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+  <defs>
+    <style>
+      .bg { fill: #f7f1df; }
+      .board { fill: #1d6f86; stroke: #163b45; stroke-width: 5; }
+      .module { fill: #fff9e8; stroke: #3b302c; stroke-width: 3; }
+      .pin { fill: #ffffff; stroke: #2b2b2b; stroke-width: 2; }
+      .pin-use { fill: #ffe18a; stroke: #2b2b2b; stroke-width: 2.5; }
+      .pin-led { fill: #b7f4cb; stroke: #2b2b2b; stroke-width: 2.5; }
+      .pin-power { fill: #ffd5d5; stroke: #2b2b2b; stroke-width: 2.5; }
+      .pin-gnd { fill: #d7d7d7; stroke: #2b2b2b; stroke-width: 2.5; }
+      .text { font-family: Arial, Helvetica, sans-serif; fill: #261f1c; }
+      .small { font-size: 20px; }
+      .label { font-size: 24px; font-weight: 700; }
+      .title { font-size: 38px; font-weight: 800; }
+      .note { font-size: 22px; fill: #5c5048; }
+      .wire-sig { fill: none; stroke: #21a65b; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .wire-3v3 { fill: none; stroke: #ef9b22; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .wire-5v { fill: none; stroke: #e33b32; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .wire-gnd { fill: none; stroke: #2b2b2b; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .rail-3v3 { fill: #f4ad36; }
+      .rail-gnd { fill: #303030; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1100"/>
+  <text class="text title" x="70" y="70">AI Builder MVP wiring - ESP32-S3 LED moved to GPIO14</text>
+  <text class="text note" x="70" y="106">Board front view, USB on top. Always trust the silk-screen labels printed on your board.</text>
+
+  <!-- ESP32 board -->
+  <rect class="board" x="95" y="170" width="470" height="820" rx="28"/>
+  <rect x="245" y="130" width="170" height="70" rx="14" fill="#d9dee6" stroke="#333" stroke-width="4"/>
+  <text class="text label" x="282" y="176">USB</text>
+  <text class="text label" x="170" y="245" fill="#ffffff">ESP32-S3</text>
+  <text class="text small" x="155" y="280" fill="#e5fbff">Use this header side</text>
+
+  <!-- J1 header pins -->
+  <g id="header-j1">
+    <text class="text label" x="388" y="240" fill="#ffffff">J1 pins</text>
+    <g transform="translate(360,270)">
+      <rect class="pin-power" x="0" y="0" width="120" height="34" rx="8"/><text class="text small" x="16" y="24">3V3</text>
+      <rect class="pin-power" x="0" y="38" width="120" height="34" rx="8"/><text class="text small" x="16" y="62">3V3</text>
+      <rect class="pin" x="0" y="76" width="120" height="34" rx="8"/><text class="text small" x="16" y="100">RST</text>
+      <rect class="pin-use" x="0" y="114" width="120" height="34" rx="8"/><text class="text small" x="16" y="138">IO4 C</text>
+      <rect class="pin-use" x="0" y="152" width="120" height="34" rx="8"/><text class="text small" x="16" y="176">IO5 D</text>
+      <rect class="pin-use" x="0" y="190" width="120" height="34" rx="8"/><text class="text small" x="16" y="214">IO6 E</text>
+      <rect class="pin-use" x="0" y="228" width="120" height="34" rx="8"/><text class="text small" x="16" y="252">IO7 F</text>
+      <rect class="pin" x="0" y="266" width="120" height="34" rx="8"/><text class="text small" x="16" y="290">IO15</text>
+      <rect class="pin" x="0" y="304" width="120" height="34" rx="8"/><text class="text small" x="16" y="328">IO16</text>
+      <rect class="pin" x="0" y="342" width="120" height="34" rx="8"/><text class="text small" x="16" y="366">IO17</text>
+      <rect class="pin" x="0" y="380" width="120" height="34" rx="8"/><text class="text small" x="16" y="404">IO18</text>
+      <rect class="pin-use" x="0" y="418" width="120" height="34" rx="8"/><text class="text small" x="16" y="442">IO8 G</text>
+      <rect class="pin" x="0" y="456" width="120" height="34" rx="8"/><text class="text small" x="16" y="480">IO3</text>
+      <rect class="pin" x="0" y="494" width="120" height="34" rx="8"/><text class="text small" x="16" y="518">IO46</text>
+      <rect class="pin-use" x="0" y="532" width="120" height="34" rx="8"/><text class="text small" x="16" y="556">IO9 A</text>
+      <rect class="pin-use" x="0" y="570" width="120" height="34" rx="8"/><text class="text small" x="16" y="594">IO10 B</text>
+      <rect class="pin" x="0" y="608" width="120" height="34" rx="8"/><text class="text small" x="16" y="632">IO11</text>
+      <rect class="pin-use" x="0" y="646" width="120" height="34" rx="8"/><text class="text small" x="16" y="670">IO12 REC</text>
+      <rect class="pin-use" x="0" y="684" width="120" height="34" rx="8"/><text class="text small" x="16" y="708">IO13 GEN</text>
+      <rect class="pin-led" x="0" y="722" width="120" height="34" rx="8"/><text class="text small" x="16" y="746">IO14 LED</text>
+      <rect class="pin-power" x="0" y="760" width="120" height="34" rx="8"/><text class="text small" x="16" y="784">5V</text>
+      <rect class="pin-gnd" x="0" y="798" width="120" height="34" rx="8"/><text class="text small" x="16" y="822">GND</text>
+    </g>
+  </g>
+
+  <!-- Breadboard rails -->
+  <rect class="module" x="670" y="190" width="390" height="210" rx="18"/>
+  <text class="text label" x="700" y="235">Power rails / breadboard</text>
+  <rect class="rail-3v3" x="710" y="270" width="310" height="34" rx="10"/>
+  <text class="text label" x="728" y="296">3V3 rail for all buttons VCC</text>
+  <rect class="rail-gnd" x="710" y="330" width="310" height="34" rx="10"/>
+  <text class="text label" x="728" y="356" fill="#ffffff">GND rail for buttons + LED</text>
+
+  <!-- LED ring -->
+  <g transform="translate(1140,185)">
+    <circle cx="160" cy="140" r="110" fill="#101418" stroke="#3b302c" stroke-width="5"/>
+    <circle cx="160" cy="140" r="56" fill="#f7f1df" stroke="#3b302c" stroke-width="4"/>
+    <text class="text label" x="70" y="305">WS2812-16 LED ring</text>
+    <text class="text small" x="66" y="333">Use IN side only. OUT unused.</text>
+    <rect class="pin-power" x="20" y="360" width="120" height="38" rx="8"/><text class="text small" x="42" y="386">IN VCC</text>
+    <rect class="pin-gnd" x="150" y="360" width="120" height="38" rx="8"/><text class="text small" x="175" y="386">IN GND</text>
+    <rect class="pin-led" x="280" y="360" width="120" height="38" rx="8"/><text class="text small" x="305" y="386">IN DIN</text>
+  </g>
+
+  <!-- Button bank -->
+  <rect class="module" x="670" y="510" width="850" height="380" rx="18"/>
+  <text class="text label" x="700" y="552">Gravity button modules</text>
+  <text class="text note" x="700" y="584">Every button: VCC to 3V3 rail, GND to GND rail. Only SIG changes.</text>
+
+  <g class="text small" font-weight="700">
+    <text x="725" y="640">Yellow Do/C SIG -> IO4</text>
+    <text x="725" y="680">Yellow Re/D SIG -> IO5</text>
+    <text x="725" y="720">Yellow Mi/E SIG -> IO6</text>
+    <text x="725" y="760">Yellow Fa/F SIG -> IO7</text>
+    <text x="725" y="800">Yellow Sol/G SIG -> IO8</text>
+
+    <text x="1080" y="640">Yellow La/A SIG -> IO9</text>
+    <text x="1080" y="680">Yellow Si/B SIG -> IO10</text>
+    <text x="1080" y="720">Red Record SIG -> IO12</text>
+    <text x="1080" y="760">Green Generate SIG -> IO13</text>
+  </g>
+
+  <!-- Wires from board to rails and modules -->
+  <path class="wire-3v3" d="M480 287 C560 285 600 285 710 287"/>
+  <path class="wire-gnd" d="M480 1085 C610 1060 650 350 710 347"/>
+  <path class="wire-5v" d="M480 1047 C650 990 1010 840 1160 565"/>
+  <path class="wire-gnd" d="M710 347 C975 430 1075 540 1290 565"/>
+  <path class="wire-sig" d="M480 1009 C720 1010 1160 750 1460 565"/>
+
+  <!-- Signal bundle from pins to button list -->
+  <path class="wire-sig" d="M480 401 C595 420 650 610 720 632"/>
+  <path class="wire-sig" d="M480 439 C600 448 655 652 720 672"/>
+  <path class="wire-sig" d="M480 477 C600 480 660 694 720 712"/>
+  <path class="wire-sig" d="M480 515 C600 514 660 735 720 752"/>
+  <path class="wire-sig" d="M480 835 C610 810 665 795 720 792"/>
+  <path class="wire-sig" d="M480 949 C690 910 940 648 1075 632"/>
+  <path class="wire-sig" d="M480 987 C720 935 940 688 1075 672"/>
+  <path class="wire-sig" d="M480 1025 C760 970 940 730 1075 712"/>
+  <path class="wire-sig" d="M480 1063 C785 1000 950 770 1075 752"/>
+
+  <!-- Legend -->
+  <rect class="module" x="70" y="1010" width="1470" height="66" rx="16"/>
+  <line x1="100" y1="1043" x2="170" y2="1043" class="wire-5v"/>
+  <text class="text small" x="185" y="1050">LED 5V</text>
+  <line x1="310" y1="1043" x2="380" y2="1043" class="wire-3v3"/>
+  <text class="text small" x="395" y="1050">Button 3V3</text>
+  <line x1="575" y1="1043" x2="645" y2="1043" class="wire-gnd"/>
+  <text class="text small" x="660" y="1050">Common GND</text>
+  <line x1="850" y1="1043" x2="920" y2="1043" class="wire-sig"/>
+  <text class="text small" x="935" y="1050">Signal / SIG / DIN</text>
+  <text class="text small" x="1150" y="1050">Connect with USB unplugged first.</text>
+</svg>

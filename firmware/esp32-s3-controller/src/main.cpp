@@ -2,16 +2,19 @@
 #include <FastLED.h>
 
 constexpr uint32_t BAUD_RATE = 115200;
-constexpr uint8_t LED_PIN = 11;
+constexpr uint8_t LED_PIN = 14;
 constexpr uint8_t NUM_LEDS = 16;
 constexpr uint8_t DEFAULT_BRIGHTNESS = 32;
 constexpr uint16_t DEBOUNCE_MS = 28;
 constexpr bool BUTTON_PRESSED_STATE = HIGH;
+constexpr uint8_t UNUSED_PIN = 255;
 
 CRGB leds[NUM_LEDS];
 
 struct ButtonDef {
-  uint8_t pin;
+  uint8_t vccPin;
+  uint8_t gndPin;
+  uint8_t signalPin;
   const char* message;
   bool stableState;
   bool lastReading;
@@ -19,15 +22,15 @@ struct ButtonDef {
 };
 
 ButtonDef buttons[] = {
-  {4, "NOTE:C", LOW, LOW, 0},
-  {5, "NOTE:D", LOW, LOW, 0},
-  {6, "NOTE:E", LOW, LOW, 0},
-  {7, "NOTE:F", LOW, LOW, 0},
-  {8, "NOTE:G", LOW, LOW, 0},
-  {9, "NOTE:A", LOW, LOW, 0},
-  {10, "NOTE:B", LOW, LOW, 0},
-  {12, "REC", LOW, LOW, 0},
-  {13, "GENERATE", LOW, LOW, 0},
+  {5, 6, 4, "NOTE:C", LOW, LOW, 0},
+  {15, 16, 7, "NOTE:D", LOW, LOW, 0},
+  {18, 8, 17, "NOTE:E", LOW, LOW, 0},
+  {46, 9, 3, "NOTE:F", LOW, LOW, 0},
+  {11, 12, 10, "NOTE:G", LOW, LOW, 0},
+  {2, 42, 1, "NOTE:A", LOW, LOW, 0},
+  {40, 39, 41, "NOTE:B", LOW, LOW, 0},
+  {37, 36, 38, "REC", LOW, LOW, 0},
+  {47, 21, 48, "GENERATE", LOW, LOW, 0},
 };
 
 String inputLine;
@@ -138,7 +141,7 @@ void scanButtons() {
   const uint32_t now = millis();
 
   for (ButtonDef& button : buttons) {
-    bool reading = digitalRead(button.pin);
+    bool reading = digitalRead(button.signalPin);
 
     if (reading != button.lastReading) {
       button.lastChangeMs = now;
@@ -149,9 +152,10 @@ void scanButtons() {
       button.stableState = reading;
 
       if (button.stableState == BUTTON_PRESSED_STATE) {
-        Serial.println(button.message);
-
         String message = String(button.message);
+
+        Serial.println(message);
+
         if (message.startsWith("NOTE:")) {
           showNote(message.substring(5));
         } else if (message == "REC") {
@@ -176,8 +180,21 @@ void setup() {
   Serial.begin(BAUD_RATE);
 
   for (ButtonDef& button : buttons) {
-    pinMode(button.pin, INPUT);
-    button.stableState = digitalRead(button.pin);
+    if (button.vccPin != UNUSED_PIN) {
+      pinMode(button.vccPin, OUTPUT);
+      digitalWrite(button.vccPin, HIGH);
+    }
+    if (button.gndPin != UNUSED_PIN) {
+      pinMode(button.gndPin, OUTPUT);
+      digitalWrite(button.gndPin, LOW);
+    }
+  }
+
+  delay(20);
+
+  for (ButtonDef& button : buttons) {
+    pinMode(button.signalPin, INPUT_PULLDOWN);
+    button.stableState = digitalRead(button.signalPin);
     button.lastReading = button.stableState;
   }
 

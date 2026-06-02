@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="950" viewBox="0 0 1500 950">
+  <defs>
+    <style>
+      .bg{fill:#faf3df}
+      .title{font:800 38px Arial,Helvetica,sans-serif;fill:#241c18}
+      .sub{font:22px Arial,Helvetica,sans-serif;fill:#5a4c43}
+      .label{font:700 24px Arial,Helvetica,sans-serif;fill:#241c18}
+      .small{font:19px Arial,Helvetica,sans-serif;fill:#241c18}
+      .tiny{font:16px Arial,Helvetica,sans-serif;fill:#584c43}
+      .esp{fill:#1f758a;stroke:#123b46;stroke-width:5}
+      .bread{fill:#fffdf4;stroke:#3b302c;stroke-width:5}
+      .module{fill:#fff9e8;stroke:#3b302c;stroke-width:3}
+      .pin{fill:#fff;stroke:#272322;stroke-width:2}
+      .power{fill:#ffd4d4;stroke:#272322;stroke-width:2}
+      .gnd{fill:#d7d7d7;stroke:#272322;stroke-width:2}
+      .sig{fill:#d8f5d8;stroke:#272322;stroke-width:2}
+      .note{fill:#ffe36e;stroke:#272322;stroke-width:3}
+      .rec{fill:#ff7777;stroke:#272322;stroke-width:3}
+      .gen{fill:#78d878;stroke:#272322;stroke-width:3}
+      .rail3{fill:#f1a22b}
+      .railg{fill:#2c2c2c}
+      .wire3{fill:none;stroke:#f1a22b;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+      .wireg{fill:none;stroke:#222;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+      .wire5{fill:none;stroke:#e5453a;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+      .wires{fill:none;stroke:#18a457;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .dash{stroke-dasharray:12 10}
+      .warn{fill:#fff2b7;stroke:#a87918;stroke-width:3}
+    </style>
+  </defs>
+
+  <rect class="bg" width="1500" height="950"/>
+  <text class="title" x="55" y="60">最简单快速方案：面包板只用来分 3V3 和 GND</text>
+  <text class="sub" x="55" y="98">按钮的 VCC/GND 全部接面包板；按钮 SIG 直接接 ESP32。灯环保持已成功接法：DIN 到 IO14。</text>
+
+  <!-- ESP32 -->
+  <rect class="esp" x="65" y="155" width="360" height="735" rx="28"/>
+  <rect x="172" y="120" width="145" height="58" rx="12" fill="#d9dee6" stroke="#333" stroke-width="4"/>
+  <text class="label" x="212" y="158">USB</text>
+  <text class="label" x="130" y="220" fill="#fff">ESP32-S3</text>
+  <text class="tiny" x="103" y="250" fill="#e5fbff">看板子丝印：IO4、IO5...</text>
+
+  <g transform="translate(250,285)">
+    <rect class="power" x="0" y="0" width="120" height="34" rx="8"/><text class="small" x="14" y="24">3V3</text>
+    <rect class="pin" x="0" y="48" width="120" height="34" rx="8"/><text class="small" x="14" y="72">RST</text>
+    <rect class="sig" x="0" y="96" width="120" height="34" rx="8"/><text class="small" x="14" y="120">IO4 C</text>
+    <rect class="sig" x="0" y="144" width="120" height="34" rx="8"/><text class="small" x="14" y="168">IO5 D</text>
+    <rect class="sig" x="0" y="192" width="120" height="34" rx="8"/><text class="small" x="14" y="216">IO6 E</text>
+    <rect class="sig" x="0" y="240" width="120" height="34" rx="8"/><text class="small" x="14" y="264">IO7 F</text>
+    <rect class="sig" x="0" y="288" width="120" height="34" rx="8"/><text class="small" x="14" y="312">IO8 G</text>
+    <rect class="sig" x="0" y="336" width="120" height="34" rx="8"/><text class="small" x="14" y="360">IO9 A</text>
+    <rect class="sig" x="0" y="384" width="120" height="34" rx="8"/><text class="small" x="14" y="408">IO10 B</text>
+    <rect class="sig" x="0" y="432" width="120" height="34" rx="8"/><text class="small" x="14" y="456">IO12 REC</text>
+    <rect class="sig" x="0" y="480" width="120" height="34" rx="8"/><text class="small" x="14" y="504">IO13 GEN</text>
+    <rect class="sig" x="0" y="528" width="120" height="34" rx="8"/><text class="small" x="14" y="552">IO14 LED</text>
+    <rect class="power" x="0" y="576" width="120" height="34" rx="8"/><text class="small" x="14" y="600">5V</text>
+    <rect class="gnd" x="0" y="624" width="120" height="34" rx="8"/><text class="small" x="14" y="648">GND</text>
+  </g>
+
+  <!-- Breadboard simple -->
+  <rect class="bread" x="515" y="175" width="305" height="715" rx="28"/>
+  <text class="label" x="565" y="225">面包板</text>
+  <text class="tiny" x="545" y="252">只用两条长电源轨</text>
+  <rect class="rail3" x="570" y="300" width="55" height="520" rx="18"/>
+  <rect class="railg" x="690" y="300" width="55" height="520" rx="18"/>
+  <text class="label" x="584" y="350" fill="#fff" transform="rotate(90 584 350)">3V3</text>
+  <text class="label" x="707" y="350" fill="#fff" transform="rotate(90 707 350)">GND</text>
+  <text class="small" x="552" y="850">红轨：按钮 VCC</text>
+  <text class="small" x="552" y="875">黑/蓝轨：所有 GND</text>
+
+  <!-- Button modules -->
+  <rect class="module" x="900" y="150" width="430" height="590" rx="24"/>
+  <text class="label" x="930" y="195">按钮模块</text>
+  <text class="tiny" x="930" y="225">每个按钮三根线：VCC / GND / SIG</text>
+
+  <g transform="translate(930,260)">
+    <rect class="note" x="0" y="0" width="170" height="45" rx="12"/><text class="small" x="18" y="30">C / Do</text>
+    <rect class="note" x="0" y="58" width="170" height="45" rx="12"/><text class="small" x="18" y="88">D / Re</text>
+    <rect class="note" x="0" y="116" width="170" height="45" rx="12"/><text class="small" x="18" y="146">E / Mi</text>
+    <rect class="note" x="0" y="174" width="170" height="45" rx="12"/><text class="small" x="18" y="204">F / Fa</text>
+    <rect class="note" x="0" y="232" width="170" height="45" rx="12"/><text class="small" x="18" y="262">G / Sol</text>
+    <rect class="note" x="0" y="290" width="170" height="45" rx="12"/><text class="small" x="18" y="320">A / La</text>
+    <rect class="note" x="0" y="348" width="170" height="45" rx="12"/><text class="small" x="18" y="378">B / Si</text>
+    <rect class="rec" x="0" y="406" width="170" height="45" rx="12"/><text class="small" x="18" y="436">REC</text>
+    <rect class="gen" x="0" y="464" width="170" height="45" rx="12"/><text class="small" x="18" y="494">GEN</text>
+  </g>
+
+  <g class="small">
+    <text x="1125" y="290">SIG -> IO4</text>
+    <text x="1125" y="348">SIG -> IO5</text>
+    <text x="1125" y="406">SIG -> IO6</text>
+    <text x="1125" y="464">SIG -> IO7</text>
+    <text x="1125" y="522">SIG -> IO8</text>
+    <text x="1125" y="580">SIG -> IO9</text>
+    <text x="1125" y="638">SIG -> IO10</text>
+    <text x="1125" y="696">SIG -> IO12</text>
+    <text x="1125" y="754">SIG -> IO13</text>
+  </g>
+
+  <!-- LED ring -->
+  <rect class="module" x="905" y="775" width="430" height="115" rx="24"/>
+  <text class="label" x="930" y="818">灯环保持已成功接法</text>
+  <text class="small" x="930" y="852">VCC -> ESP32 5V，GND -> 面包板 GND，DIN -> IO14</text>
+
+  <!-- Wires -->
+  <path class="wire3" d="M370 302 C450 302 490 350 570 350"/>
+  <path class="wireg" d="M370 926 C450 900 580 790 690 790"/>
+
+  <!-- button VCC/GND common wires -->
+  <path class="wire3 dash" d="M625 420 C780 330 835 295 930 285"/>
+  <path class="wireg dash" d="M745 760 C820 700 870 640 930 640"/>
+  <text class="tiny" x="822" y="318">所有按钮 VCC 都接红轨</text>
+  <text class="tiny" x="807" y="682">所有按钮 GND 都接黑/蓝轨</text>
+
+  <!-- signal wires from buttons to ESP -->
+  <path class="wires" d="M1100 282 C780 265 580 405 370 398"/>
+  <path class="wires" d="M1100 340 C780 330 580 450 370 446"/>
+  <path class="wires" d="M1100 398 C780 395 580 500 370 494"/>
+  <path class="wires" d="M1100 456 C780 455 580 545 370 542"/>
+  <path class="wires" d="M1100 514 C770 520 580 590 370 590"/>
+  <path class="wires" d="M1100 572 C760 590 580 640 370 638"/>
+  <path class="wires" d="M1100 630 C760 650 580 690 370 686"/>
+  <path class="wires" d="M1100 688 C760 725 570 745 370 734"/>
+  <path class="wires" d="M1100 746 C760 780 570 790 370 782"/>
+
+  <!-- LED wires -->
+  <path class="wire5" d="M370 878 C530 905 760 850 930 845"/>
+  <path class="wireg" d="M690 790 C785 790 845 820 930 858"/>
+  <path class="wires" d="M370 830 C580 850 760 862 930 872"/>
+
+  <rect class="warn" x="55" y="905" width="1390" height="70" rx="18"/>
+  <text class="label" x="82" y="949">最小规则：</text>
+  <text class="small" x="210" y="949">面包板只分电：红轨=3V3，黑/蓝轨=GND。按钮 SIG 不进面包板，直接去 ESP32 对应 IO。</text>
+</svg>

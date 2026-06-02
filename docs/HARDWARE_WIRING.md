@@ -30,7 +30,7 @@ The module outputs `HIGH` when pressed, so the firmware uses normal `INPUT` and 
 | Note B / Si | GPIO10 |
 | Record | GPIO12 |
 | Generate | GPIO13 |
-| WS2812B DIN | GPIO11 |
+| WS2812B DIN | GPIO14 |
 
 ## LED Ring
 
@@ -38,7 +38,7 @@ The module outputs `HIGH` when pressed, so the firmware uses normal `INPUT` and 
 |---|---|
 | 5V | 5V / VBUS |
 | GND | GND |
-| DIN | GPIO11 |
+| DIN | GPIO14 |
 
 Keep brightness low in firmware (`32` by default). If the LED ring flickers, reduce brightness first.
 

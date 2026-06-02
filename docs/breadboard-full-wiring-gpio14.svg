@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1250" viewBox="0 0 1800 1250">
+  <defs>
+    <style>
+      .bg { fill: #f6efdc; }
+      .title { font: 800 42px Arial, Helvetica, sans-serif; fill: #211b18; }
+      .subtitle { font: 24px Arial, Helvetica, sans-serif; fill: #5c5148; }
+      .label { font: 700 23px Arial, Helvetica, sans-serif; fill: #211b18; }
+      .small { font: 18px Arial, Helvetica, sans-serif; fill: #302821; }
+      .tiny { font: 15px Arial, Helvetica, sans-serif; fill: #54493f; }
+      .board { fill: #1f758a; stroke: #163b45; stroke-width: 5; }
+      .usb { fill: #d9dee6; stroke: #333; stroke-width: 4; }
+      .pin { fill: #fff; stroke: #2a2825; stroke-width: 2; }
+      .pin-note { fill: #ffe28a; stroke: #2a2825; stroke-width: 2.5; }
+      .pin-led { fill: #b7f4cb; stroke: #2a2825; stroke-width: 2.5; }
+      .pin-power { fill: #ffd6d6; stroke: #2a2825; stroke-width: 2.5; }
+      .pin-gnd { fill: #d7d7d7; stroke: #2a2825; stroke-width: 2.5; }
+      .bread { fill: #fffaf0; stroke: #3a2c31; stroke-width: 4; }
+      .hole { fill: #e6dfcf; stroke: #a59a87; stroke-width: 1; }
+      .rail3 { fill: #f3a123; }
+      .rail5 { fill: #e54838; }
+      .railg { fill: #2e2e2e; }
+      .railText { font: 700 20px Arial, Helvetica, sans-serif; fill: #fff; }
+      .module { fill: #fff7de; stroke: #3a2c31; stroke-width: 3; }
+      .buttonYellow { fill: #ffd84d; stroke: #3a2c31; stroke-width: 3; }
+      .buttonRed { fill: #ff7171; stroke: #3a2c31; stroke-width: 3; }
+      .buttonGreen { fill: #78d878; stroke: #3a2c31; stroke-width: 3; }
+      .wire3 { fill: none; stroke: #f3a123; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .wire5 { fill: none; stroke: #e54838; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .wireg { fill: none; stroke: #202020; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .wires { fill: none; stroke: #18a457; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+      .warn { fill: #fff2b7; stroke: #aa7b13; stroke-width: 3; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1800" height="1250"/>
+  <text class="title" x="70" y="70">面包板完整接线图：按钮走 3V3，灯环走 5V，LED 信号接 GPIO14</text>
+  <text class="subtitle" x="70" y="110">接线前先拔掉 USB。所有 GND 必须共地；3V3 轨和 5V 轨绝对不要连在一起。</text>
+
+  <!-- ESP32 board -->
+  <rect class="board" x="60" y="190" width="420" height="900" rx="28"/>
+  <rect class="usb" x="185" y="145" width="160" height="68" rx="14"/>
+  <text class="label" x="228" y="188">USB</text>
+  <text class="label" x="135" y="255" fill="#fff">ESP32-S3</text>
+  <text class="small" x="110" y="287" fill="#e5fbff">正面看板子，USB 在上</text>
+
+  <!-- ESP J1 pins -->
+  <g transform="translate(300,320)">
+    <text class="label" x="-4" y="-24" fill="#fff">这一侧排针</text>
+    <rect class="pin-power" x="0" y="0" width="125" height="34" rx="8"/><text class="small" x="14" y="24">3V3</text>
+    <rect class="pin-power" x="0" y="40" width="125" height="34" rx="8"/><text class="small" x="14" y="64">3V3</text>
+    <rect class="pin" x="0" y="80" width="125" height="34" rx="8"/><text class="small" x="14" y="104">RST</text>
+    <rect class="pin-note" x="0" y="120" width="125" height="34" rx="8"/><text class="small" x="14" y="144">IO4 C</text>
+    <rect class="pin-note" x="0" y="160" width="125" height="34" rx="8"/><text class="small" x="14" y="184">IO5 D</text>
+    <rect class="pin-note" x="0" y="200" width="125" height="34" rx="8"/><text class="small" x="14" y="224">IO6 E</text>
+    <rect class="pin-note" x="0" y="240" width="125" height="34" rx="8"/><text class="small" x="14" y="264">IO7 F</text>
+    <rect class="pin" x="0" y="280" width="125" height="34" rx="8"/><text class="small" x="14" y="304">IO15</text>
+    <rect class="pin" x="0" y="320" width="125" height="34" rx="8"/><text class="small" x="14" y="344">IO16</text>
+    <rect class="pin" x="0" y="360" width="125" height="34" rx="8"/><text class="small" x="14" y="384">IO17</text>
+    <rect class="pin" x="0" y="400" width="125" height="34" rx="8"/><text class="small" x="14" y="424">IO18</text>
+    <rect class="pin-note" x="0" y="440" width="125" height="34" rx="8"/><text class="small" x="14" y="464">IO8 G</text>
+    <rect class="pin" x="0" y="480" width="125" height="34" rx="8"/><text class="small" x="14" y="504">IO3</text>
+    <rect class="pin" x="0" y="520" width="125" height="34" rx="8"/><text class="small" x="14" y="544">IO46</text>
+    <rect class="pin-note" x="0" y="560" width="125" height="34" rx="8"/><text class="small" x="14" y="584">IO9 A</text>
+    <rect class="pin-note" x="0" y="600" width="125" height="34" rx="8"/><text class="small" x="14" y="624">IO10 B</text>
+    <rect class="pin" x="0" y="640" width="125" height="34" rx="8"/><text class="small" x="14" y="664">IO11</text>
+    <rect class="pin-note" x="0" y="680" width="125" height="34" rx="8"/><text class="small" x="14" y="704">IO12 REC</text>
+    <rect class="pin-note" x="0" y="720" width="125" height="34" rx="8"/><text class="small" x="14" y="744">IO13 GEN</text>
+    <rect class="pin-led" x="0" y="760" width="125" height="34" rx="8"/><text class="small" x="14" y="784">IO14 LED</text>
+    <rect class="pin-power" x="0" y="800" width="125" height="34" rx="8"/><text class="small" x="14" y="824">5V</text>
+    <rect class="pin-gnd" x="0" y="840" width="125" height="34" rx="8"/><text class="small" x="14" y="864">GND</text>
+  </g>
+
+  <!-- Breadboard -->
+  <rect class="bread" x="560" y="170" width="580" height="930" rx="30"/>
+  <text class="label" x="705" y="215">中型面包板</text>
+
+  <!-- rails -->
+  <rect class="rail3" x="595" y="255" width="42" height="790" rx="16"/>
+  <rect class="railg" x="650" y="255" width="42" height="790" rx="16"/>
+  <rect class="rail5" x="1000" y="255" width="42" height="790" rx="16"/>
+  <rect class="railg" x="1055" y="255" width="42" height="790" rx="16"/>
+  <text class="railText" x="603" y="300" transform="rotate(90 603 300)">3V3 BUTTON VCC</text>
+  <text class="railText" x="660" y="300" transform="rotate(90 660 300)">GND COMMON</text>
+  <text class="railText" x="1008" y="300" transform="rotate(90 1008 300)">5V LED ONLY</text>
+  <text class="railText" x="1065" y="300" transform="rotate(90 1065 300)">GND COMMON</text>
+
+  <!-- central holes -->
+  <g transform="translate(735,260)">
+    <text class="tiny" x="35" y="-22">中间每一横排 5 个孔相通；中间沟左右不通</text>
+    <line x1="145" y1="0" x2="145" y2="780" stroke="#b0a28b" stroke-width="4" stroke-dasharray="12 10"/>
+    <g>
+      <!-- rows of holes, decorative -->
+      <script type="application/ecmascript"><![CDATA[]]></script>
+      <circle class="hole" cx="0" cy="0" r="6"/><circle class="hole" cx="30" cy="0" r="6"/><circle class="hole" cx="60" cy="0" r="6"/><circle class="hole" cx="90" cy="0" r="6"/><circle class="hole" cx="120" cy="0" r="6"/>
+      <circle class="hole" cx="180" cy="0" r="6"/><circle class="hole" cx="210" cy="0" r="6"/><circle class="hole" cx="240" cy="0" r="6"/><circle class="hole" cx="270" cy="0" r="6"/><circle class="hole" cx="300" cy="0" r="6"/>
+      <circle class="hole" cx="0" cy="40" r="6"/><circle class="hole" cx="30" cy="40" r="6"/><circle class="hole" cx="60" cy="40" r="6"/><circle class="hole" cx="90" cy="40" r="6"/><circle class="hole" cx="120" cy="40" r="6"/>
+      <circle class="hole" cx="180" cy="40" r="6"/><circle class="hole" cx="210" cy="40" r="6"/><circle class="hole" cx="240" cy="40" r="6"/><circle class="hole" cx="270" cy="40" r="6"/><circle class="hole" cx="300" cy="40" r="6"/>
+      <circle class="hole" cx="0" cy="80" r="6"/><circle class="hole" cx="30" cy="80" r="6"/><circle class="hole" cx="60" cy="80" r="6"/><circle class="hole" cx="90" cy="80" r="6"/><circle class="hole" cx="120" cy="80" r="6"/>
+      <circle class="hole" cx="180" cy="80" r="6"/><circle class="hole" cx="210" cy="80" r="6"/><circle class="hole" cx="240" cy="80" r="6"/><circle class="hole" cx="270" cy="80" r="6"/><circle class="hole" cx="300" cy="80" r="6"/>
+      <circle class="hole" cx="0" cy="120" r="6"/><circle class="hole" cx="30" cy="120" r="6"/><circle class="hole" cx="60" cy="120" r="6"/><circle class="hole" cx="90" cy="120" r="6"/><circle class="hole" cx="120" cy="120" r="6"/>
+      <circle class="hole" cx="180" cy="120" r="6"/><circle class="hole" cx="210" cy="120" r="6"/><circle class="hole" cx="240" cy="120" r="6"/><circle class="hole" cx="270" cy="120" r="6"/><circle class="hole" cx="300" cy="120" r="6"/>
+      <circle class="hole" cx="0" cy="160" r="6"/><circle class="hole" cx="30" cy="160" r="6"/><circle class="hole" cx="60" cy="160" r="6"/><circle class="hole" cx="90" cy="160" r="6"/><circle class="hole" cx="120" cy="160" r="6"/>
+      <circle class="hole" cx="180" cy="160" r="6"/><circle class="hole" cx="210" cy="160" r="6"/><circle class="hole" cx="240" cy="160" r="6"/><circle class="hole" cx="270" cy="160" r="6"/><circle class="hole" cx="300" cy="160" r="6"/>
+      <circle class="hole" cx="0" cy="200" r="6"/><circle class="hole" cx="30" cy="200" r="6"/><circle class="hole" cx="60" cy="200" r="6"/><circle class="hole" cx="90" cy="200" r="6"/><circle class="hole" cx="120" cy="200" r="6"/>
+      <circle class="hole" cx="180" cy="200" r="6"/><circle class="hole" cx="210" cy="200" r="6"/><circle class="hole" cx="240" cy="200" r="6"/><circle class="hole" cx="270" cy="200" r="6"/><circle class="hole" cx="300" cy="200" r="6"/>
+      <circle class="hole" cx="0" cy="240" r="6"/><circle class="hole" cx="30" cy="240" r="6"/><circle class="hole" cx="60" cy="240" r="6"/><circle class="hole" cx="90" cy="240" r="6"/><circle class="hole" cx="120" cy="240" r="6"/>
+      <circle class="hole" cx="180" cy="240" r="6"/><circle class="hole" cx="210" cy="240" r="6"/><circle class="hole" cx="240" cy="240" r="6"/><circle class="hole" cx="270" cy="240" r="6"/><circle class="hole" cx="300" cy="240" r="6"/>
+      <circle class="hole" cx="0" cy="280" r="6"/><circle class="hole" cx="30" cy="280" r="6"/><circle class="hole" cx="60" cy="280" r="6"/><circle class="hole" cx="90" cy="280" r="6"/><circle class="hole" cx="120" cy="280" r="6"/>
+      <circle class="hole" cx="180" cy="280" r="6"/><circle class="hole" cx="210" cy="280" r="6"/><circle class="hole" cx="240" cy="280" r="6"/><circle class="hole" cx="270" cy="280" r="6"/><circle class="hole" cx="300" cy="280" r="6"/>
+      <circle class="hole" cx="0" cy="320" r="6"/><circle class="hole" cx="30" cy="320" r="6"/><circle class="hole" cx="60" cy="320" r="6"/><circle class="hole" cx="90" cy="320" r="6"/><circle class="hole" cx="120" cy="320" r="6"/>
+      <circle class="hole" cx="180" cy="320" r="6"/><circle class="hole" cx="210" cy="320" r="6"/><circle class="hole" cx="240" cy="320" r="6"/><circle class="hole" cx="270" cy="320" r="6"/><circle class="hole" cx="300" cy="320" r="6"/>
+      <circle class="hole" cx="0" cy="360" r="6"/><circle class="hole" cx="30" cy="360" r="6"/><circle class="hole" cx="60" cy="360" r="6"/><circle class="hole" cx="90" cy="360" r="6"/><circle class="hole" cx="120" cy="360" r="6"/>
+      <circle class="hole" cx="180" cy="360" r="6"/><circle class="hole" cx="210" cy="360" r="6"/><circle class="hole" cx="240" cy="360" r="6"/><circle class="hole" cx="270" cy="360" r="6"/><circle class="hole" cx="300" cy="360" r="6"/>
+      <circle class="hole" cx="0" cy="400" r="6"/><circle class="hole" cx="30" cy="400" r="6"/><circle class="hole" cx="60" cy="400" r="6"/><circle class="hole" cx="90" cy="400" r="6"/><circle class="hole" cx="120" cy="400" r="6"/>
+      <circle class="hole" cx="180" cy="400" r="6"/><circle class="hole" cx="210" cy="400" r="6"/><circle class="hole" cx="240" cy="400" r="6"/><circle class="hole" cx="270" cy="400" r="6"/><circle class="hole" cx="300" cy="400" r="6"/>
+      <circle class="hole" cx="0" cy="440" r="6"/><circle class="hole" cx="30" cy="440" r="6"/><circle class="hole" cx="60" cy="440" r="6"/><circle class="hole" cx="90" cy="440" r="6"/><circle class="hole" cx="120" cy="440" r="6"/>
+      <circle class="hole" cx="180" cy="440" r="6"/><circle class="hole" cx="210" cy="440" r="6"/><circle class="hole" cx="240" cy="440" r="6"/><circle class="hole" cx="270" cy="440" r="6"/><circle class="hole" cx="300" cy="440" r="6"/>
+      <circle class="hole" cx="0" cy="480" r="6"/><circle class="hole" cx="30" cy="480" r="6"/><circle class="hole" cx="60" cy="480" r="6"/><circle class="hole" cx="90" cy="480" r="6"/><circle class="hole" cx="120" cy="480" r="6"/>
+      <circle class="hole" cx="180" cy="480" r="6"/><circle class="hole" cx="210" cy="480" r="6"/><circle class="hole" cx="240" cy="480" r="6"/><circle class="hole" cx="270" cy="480" r="6"/><circle class="hole" cx="300" cy="480" r="6"/>
+      <circle class="hole" cx="0" cy="520" r="6"/><circle class="hole" cx="30" cy="520" r="6"/><circle class="hole" cx="60" cy="520" r="6"/><circle class="hole" cx="90" cy="520" r="6"/><circle class="hole" cx="120" cy="520" r="6"/>
+      <circle class="hole" cx="180" cy="520" r="6"/><circle class="hole" cx="210" cy="520" r="6"/><circle class="hole" cx="240" cy="520" r="6"/><circle class="hole" cx="270" cy="520" r="6"/><circle class="hole" cx="300" cy="520" r="6"/>
+      <circle class="hole" cx="0" cy="560" r="6"/><circle class="hole" cx="30" cy="560" r="6"/><circle class="hole" cx="60" cy="560" r="6"/><circle class="hole" cx="90" cy="560" r="6"/><circle class="hole" cx="120" cy="560" r="6"/>
+      <circle class="hole" cx="180" cy="560" r="6"/><circle class="hole" cx="210" cy="560" r="6"/><circle class="hole" cx="240" cy="560" r="6"/><circle class="hole" cx="270" cy="560" r="6"/><circle class="hole" cx="300" cy="560" r="6"/>
+      <circle class="hole" cx="0" cy="600" r="6"/><circle class="hole" cx="30" cy="600" r="6"/><circle class="hole" cx="60" cy="600" r="6"/><circle class="hole" cx="90" cy="600" r="6"/><circle class="hole" cx="120" cy="600" r="6"/>
+      <circle class="hole" cx="180" cy="600" r="6"/><circle class="hole" cx="210" cy="600" r="6"/><circle class="hole" cx="240" cy="600" r="6"/><circle class="hole" cx="270" cy="600" r="6"/><circle class="hole" cx="300" cy="600" r="6"/>
+      <circle class="hole" cx="0" cy="640" r="6"/><circle class="hole" cx="30" cy="640" r="6"/><circle class="hole" cx="60" cy="640" r="6"/><circle class="hole" cx="90" cy="640" r="6"/><circle class="hole" cx="120" cy="640" r="6"/>
+      <circle class="hole" cx="180" cy="640" r="6"/><circle class="hole" cx="210" cy="640" r="6"/><circle class="hole" cx="240" cy="640" r="6"/><circle class="hole" cx="270" cy="640" r="6"/><circle class="hole" cx="300" cy="640" r="6"/>
+      <circle class="hole" cx="0" cy="680" r="6"/><circle class="hole" cx="30" cy="680" r="6"/><circle class="hole" cx="60" cy="680" r="6"/><circle class="hole" cx="90" cy="680" r="6"/><circle class="hole" cx="120" cy="680" r="6"/>
+      <circle class="hole" cx="180" cy="680" r="6"/><circle class="hole" cx="210" cy="680" r="6"/><circle class="hole" cx="240" cy="680" r="6"/><circle class="hole" cx="270" cy="680" r="6"/><circle class="hole" cx="300" cy="680" r="6"/>
+      <circle class="hole" cx="0" cy="720" r="6"/><circle class="hole" cx="30" cy="720" r="6"/><circle class="hole" cx="60" cy="720" r="6"/><circle class="hole" cx="90" cy="720" r="6"/><circle class="hole" cx="120" cy="720" r="6"/>
+      <circle class="hole" cx="180" cy="720" r="6"/><circle class="hole" cx="210" cy="720" r="6"/><circle class="hole" cx="240" cy="720" r="6"/><circle class="hole" cx="270" cy="720" r="6"/><circle class="hole" cx="300" cy="720" r="6"/>
+      <circle class="hole" cx="0" cy="760" r="6"/><circle class="hole" cx="30" cy="760" r="6"/><circle class="hole" cx="60" cy="760" r="6"/><circle class="hole" cx="90" cy="760" r="6"/><circle class="hole" cx="120" cy="760" r="6"/>
+      <circle class="hole" cx="180" cy="760" r="6"/><circle class="hole" cx="210" cy="760" r="6"/><circle class="hole" cx="240" cy="760" r="6"/><circle class="hole" cx="270" cy="760" r="6"/><circle class="hole" cx="300" cy="760" r="6"/>
+    </g>
+  </g>
+
+  <!-- Button modules -->
+  <g transform="translate(1220,210)">
+    <text class="label" x="0" y="0">9 个按钮模块</text>
+    <text class="tiny" x="0" y="28">每个按钮有 VCC / GND / SIG 三根线</text>
+
+    <rect class="buttonYellow" x="0" y="60" width="190" height="55" rx="14"/><text class="label" x="20" y="96">Do C -> IO4</text>
+    <rect class="buttonYellow" x="0" y="130" width="190" height="55" rx="14"/><text class="label" x="20" y="166">Re D -> IO5</text>
+    <rect class="buttonYellow" x="0" y="200" width="190" height="55" rx="14"/><text class="label" x="20" y="236">Mi E -> IO6</text>
+    <rect class="buttonYellow" x="0" y="270" width="190" height="55" rx="14"/><text class="label" x="20" y="306">Fa F -> IO7</text>
+    <rect class="buttonYellow" x="0" y="340" width="190" height="55" rx="14"/><text class="label" x="20" y="376">Sol G -> IO8</text>
+    <rect class="buttonYellow" x="0" y="410" width="190" height="55" rx="14"/><text class="label" x="20" y="446">La A -> IO9</text>
+    <rect class="buttonYellow" x="0" y="480" width="190" height="55" rx="14"/><text class="label" x="20" y="516">Si B -> IO10</text>
+    <rect class="buttonRed" x="0" y="550" width="190" height="55" rx="14"/><text class="label" x="20" y="586">REC -> IO12</text>
+    <rect class="buttonGreen" x="0" y="620" width="190" height="55" rx="14"/><text class="label" x="20" y="656">GEN -> IO13</text>
+  </g>
+
+  <!-- LED ring -->
+  <g transform="translate(1360,815)">
+    <circle cx="145" cy="115" r="90" fill="#101418" stroke="#3a2c31" stroke-width="5"/>
+    <circle cx="145" cy="115" r="45" fill="#f6efdc" stroke="#3a2c31" stroke-width="4"/>
+    <text class="label" x="-10" y="235">灯环：只接 IN，不接 OUT</text>
+    <rect class="pin-power" x="-10" y="255" width="100" height="34" rx="8"/><text class="small" x="10" y="278">VCC</text>
+    <rect class="pin-gnd" x="105" y="255" width="100" height="34" rx="8"/><text class="small" x="128" y="278">GND</text>
+    <rect class="pin-led" x="220" y="255" width="100" height="34" rx="8"/><text class="small" x="243" y="278">DIN</text>
+  </g>
+
+  <!-- Power wires -->
+  <path class="wire3" d="M425 337 C510 330 540 280 595 280"/>
+  <path class="wireg" d="M425 1160 C530 1160 600 1020 672 1020"/>
+  <path class="wire5" d="M425 1120 C620 1135 890 980 1020 980"/>
+  <path class="wireg" d="M672 1020 C790 1120 930 1110 1075 1020"/>
+
+  <!-- Button power bundle -->
+  <path class="wire3" d="M616 280 C980 245 1140 270 1220 300"/>
+  <path class="wireg" d="M672 1020 C960 1000 1120 765 1220 735"/>
+
+  <!-- LED power/signals -->
+  <path class="wire5" d="M1020 980 C1150 1010 1245 1030 1350 1070"/>
+  <path class="wireg" d="M1075 1020 C1185 1030 1270 1048 1465 1070"/>
+  <path class="wires" d="M425 1100 C760 1175 1240 1135 1590 1070"/>
+
+  <!-- Button signal bundle to ESP pins -->
+  <path class="wires" d="M425 457 C590 440 930 275 1220 298"/>
+  <path class="wires" d="M425 497 C590 495 925 344 1220 368"/>
+  <path class="wires" d="M425 537 C600 535 925 414 1220 438"/>
+  <path class="wires" d="M425 577 C610 580 925 486 1220 508"/>
+  <path class="wires" d="M425 777 C650 765 950 552 1220 578"/>
+  <path class="wires" d="M425 897 C690 890 965 622 1220 648"/>
+  <path class="wires" d="M425 937 C710 930 965 692 1220 718"/>
+  <path class="wires" d="M425 1017 C735 1030 970 760 1220 788"/>
+  <path class="wires" d="M425 1057 C765 1070 975 830 1220 858"/>
+
+  <!-- Warnings -->
+  <rect class="warn" x="70" y="1128" width="1660" height="88" rx="18"/>
+  <text class="label" x="98" y="1165">注意</text>
+  <text class="small" x="160" y="1165">1. 左红轨是 3V3，只给按钮 VCC。右红轨是 5V，只给灯环 VCC。两条红轨不要互相连。</text>
+  <text class="small" x="160" y="1194">2. 黑色 GND 轨必须共地：按钮 GND、灯环 GND、ESP32 GND 都连在一起。</text>
+</svg>

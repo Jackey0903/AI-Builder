@@ -567,6 +567,11 @@ function App() {
     setShowGuestModal(false);
   }, [stopGuestRecording]);
 
+  const handleGuestOverlayClick = useCallback(() => {
+    if (guestRecording || guestConverting) return;
+    closeGuestModal();
+  }, [closeGuestModal, guestConverting, guestRecording]);
+
   const handleSerialLine = useCallback(
     (line: string) => {
       if (line.startsWith('NOTE:')) {
@@ -629,7 +634,7 @@ function App() {
 
   // 当前激活的精灵 = selectedSoundPresetIds 中最新点击的（末尾）
   // 逻辑：选中 A→B 时末尾是 B，展示 B；取消 B 后末尾是 A，展示 A；全取消展示兜底图
-  const activePresetId = selectedSoundPresetIds.at(-1) ?? '';
+  const activePresetId = selectedSoundPresetIds[selectedSoundPresetIds.length - 1] ?? '';
 
   // 音色 id → 中央舞台大插图映射（/ui/*插图.png）
   const SPRITE_ILLUSTRATION: Record<string, string> = {
@@ -801,10 +806,18 @@ function App() {
 
           {/* GPIO 映射 */}
           <div className="hw-gpio-list">
-            {(['Note', 'Rec', 'Gen', 'Led'] as const).map((label) => (
+            {[
+              ['Note', 'GPIO4-10'],
+              ['Rec', 'GPIO12'],
+              ['Gen', 'GPIO13'],
+              ['Led', 'GPIO14']
+            ].map(([label, gpio]) => (
               <div className="hw-gpio-row" key={label}>
                 <div className="hw-gpio-bar" />
-                <span className="hw-gpio-label">{label}</span>
+                <span className="hw-gpio-label">
+                  <strong>{label}</strong>
+                  <small>{gpio}</small>
+                </span>
               </div>
             ))}
           </div>
@@ -945,7 +958,7 @@ function App() {
 
       {/* ── 神秘嘉宾弹窗（信封主题） ── */}
       {showGuestModal && (
-        <div className="guest-modal-overlay" onClick={closeGuestModal}>
+        <div className="guest-modal-overlay" onClick={handleGuestOverlayClick}>
           {/* 信封背景壳 */}
           <div className="guest-modal" onClick={(e) => e.stopPropagation()}>
 
@@ -1002,7 +1015,11 @@ function App() {
             </div>
 
             {/* 录制 & 保存按钮区：浮在封口三角上 */}
-            <div className="guest-modal__rec-area">
+            <div
+              className="guest-modal__rec-area"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
               {guestSampleReady ? (
                 /* 录制完成后：保存 */
                 <button
