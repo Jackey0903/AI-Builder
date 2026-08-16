@@ -1,5 +1,5 @@
 <svg width="420" height="420" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">Original sound sprite mascot</title>
+  <title id="title">VoxSprite mascot</title>
   <desc id="desc">A toy-like sound creature made from speaker, waveform, and star shapes.</desc>
   <rect x="70" y="88" width="280" height="246" rx="46" fill="#FFF8EA" stroke="#221A14" stroke-width="12"/>
   <path d="M116 124C102 80 130 58 164 82" stroke="#221A14" stroke-width="12" stroke-linecap="round"/>
@@ -16,4 +16,3 @@
   <path d="M348 189C340 207 329 221 312 232" stroke="#AD6CFF" stroke-width="10" stroke-linecap="round"/>
   <rect x="188" y="300" width="44" height="18" rx="9" fill="#221A14"/>
 </svg>
-

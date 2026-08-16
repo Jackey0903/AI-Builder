@@ -5,123 +5,152 @@
   <a href="./README_EN.md">English</a>
 </p>
 
-# AI Builder Sound Instrument
+<img src="desktop-app/public/sound-sprite.svg" alt="VoxSprite 声灵" width="112" />
 
-### 把一段角色声音，变成能按键演奏、自动生成旋律、并用灯环回应你的实体小乐器
+# VoxSprite · 声灵
 
-一个面向小红书 AI Builder 活动的可运行 MVP：React 网页负责采样、变调、旋律生成与演奏；ESP32-S3 负责实体按钮和 WS2812B 灯环。  
-评审不需要读完代码，打开页面、按下按键、听到声音、看到灯光，就能明白这个项目完成了什么。
+### 让每一种声音，都能成为会演奏的精灵。
+
+只需一段短声音，VoxSprite 就能把它映射成七个音阶；你可以在网页上演奏，也可以接入 ESP32-S3 实体按键，并让 WS2812B 灯环实时回应每个音符。
 
 <p>
+  <a href="https://github.com/Jackey0903/VoxSprite/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Jackey0903/VoxSprite?style=flat&logo=github" /></a>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111" />
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=fff" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=fff" />
   <img alt="ESP32-S3" src="https://img.shields.io/badge/Hardware-ESP32--S3-111827" />
   <img alt="Web Serial" src="https://img.shields.io/badge/Web%20Serial-115200%20baud-0EA5E9" />
-  <img alt="MVP" src="https://img.shields.io/badge/status-demo%20ready-success" />
+  <img alt="Status" src="https://img.shields.io/badge/status-demo%20ready-22A06B" />
 </p>
 
 <p>
-  <a href="#demo-gallery">项目截图</a> ·
+  <a href="#demo">演示</a> ·
   <a href="#quick-start">快速开始</a> ·
-  <a href="#hardware">硬件方案</a> ·
+  <a href="#hardware">硬件</a> ·
   <a href="#content-workflow">内容接入</a> ·
-  <a href="#docs">文档索引</a>
+  <a href="#documentation">文档</a>
 </p>
 
-<img src="docs/screenshots/app-overview.png" alt="AI Builder Sound Instrument app overview" width="100%" />
+<img src="docs/screenshots/app-overview.png" alt="VoxSprite 主演奏台" width="100%" />
 
 </div>
 
----
-
-## 一句话演示
+## 一眼看懂
 
 ```text
-选择/录制一个声音 -> 映射成 C D E F G A B -> 用网页或实体按钮演奏 -> 生成短旋律 -> 灯环同步亮起
+选择或录制一段声音 -> 映射到 C D E F G A B -> 网页或实体按键演奏 -> 生成旋律 -> 灯环同步回应
 ```
 
-这不是一个普通音频播放器。它是一套完整的小型交互乐器原型：声音可以被采样，角色可以被切换，旋律可以被生成，硬件可以真实响应。
+VoxSprite 不是普通音频播放器，而是一套从**声音采样**到**音高映射**、从**旋律演奏**到**实体反馈**的完整交互乐器。电脑负责声音和创作界面，ESP32-S3 负责手能按到的按键与看得见的灯光。
 
-## 项目亮点
+## 为什么是 VoxSprite
 
-| 评审看到的瞬间 | 我们实际完成的能力 |
+`Vox` 是声音，`Sprite` 是精灵。每一段被录下的声音都会成为一个可切换、可调音、可演奏的“声灵”。
+
+| 你会看到 | 它背后的实现 |
 |---|---|
-| 页面像一台完整的“精灵合奏台” | React + Vite 实现可演奏控制台，而不是临时按钮页 |
-| 点击角色，音色马上变化 | 多音色库、单音节采样、基准音校准、增益和裁切参数 |
-| 按 `C-D-E-G` 可以组成动机 | Web Audio 播放、音高映射、动机缓存 |
-| 点击 `生成旋律` 有完整乐句 | 基于动机和预设曲库的稳定生成逻辑 |
-| 插上 ESP32 后实体按钮可控 | Web Serial 协议、9 键输入、硬件日志 |
-| 按键时灯环跟随反馈 | WS2812B 状态灯效、音符颜色、录音/生成/播放状态 |
+| 录下一声短促的发音，马上弹成七个音 | Web Audio 解码、基准音校准、变调、裁切和增益控制 |
+| 切换精灵，整套键盘随即换一种音色 | 数据驱动的多采样音色库 |
+| 输入几个音，生成一段完整乐句 | 动机缓存、规则生成与预设旋律系统 |
+| 按实体键，网页和灯环同时响应 | Web Serial、ESP32-S3、9 键输入与 WS2812B 状态协议 |
+| 没有硬件也能完整体验 | 屏幕按键、键盘快捷键和本地录音回退 |
 
-<a id="demo-gallery"></a>
+<a id="demo"></a>
 
-## 项目截图
+## 演示
 
-### 1. 主演奏台
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/app-overview.png" alt="VoxSprite main console" /><br/><strong>主演奏台</strong><br/>角色、舞台、音阶、硬件连接和串口日志集中在一个界面。</td>
+    <td width="50%"><img src="docs/screenshots/sprite-selection.png" alt="VoxSprite timbre selection" /><br/><strong>多音色声灵</strong><br/>切换角色时，音色、舞台和当前采样一起变化。</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/motif-builder.png" alt="VoxSprite motif builder" /><br/><strong>动机与旋律</strong><br/>记录刚刚弹奏的音符，并将它扩展成可重复播放的乐句。</td>
+    <td width="50%"><img src="docs/screenshots/guest-sound-modal.png" alt="VoxSprite guest sound recorder" /><br/><strong>自定义声音</strong><br/>现场录制短采样，把自己的声音加入演奏。</td>
+  </tr>
+</table>
 
-角色、舞台、7 个音阶键、硬件连接区和串口日志集中在同一个演奏界面里。
+## 当前能力
 
-![Main console](docs/screenshots/app-overview.png)
+- **一声变七音**：将短采样映射到 `C D E F G A B`，支持跨八度与双采样区间。
+- **多角色音色**：已接入多组短音节采样，并为每个音色配置基准音、裁切和增益。
+- **动机生成旋律**：先弹一段短动机，再由稳定的本地规则生成完整乐句。
+- **预设曲目演奏**：支持旋律、速度、力度、八度和伴奏配置。
+- **现场新增声音**：通过电脑麦克风录制新声音并立即试弹。
+- **软硬件双入口**：页面、电脑键盘和 9 个实体按键共享同一套交互。
+- **实时灯光反馈**：灯环显示音符、录音、生成、播放、彩虹与熄灭状态。
+- **本地优先**：不需要云后端、账号或外部音乐生成服务，断网也能演示。
 
-### 2. 多音色舞台
+<a id="quick-start"></a>
 
-左侧可以切换不同角色音色，舞台会同步展示当前选中的角色。
+## 快速开始
 
-![Multi-timbre selection](docs/screenshots/sprite-selection.png)
+### 1. 获取并运行
 
-### 3. 音乐动机生成
+需要 Node.js 18+，推荐使用 Chrome 或 Edge。
 
-点击音阶键后，页面会记录最近动机，并用它生成更完整的旋律。
+```bash
+git clone https://github.com/Jackey0903/VoxSprite.git
+cd VoxSprite/desktop-app
+npm install
+npm run dev
+```
 
-![Motif builder](docs/screenshots/motif-builder.png)
+打开终端显示的本地地址。若需要与当前硬件交接环境保持一致：
 
-### 4. 自定义嘉宾声音
+```bash
+npm run dev -- --host 127.0.0.1 --port 5174
+```
 
-`神秘嘉宾` 入口支持录制一个新的短声音，把现场声音加入演奏。
+然后访问 `http://127.0.0.1:5174/`。
 
-![Custom guest sound modal](docs/screenshots/guest-sound-modal.png)
+> Safari 不支持 Web Serial。纯网页演奏可以使用 Safari，但连接 ESP32-S3 请使用 Chrome 或 Edge。
 
-## 当前已实现
+### 2. 没有硬件也能体验
 
-- **网页演奏**：点击 `C D E F G A B` 直接播放当前音色。
-- **键盘/实体按钮双入口**：没有硬件时也能用网页演示；接上 ESP32 后可以用实体按钮演示。
-- **多角色音色**：已接入 `圆号鱼`、`猴麦仔`、`里拉鳐`、`小夜`、`恶魔叮` 等采样。
-- **单音节调音**：优先使用短、干净、可测基频的采样，减少“一个键响两个音节”的问题。
-- **预设旋律**：包含 `人鱼湾 正谱`、`彼得大道 Vocal` 等适合展示的曲目。
-- **新增声音**：录制短音频，作为新的演奏音色进入流程。
-- **灯光反馈**：音符、录音、生成、播放、彩虹和熄灭状态都能发送给 WS2812B。
-- **交接文档**：硬件接法、串口协议、内容格式和团队分工都有独立文档。
+1. 从左侧选择一个声灵音色。
+2. 点击 `C D E F G A B`，或使用键盘 `1-7` 演奏。
+3. 连续输入几个音符形成短动机。
+4. 点击 `生成旋律`，试听扩展后的乐句。
+5. 打开 `神秘嘉宾`，录制并测试自己的短声音。
+
+### 3. 连接实体乐器
+
+1. 用 USB-C 数据线将 ESP32-S3 连接到电脑。
+2. 在 Chrome 或 Edge 中打开 VoxSprite。
+3. 点击 `连接硬件`，选择 ESP32 对应串口。
+4. 按实体按钮，在串口日志中确认 `IN NOTE:C`、`IN REC` 或 `IN GENERATE`。
 
 ## 系统架构
 
 ```mermaid
 flowchart LR
-  Player["演奏者 / 展示者"] --> UI["React 网页控制台"]
+  Player["演奏者"] --> UI["VoxSprite React 控制台"]
   Mic["电脑麦克风"] --> UI
-  Library["声音库<br/>public/sounds"] --> UI
-  Presets["预设旋律<br/>src/content"] --> UI
-  UI --> Audio["Web Audio 播放"]
-  UI <-->|"USB Serial · 115200 baud"| ESP["ESP32-S3 固件"]
+  Library["声音库"] --> UI
+  Presets["预设旋律"] --> UI
+  UI --> Audio["Web Audio 播放与变调"]
+  UI <-->|"USB Serial · 115200"| ESP["ESP32-S3 固件"]
   Buttons["9 个实体按钮"] --> ESP
   ESP --> LED["WS2812B 16 位灯环"]
 ```
 
+设计边界很清楚：**电脑处理声音，ESP32 处理实体交互。** 这让 MVP 保持低成本、可调试，也更适合现场展示。
+
 <a id="hardware"></a>
 
-## 硬件方案
+## 硬件
 
 | 硬件 | 数量 | 作用 |
 |---|---:|---|
-| ESP32-S3 开发板 | 1 | 主控，读取按钮、控制灯环、通过 USB 串口连接网页 |
+| ESP32-S3 开发板 | 1 | 读取按钮、控制灯环、通过 USB 串口连接网页 |
 | Gravity / 数字按钮 | 9 | 7 个音阶键 + 录音键 + 生成键 |
-| WS2812B 16 位灯环 | 1 | 根据音符和状态显示灯效 |
-| 面包板 / 杜邦线 | 1 套 | 快速搭建和调整接线 |
-| USB-C 数据线 | 1 | 供电 + 串口通信 |
+| WS2812B 16 位灯环 | 1 | 显示音符和系统状态 |
+| 面包板与杜邦线 | 1 套 | 快速搭建和调整接线 |
+| USB-C 数据线 | 1 | 供电与串口通信 |
 
-当前固件消息：
+### 当前固件接口
 
-| 动作 | 串口文本 |
+| 动作 | 串口文本或参数 |
 |---|---|
 | 音阶键 | `NOTE:C` / `NOTE:D` / `NOTE:E` / `NOTE:F` / `NOTE:G` / `NOTE:A` / `NOTE:B` |
 | 录音键 | `REC` |
@@ -129,125 +158,44 @@ flowchart LR
 | 灯环信号脚 | `GPIO14` |
 | 波特率 | `115200` |
 
-### 接线参考
-
 | GPIO14 灯环接线 | 最简面包板 MVP | 完整面包板参考 |
 |---|---|---|
 | ![GPIO14 wiring](docs/gpio14-wiring-diagram.svg) | ![Simple breadboard wiring](docs/simple-breadboard-mvp-gpio14.svg) | ![Full breadboard wiring](docs/breadboard-full-wiring-gpio14.svg) |
 
-更多硬件细节：
-
-- [标准硬件接线](docs/HARDWARE_WIRING.md)
-- [实际演示交接文档，包含救急直插 GPIO 表](docs/HARDWARE_INTERFACE_HANDOFF_CN.md)
-- [USB 串口协议](docs/SERIAL_PROTOCOL.md)
-
-<a id="quick-start"></a>
-
-## 快速开始
-
-### 运行网页端
-
-```bash
-cd desktop-app
-npm install
-npm run dev
-```
-
-当前交接版本通常固定端口运行：
-
-```bash
-npm run dev -- --host 127.0.0.1 --port 5174
-```
-
-使用 Chrome 或 Edge 打开：
-
-```text
-http://127.0.0.1:5174/
-```
-
-Safari 不支持 Web Serial，因此不能用于硬件连接流程。
-
-### 无硬件测试
-
-1. 在左侧选择一个角色音色。
-2. 点击网页上的 `C D E F G A B` 音阶卡片。
-3. 连续点击几个音符录入短动机。
-4. 点击 `生成旋律`。
-5. 打开 `神秘嘉宾`，测试自定义录音弹窗。
-
-### 连接 ESP32-S3
-
-1. 用 USB-C 数据线把 ESP32-S3 接到 Mac。
-2. 使用 Chrome 或 Edge 打开网页。
-3. 点击 `Connect Hardware / 连接硬件`。
-4. 选择 ESP32 串口设备。
-5. 按实体按钮，检查右侧串口日志：
-
-```text
-IN NOTE:C
-IN NOTE:D
-IN REC
-IN GENERATE
-```
-
-## 固件
-
-固件路径：
-
-```text
-firmware/esp32-s3-controller
-```
-
-构建：
+固件位于 `firmware/esp32-s3-controller/`：
 
 ```bash
 cd firmware/esp32-s3-controller
 pio run
-```
-
-烧录：
-
-```bash
 pio run --target upload
 ```
 
-如果 Chrome 已经连接了 ESP32 串口，需要先在网页里断开连接，再烧录固件。
+烧录前请先断开网页对串口的占用。
 
 <a id="content-workflow"></a>
 
 ## 内容接入
 
-声音文件放在：
+声音和旋律与核心代码分离，方便团队成员独立协作：
 
-```text
-desktop-app/public/sounds/
-```
+| 内容 | 位置 |
+|---|---|
+| 声音文件 | `desktop-app/public/sounds/` |
+| 音色登记 | `desktop-app/src/content/soundLibrary.ts` |
+| 预设旋律 | `desktop-app/src/content/presetMelodies.ts` |
 
-可演奏音色登记在：
-
-```text
-desktop-app/src/content/soundLibrary.ts
-```
-
-预设旋律登记在：
-
-```text
-desktop-app/src/content/presetMelodies.ts
-```
-
-推荐声音格式：
+推荐采样口径：
 
 | 字段 | 建议 |
 |---|---|
 | 格式 | 首选 `.wav`；也支持 `.mp3`、`.webm`、`.ogg` |
 | 采样率 | 44.1 kHz 或 48 kHz |
-| 声道 | 优先单声道，双声道也可接入 |
-| 长度 | 理想 0.3-1.2 秒，最多不超过 3 秒 |
-| 命名 | 新增公开素材建议使用小写英文短横线 |
-
-音色配置示例：
+| 声道 | 单声道优先 |
+| 长度 | 理想为 0.3-1.2 秒，最多不超过 3 秒 |
+| 内容 | 单音节、起音清楚、背景干净、无混响拖尾 |
 
 ```ts
+// desktop-app/src/content/soundLibrary.ts
 {
   id: 'cat-meow',
   name: 'Cat Meow',
@@ -261,77 +209,63 @@ desktop-app/src/content/presetMelodies.ts
 }
 ```
 
-旋律事件示例：
+旋律事件保持简单、可读：
 
 ```ts
 { note: 'C', durationMs: 240, velocity: 0.95 }
 ```
 
-团队交接：
-
-- [内容接入文档](docs/CONTENT_HANDOFF.md)
-- [中文团队分工](docs/TEAM_SPLIT_CN.md)
-
 ## 仓库结构
 
 ```text
-.
-├── desktop-app/                     # Vite + React 网页控制台
-│   ├── public/                      # UI 素材和声音文件
-│   └── src/content/                 # 音色配置和预设旋律
-├── firmware/esp32-s3-controller/    # ESP32-S3 Arduino / PlatformIO 固件
-├── docs/                            # 接线、串口协议、交接文档
-├── docs/screenshots/                # README 展示截图
-├── DFRobot 完整采购清单.md           # MVP 硬件采购清单
-└── 洛克王国精灵声音 DIY 演奏小乐器.md
+VoxSprite/
+├── desktop-app/                     # Vite + React 演奏控制台
+│   ├── public/sounds/               # 声音与伴奏文件
+│   └── src/content/                 # 音色和预设旋律配置
+├── firmware/esp32-s3-controller/    # ESP32-S3 / PlatformIO 固件
+├── docs/                            # 接线、协议与团队交接文档
+├── docs/screenshots/                # README 真实界面截图
+└── DFRobot 完整采购清单.md           # MVP 硬件采购清单
 ```
 
 ## 验证
-
-网页构建：
 
 ```bash
 cd desktop-app
 npm run build
 ```
 
-固件构建：
-
 ```bash
 cd firmware/esp32-s3-controller
 pio run
 ```
 
-演示验收清单：
+演示通过标准：网页音阶可发声、自定义录音可用、ESP32 能发送 `NOTE:*` / `REC` / `GENERATE`，灯环能响应 `LED:*` 指令。
 
-- 网页能在 Chrome/Edge 本地打开。
-- 网页音阶键能播放当前音色。
-- `神秘嘉宾` 能打开并录制短采样。
-- ESP32 能发送 `NOTE:*`、`REC`、`GENERATE`。
-- WS2812B 能响应 `LED:*` 指令。
+<a id="documentation"></a>
 
-<a id="docs"></a>
+## 文档
 
-## 文档索引
-
-| 文档 | 说明 |
+| 文档 | 内容 |
 |---|---|
-| [MVP 范围](docs/MVP_SCOPE.md) | 当前包含和暂缓的功能 |
+| [MVP 范围](docs/MVP_SCOPE.md) | 当前包含与暂缓的功能 |
 | [实现计划](docs/IMPLEMENTATION_PLAN.md) | 工程计划和实现记录 |
 | [串口协议](docs/SERIAL_PROTOCOL.md) | USB 串口消息格式 |
 | [硬件接线](docs/HARDWARE_WIRING.md) | 标准接线参考 |
-| [硬件交接文档](docs/HARDWARE_INTERFACE_HANDOFF_CN.md) | 实际演示接线和代码变更原因 |
+| [硬件交接](docs/HARDWARE_INTERFACE_HANDOFF_CN.md) | 实际演示接线和代码变更原因 |
 | [内容交接](docs/CONTENT_HANDOFF.md) | 声音文件和预设旋律格式 |
-| [团队分工](docs/TEAM_SPLIT_CN.md) | 同学协作方式和内容口径 |
+| [团队分工](docs/TEAM_SPLIT_CN.md) | 团队协作方式和参数口径 |
 
 ## 项目边界
 
-这个项目刻意保持本地优先、演示稳定：
+VoxSprite 诞生于小红书 AI Builder 活动，目前是一个本地优先的可演示 MVP。它不需要云后端、账号、蓝牙、SD 卡、功放或硬件扬声器；旋律生成采用可复现的本地规则与预设，不声称使用完整 AI 音乐模型。
 
-- 不需要云后端
-- 不需要账号系统
-- 不依赖外部 AI 音乐服务
-- 不需要电池、蓝牙、SD 卡、功放或硬件扬声器
-- 不公开分发未经授权的官方游戏素材
+项目不鼓励公开分发未经授权的游戏音频或角色素材。新增内容应优先使用原创、团队录制或获得授权的素材。
 
-这个范围是有意控制的：电脑负责音频，ESP32 负责实体交互，项目才能稳定完成现场展示。
+---
+
+<div align="center">
+
+**VoxSprite · 声灵** — 录下一声，让它开始演奏。
+
+</div>

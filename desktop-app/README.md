@@ -1,6 +1,6 @@
-# Desktop App
+# VoxSprite Desktop App
 
-Browser-based MVP console for the AI Builder sound instrument.
+Browser-based performance console for VoxSprite, a voice-sampling instrument with ESP32 controls and reactive LEDs.
 
 ## Run
 

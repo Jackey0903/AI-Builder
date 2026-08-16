@@ -24,7 +24,7 @@
   </defs>
 
   <rect class="bg" x="0" y="0" width="1600" height="1100"/>
-  <text class="text title" x="70" y="70">AI Builder MVP wiring - ESP32-S3 LED moved to GPIO14</text>
+  <text class="text title" x="70" y="70">VoxSprite MVP wiring - ESP32-S3 LED on GPIO14</text>
   <text class="text note" x="70" y="106">Board front view, USB on top. Always trust the silk-screen labels printed on your board.</text>
 
   <!-- ESP32 board -->

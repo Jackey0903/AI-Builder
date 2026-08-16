@@ -5,107 +5,136 @@
   <strong>English</strong>
 </p>
 
-# AI Builder Sound Instrument
+<img src="desktop-app/public/sound-sprite.svg" alt="VoxSprite" width="112" />
 
-### Turn a character voice into a playable physical instrument with generated melodies and reactive LED feedback.
+# VoxSprite
 
-A working MVP for the XiaoHongShu AI Builder activity: the React web app handles sampling, pitch shifting, melody generation, and playback; the ESP32-S3 reads physical buttons and drives a WS2812B LED ring.  
-The demo is designed to be understood immediately: open the app, press a key, hear the sound, and watch the hardware respond.
+### Turn any voice into a playable sound sprite.
+
+Give VoxSprite one short sound and it maps the sample across seven notes. Play it in the browser or through ESP32-S3 buttons, then watch a WS2812B LED ring answer every note in real time.
 
 <p>
+  <a href="https://github.com/Jackey0903/VoxSprite/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Jackey0903/VoxSprite?style=flat&logo=github" /></a>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111" />
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=fff" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=fff" />
   <img alt="ESP32-S3" src="https://img.shields.io/badge/Hardware-ESP32--S3-111827" />
   <img alt="Web Serial" src="https://img.shields.io/badge/Web%20Serial-115200%20baud-0EA5E9" />
-  <img alt="MVP" src="https://img.shields.io/badge/status-demo%20ready-success" />
+  <img alt="Status" src="https://img.shields.io/badge/status-demo%20ready-22A06B" />
 </p>
 
 <p>
-  <a href="#demo-gallery">Demo Gallery</a> ·
+  <a href="#demo">Demo</a> ·
   <a href="#quick-start">Quick Start</a> ·
   <a href="#hardware">Hardware</a> ·
-  <a href="#content-workflow">Content Workflow</a> ·
-  <a href="#docs">Docs</a>
+  <a href="#content-workflow">Content</a> ·
+  <a href="#documentation">Docs</a>
 </p>
 
-<img src="docs/screenshots/app-overview.png" alt="AI Builder Sound Instrument app overview" width="100%" />
+<img src="docs/screenshots/app-overview.png" alt="VoxSprite performance console" width="100%" />
 
 </div>
 
----
-
-## One-Line Demo
+## See It in One Line
 
 ```text
-Choose or record a sound -> map it to C D E F G A B -> play it on screen or with hardware -> generate a phrase -> sync LED feedback
+Choose or record a sound -> map it to C D E F G A B -> play on screen or hardware -> generate a phrase -> sync the LED ring
 ```
 
-This is not just an audio player. It is a compact interactive instrument prototype: sounds can be sampled, characters can be switched, melodies can be generated, and the hardware reacts in real time.
+VoxSprite is more than an audio player. It is a complete interactive instrument that connects **sound sampling**, **pitch mapping**, **melody performance**, and **physical feedback**. The computer handles audio and the creative interface; the ESP32-S3 makes the experience tactile and visible.
 
-## Why It Stands Out
+## Why VoxSprite
 
-| What reviewers see | What the project actually does |
+`Vox` means voice; `Sprite` captures the small playable characters at the heart of the interface. Every recorded sound becomes a sprite with its own timbre, tuning, and performance identity.
+
+| What you experience | What makes it work |
 |---|---|
-| A polished “sprite ensemble stage” instead of a plain demo page | A React + Vite performance console built for presentation |
-| Switching a character changes the timbre immediately | Multi-sample sound library with base pitch, gain, and trim metadata |
-| Pressing `C-D-E-G` creates a motif | Web Audio playback, pitch mapping, and motif buffering |
-| Clicking `Generate Melody` produces a complete phrase | Stable motif-driven and preset-backed melody generation |
-| Plugging in ESP32 enables physical control | Web Serial protocol, 9 physical buttons, and hardware logs |
-| Pressing keys triggers LED feedback | WS2812B note colors and recording/generation/playback states |
+| Record one short syllable and play it across seven notes | Web Audio decoding, root-note calibration, pitch shifting, trimming, and gain |
+| Switch sprites and change the instrument instantly | A data-driven multi-sample sound library |
+| Enter a few notes and hear a complete phrase | Motif buffering, deterministic generation, and melody presets |
+| Press a physical key and see the UI and LEDs react | Web Serial, ESP32-S3, nine-button input, and WS2812B state messages |
+| Run the whole experience before hardware arrives | On-screen controls, keyboard shortcuts, and local recording fallbacks |
 
-<a id="demo-gallery"></a>
+<a id="demo"></a>
 
-## Demo Gallery
+## Demo
 
-### 1. Main Console
-
-The stage, character list, 7 note keys, hardware panel, and serial log are all available in one playable interface.
-
-![Main console](docs/screenshots/app-overview.png)
-
-### 2. Multi-Timbre Stage
-
-The left sidebar switches between character timbres, while the stage updates to the active sound.
-
-![Multi-timbre selection](docs/screenshots/sprite-selection.png)
-
-### 3. Motif Builder
-
-The app records recent notes as a motif and uses them to generate a longer musical phrase.
-
-![Motif builder](docs/screenshots/motif-builder.png)
-
-### 4. Custom Guest Sound
-
-The “Guest Sound” entry records a new short sample and brings it into the performance flow.
-
-![Custom guest sound modal](docs/screenshots/guest-sound-modal.png)
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/app-overview.png" alt="VoxSprite main console" /><br/><strong>Performance Console</strong><br/>Sprites, stage, notes, hardware controls, and serial logs share one focused view.</td>
+    <td width="50%"><img src="docs/screenshots/sprite-selection.png" alt="VoxSprite timbre selection" /><br/><strong>Playable Sprites</strong><br/>Switching characters changes the active sample, timbre, and stage state.</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/motif-builder.png" alt="VoxSprite motif builder" /><br/><strong>Motif to Melody</strong><br/>Recent notes become a motif that can expand into a repeatable phrase.</td>
+    <td width="50%"><img src="docs/screenshots/guest-sound-modal.png" alt="VoxSprite guest sound recorder" /><br/><strong>Bring Your Own Sound</strong><br/>Record a short sample on the spot and make it playable immediately.</td>
+  </tr>
+</table>
 
 ## What Works Today
 
-- **Web performance**: click `C D E F G A B` to play the selected timbre.
-- **Screen and hardware input**: the demo works without hardware, and physical buttons work after ESP32 is connected.
-- **Multiple character timbres**: includes samples such as `圆号鱼`, `猴麦仔`, `里拉鳐`, `小夜`, and `恶魔叮`.
-- **Single-syllable tuning**: prefers short, clean, pitch-measurable samples to avoid multi-syllable artifacts.
-- **Preset melodies**: includes presentation-ready presets such as `人鱼湾 正谱` and `彼得大道 Vocal`.
-- **Custom recording**: records a short sound and uses it as a new playable timbre.
-- **LED feedback**: sends note, recording, generation, playback, rainbow, and off states to the WS2812B ring.
-- **Handoff docs**: wiring, serial protocol, content format, and team workflow are documented.
+- **One sound, seven notes**: map a short sample to `C D E F G A B`, including octave-aware and dual-sample ranges.
+- **Multiple playable timbres**: configure root note, trim, gain, and playback behavior per sprite.
+- **Motif-driven melodies**: play a short idea and expand it with stable local rules.
+- **Preset performances**: define melody, tempo, velocity, octave, and optional backing audio.
+- **Live sound capture**: record a new sample with the computer microphone and audition it immediately.
+- **Three input paths**: use the UI, computer keyboard, or nine physical buttons through one action model.
+- **Reactive light**: display notes, recording, generation, playback, rainbow, and off states.
+- **Local-first operation**: no cloud backend, account, or external music-generation service is required.
+
+<a id="quick-start"></a>
+
+## Quick Start
+
+### 1. Install and Run
+
+You need Node.js 18+ and should use Chrome or Edge.
+
+```bash
+git clone https://github.com/Jackey0903/VoxSprite.git
+cd VoxSprite/desktop-app
+npm install
+npm run dev
+```
+
+Open the local URL printed in the terminal. To match the current hardware handoff setup:
+
+```bash
+npm run dev -- --host 127.0.0.1 --port 5174
+```
+
+Then visit `http://127.0.0.1:5174/`.
+
+> Safari can run the screen-only instrument, but it cannot connect to ESP32 because the hardware flow uses Web Serial.
+
+### 2. Try It Without Hardware
+
+1. Select a sprite timbre from the left sidebar.
+2. Click `C D E F G A B`, or play notes with keyboard keys `1-7`.
+3. Enter a short motif.
+4. Click `生成旋律` to hear the expanded phrase.
+5. Open `神秘嘉宾` to record and test your own sound.
+
+### 3. Connect the Instrument
+
+1. Connect the ESP32-S3 with a USB-C data cable.
+2. Open VoxSprite in Chrome or Edge.
+3. Click `Connect Hardware` and select the ESP32 serial port.
+4. Press the physical buttons and confirm messages such as `IN NOTE:C`, `IN REC`, and `IN GENERATE` in the serial log.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  Player["Presenter / Player"] --> UI["React Web Console"]
+  Player["Player"] --> UI["VoxSprite React Console"]
   Mic["Computer Microphone"] --> UI
-  Library["Sound Library<br/>public/sounds"] --> UI
-  Presets["Preset Melodies<br/>src/content"] --> UI
+  Library["Sound Library"] --> UI
+  Presets["Melody Presets"] --> UI
   UI --> Audio["Web Audio Playback"]
-  UI <-->|"USB Serial · 115200 baud"| ESP["ESP32-S3 Firmware"]
+  UI <-->|"USB Serial · 115200"| ESP["ESP32-S3 Firmware"]
   Buttons["9 Physical Buttons"] --> ESP
   ESP --> LED["WS2812B 16-LED Ring"]
 ```
+
+The boundary is deliberate: **the computer handles sound; ESP32 handles physical interaction.** This keeps the MVP affordable, debuggable, and reliable in a live demo.
 
 <a id="hardware"></a>
 
@@ -113,141 +142,60 @@ flowchart LR
 
 | Part | Quantity | Purpose |
 |---|---:|---|
-| ESP32-S3 DevKit | 1 | Main controller for button input, LED output, and USB serial communication |
-| Gravity / digital buttons | 9 | 7 note keys + record key + generate key |
-| WS2812B 16-LED ring | 1 | Visual feedback for notes and app state |
-| Breadboard / jumper wires | 1 set | Fast wiring and prototyping |
-| USB-C data cable | 1 | Power + serial communication |
+| ESP32-S3 DevKit | 1 | Reads buttons, drives LEDs, and connects to the browser over USB serial |
+| Gravity / digital buttons | 9 | Seven notes + record + generate |
+| WS2812B 16-LED ring | 1 | Shows notes and system state |
+| Breadboard and jumper wires | 1 set | Fast assembly and wiring changes |
+| USB-C data cable | 1 | Power and serial communication |
 
-Current firmware messages:
+### Current Firmware Contract
 
-| Action | Serial Line |
+| Action | Serial line or value |
 |---|---|
 | Note buttons | `NOTE:C` / `NOTE:D` / `NOTE:E` / `NOTE:F` / `NOTE:G` / `NOTE:A` / `NOTE:B` |
 | Record | `REC` |
 | Generate | `GENERATE` |
-| LED signal pin | `GPIO14` |
+| LED data pin | `GPIO14` |
 | Baud rate | `115200` |
-
-### Wiring References
 
 | GPIO14 LED Wiring | Simple Breadboard MVP | Full Breadboard Reference |
 |---|---|---|
 | ![GPIO14 wiring](docs/gpio14-wiring-diagram.svg) | ![Simple breadboard wiring](docs/simple-breadboard-mvp-gpio14.svg) | ![Full breadboard wiring](docs/breadboard-full-wiring-gpio14.svg) |
 
-More details:
-
-- [Standard hardware wiring](docs/HARDWARE_WIRING.md)
-- [Actual demo handoff, including the emergency direct-plug GPIO map](docs/HARDWARE_INTERFACE_HANDOFF_CN.md)
-- [USB serial protocol](docs/SERIAL_PROTOCOL.md)
-
-<a id="quick-start"></a>
-
-## Quick Start
-
-### Run the Web App
-
-```bash
-cd desktop-app
-npm install
-npm run dev
-```
-
-The current handoff setup usually pins the port:
-
-```bash
-npm run dev -- --host 127.0.0.1 --port 5174
-```
-
-Open in Chrome or Edge:
-
-```text
-http://127.0.0.1:5174/
-```
-
-Safari is not supported because the hardware flow depends on Web Serial.
-
-### Test Without Hardware
-
-1. Select a character timbre from the left sidebar.
-2. Click the on-screen `C D E F G A B` note cards.
-3. Play several notes to enter a short motif.
-4. Click `生成旋律`.
-5. Open `神秘嘉宾` and test the custom recording modal.
-
-### Connect ESP32-S3
-
-1. Plug ESP32-S3 into the Mac with a USB-C data cable.
-2. Open the app in Chrome or Edge.
-3. Click `Connect Hardware / 连接硬件`.
-4. Choose the ESP32 serial device.
-5. Press physical buttons and check the serial log:
-
-```text
-IN NOTE:C
-IN NOTE:D
-IN REC
-IN GENERATE
-```
-
-## Firmware
-
-Firmware path:
-
-```text
-firmware/esp32-s3-controller
-```
-
-Build:
+Firmware lives in `firmware/esp32-s3-controller/`:
 
 ```bash
 cd firmware/esp32-s3-controller
 pio run
-```
-
-Upload:
-
-```bash
 pio run --target upload
 ```
 
-If Chrome is already connected to the ESP32 serial port, disconnect it before uploading firmware.
+Disconnect the browser from the serial port before uploading firmware.
 
 <a id="content-workflow"></a>
 
 ## Content Workflow
 
-Sound files:
+Sounds and melodies stay separate from core implementation so content work can happen independently:
 
-```text
-desktop-app/public/sounds/
-```
-
-Playable sound registry:
-
-```text
-desktop-app/src/content/soundLibrary.ts
-```
-
-Preset melody registry:
-
-```text
-desktop-app/src/content/presetMelodies.ts
-```
+| Content | Location |
+|---|---|
+| Sound files | `desktop-app/public/sounds/` |
+| Sound registry | `desktop-app/src/content/soundLibrary.ts` |
+| Melody presets | `desktop-app/src/content/presetMelodies.ts` |
 
 Recommended sample format:
 
 | Field | Recommendation |
 |---|---|
-| Format | `.wav` preferred; `.mp3`, `.webm`, `.ogg` accepted |
+| Format | `.wav` preferred; `.mp3`, `.webm`, and `.ogg` accepted |
 | Sample rate | 44.1 kHz or 48 kHz |
-| Channels | Mono preferred, stereo accepted |
+| Channels | Mono preferred |
 | Length | 0.3-1.2 seconds ideal, no more than 3 seconds |
-| Naming | lowercase kebab-case for new public assets |
-
-Sound preset example:
+| Content | One clear syllable, clean attack, little background noise, no long reverb tail |
 
 ```ts
+// desktop-app/src/content/soundLibrary.ts
 {
   id: 'cat-meow',
   name: 'Cat Meow',
@@ -261,77 +209,63 @@ Sound preset example:
 }
 ```
 
-Melody event example:
+Melody events remain compact and reviewable:
 
 ```ts
 { note: 'C', durationMs: 240, velocity: 0.95 }
 ```
 
-Team handoff:
-
-- [Content handoff](docs/CONTENT_HANDOFF.md)
-- [Team split CN](docs/TEAM_SPLIT_CN.md)
-
 ## Repository Map
 
 ```text
-.
-├── desktop-app/                     # Vite + React web console
-│   ├── public/                      # UI assets and sound files
-│   └── src/content/                 # Sound presets and melody presets
-├── firmware/esp32-s3-controller/    # ESP32-S3 Arduino / PlatformIO firmware
-├── docs/                            # Wiring, serial protocol, handoff docs
-├── docs/screenshots/                # README screenshots
-├── DFRobot 完整采购清单.md           # MVP purchase list
-└── 洛克王国精灵声音 DIY 演奏小乐器.md
+VoxSprite/
+├── desktop-app/                     # Vite + React performance console
+│   ├── public/sounds/               # Samples and backing tracks
+│   └── src/content/                 # Timbre and melody configuration
+├── firmware/esp32-s3-controller/    # ESP32-S3 / PlatformIO firmware
+├── docs/                            # Wiring, protocol, and team handoff docs
+├── docs/screenshots/                # Real interface screenshots for the README
+└── DFRobot 完整采购清单.md           # MVP hardware purchase list
 ```
 
 ## Validation
-
-Web build:
 
 ```bash
 cd desktop-app
 npm run build
 ```
 
-Firmware build:
-
 ```bash
 cd firmware/esp32-s3-controller
 pio run
 ```
 
-Demo acceptance checklist:
+A complete demo means the web notes produce sound, custom recording works, ESP32 emits `NOTE:*` / `REC` / `GENERATE`, and the LED ring responds to `LED:*` messages.
 
-- The web app opens locally in Chrome/Edge.
-- On-screen notes play the selected timbre.
-- `神秘嘉宾` opens and records a short sample.
-- ESP32 sends `NOTE:*`, `REC`, and `GENERATE`.
-- WS2812B responds to `LED:*` commands.
+<a id="documentation"></a>
 
-<a id="docs"></a>
+## Documentation
 
-## Docs
-
-| Document | What It Answers |
+| Document | What it covers |
 |---|---|
-| [MVP scope](docs/MVP_SCOPE.md) | What is included and intentionally deferred |
-| [Implementation plan](docs/IMPLEMENTATION_PLAN.md) | Engineering plan and build notes |
+| [MVP scope](docs/MVP_SCOPE.md) | Included and deferred features |
+| [Implementation plan](docs/IMPLEMENTATION_PLAN.md) | Engineering plan and implementation notes |
 | [Serial protocol](docs/SERIAL_PROTOCOL.md) | Exact USB serial messages |
 | [Hardware wiring](docs/HARDWARE_WIRING.md) | Standard wiring reference |
-| [Hardware handoff CN](docs/HARDWARE_INTERFACE_HANDOFF_CN.md) | Actual demo wiring and code-change handoff |
-| [Content handoff](docs/CONTENT_HANDOFF.md) | Sound file and melody preset format |
-| [Team split CN](docs/TEAM_SPLIT_CN.md) | Team collaboration and content workflow |
+| [Hardware handoff CN](docs/HARDWARE_INTERFACE_HANDOFF_CN.md) | Actual demo wiring and reasons behind code changes |
+| [Content handoff](docs/CONTENT_HANDOFF.md) | Sound and melody data formats |
+| [Team split CN](docs/TEAM_SPLIT_CN.md) | Collaboration workflow and shared parameters |
 
-## Boundaries
+## Project Boundaries
 
-This project is intentionally local-first and demo-stable:
+VoxSprite began as a XiaoHongShu AI Builder project and is currently a local-first, demo-ready MVP. It does not require a cloud backend, accounts, Bluetooth, an SD card, an amplifier, or a hardware speaker. Melody generation uses reproducible local rules and presets; the project does not claim to run a full AI music model.
 
-- no cloud backend
-- no account system
-- no external AI music service required
-- no battery, Bluetooth, SD card, amplifier, or hardware speaker required
-- no public redistribution of unlicensed official game assets
+Do not publicly redistribute unlicensed game audio or character assets. Prefer original, team-recorded, or explicitly licensed material for new content.
 
-That scope is deliberate: the computer handles audio, ESP32 handles physical interaction, and the project stays reliable enough for a live presentation.
+---
+
+<div align="center">
+
+**VoxSprite** — Record one sound. Let it play.
+
+</div>
